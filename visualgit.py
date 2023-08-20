@@ -30,24 +30,63 @@ def work_in_main():
         print("[mr] Manage repos")
         print("[b] Back to main menu")
 
-        choice = input("Please select an option: ")
+        choice = input("\nPlease select an option: ")
 
-        if choice == "1":
-            local()
+        if choice == "l":
+            main_local()
         elif choice == "lr":
-            local_to_remote()
+            main_local_to_remote()
         elif choice == "rl":
-            remote_to_local()
+            main_remote_to_local()
         elif choice == "mr":
-            manage_repos()
+            main_manage_repos()
         elif choice == "b":
             break
         else:
             print("Invalid choice. Please select a valid option")
 
+
+def main_local():
+    print("Working locally...")
+
+def main_local_to_remote():
+    print("Transferring from local to remote...")
+
+def main_remote_to_local():
+    print("Transferring from remote to local...")
+
+def main_manage_repos():
+    print("Managing repositories...")
+
 def work_in_branches():
-    # Aquí puedes agregar la funcionalidad para trabajar en branches
-    print("Working in branches...")
+    while True:
+        print("\nWorking in branches:")
+        print("[l] Local")
+        print("[lr] Local to remote")
+        print("[mb] Manage branches")
+        print("[b] Back to main menu")
+
+        choice = input("\nPlease select an option: ")
+
+        if choice == "l":
+            branch_local()
+        elif choice == "lr":
+            branch_local_to_remote()
+        elif choice == "mb":
+            manage_branches()
+        elif choice == "b":
+            break
+        else:
+            print("Invalid choice. Please select a valid option")
+
+def branch_local():
+    print("Working locally in branches...")
+
+def branch_local_to_remote():
+    print("Transferring from local branch to remote...")
+
+def manage_branches():
+    print("Managing branches...")
 
 def configuration():
     # Aquí puedes agregar la funcionalidad para la configuración

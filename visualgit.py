@@ -362,6 +362,7 @@ def work_in_branches():
         print(f"\n{GREEN}Work in branches:{ENDC}")
         print("[l] Local")
         print("[lr] Local to remote")
+        print("[rl] Remote to local")
         print("[m] Manage branches")
         print("[x] Back to main menu")
         print("[q] Quit program")
@@ -372,6 +373,8 @@ def work_in_branches():
             branch_local()
         elif choice == "lr":
             branch_local_to_remote()
+        elif choice == "rl":
+            branch_remote_to_local()
         elif choice == "m":
             manage_branches()
         elif choice == "x":
@@ -476,9 +479,9 @@ def branch_local_to_remote():
     while True:
         current = current_branch()
         if current:
-            print(f"\n{GREEN}Branches -Local{ENDC} (Currently on: {current}):")
+            print(f"\n{GREEN}Branches -Local to remote{ENDC} (Currently on: {current}):")
         else:
-            print("\nBranches -Local:")
+            print(f"\n{GREEN}Branches -Local to remote:{ENDC}")
         print("[cl] Check local branches")
         print("[cr] Check remote branches")
         print("[l] Connect local branch to remote")
@@ -560,19 +563,145 @@ def commit_and_push_in_branch():
         print_not_git_repo()
         return
 
+    branch = current_branch()
+    if not branch:
+        print("Error determining the current branch.")
+        return
+
     try:
         subprocess.run(["git", "add", "."])
         message = input("Enter commit message: ")
         subprocess.run(["git", "commit", "-m", message])
-        branch = current_branch()
         subprocess.run(["git", "push", "origin", branch])
+        print(f"Changes committed and pushed to branch {branch}")
     except Exception as e:
         print(f"Error committing and pushing in branch: {e}")
 
 
+# BRANCHES REMOTE_TO LOCAL
+def branch_remote_to_local():
+    while True:
+
+        current = current_branch()
+        if current:
+            print(f"\n{GREEN}Branches -Remote to local{ENDC} (Currently on: {current}):")
+        else:
+            print(f"\n{GREEN}Branches -Remote to local:{ENDC}")
+        print("[c] Check remote branches")
+        print("[cl] Clone remote branch to local")
+        print("[p] Pull remote branch changes to local")
+        print("[x] Back to previous menu")
+        print("[q] Quit program")
+
+        choice = input("\nPlease select an option: ")
+
+        if choice == "c":
+            check_remote_branches()
+        elif choice == "cl":
+            clone_remote_branch_to_local()
+        elif choice == "p":
+            pull_remote_changes_to_local()
+        elif choice == "x":
+            break
+        elif choice == "q":
+            sys.exit("Exiting VisualGit...\n")
+        else:
+            print("Invalid choice. Please select a valid option")
+
+def clone_remote_branch_to_local():
+    remote_branch = input("Enter the name of the remote branch you want to clone: ")
+    try:
+        subprocess.run(["git", "checkout", "--track", f"origin/{remote_branch}"])
+        print(f"Cloned and switched to the remote branch {remote_branch}")
+    except Exception as e:
+        print(f"Error cloning remote branch: {e}")
+
+def pull_remote_changes_to_local():
+    branch = current_branch()
+    if not branch:
+        print_not_git_repo()
+        return
+
+    try:
+        subprocess.run(["git", "pull", "origin", branch])
+        print(f"Pulled changes from remote to local branch {branch}")
+    except Exception as e:
+        print(f"Error pulling changes from remote: {e}")
+
+
 # BRANCHES MANAGE_BRANCHES
 def manage_branches():
-    print("Managing branches...")
+    while True:
+        print(f"\n{GREEN}Manage branches:{ENDC}")
+        print("[m] Merge branch with main")
+        print("[dl] Delete local branch")
+        print("[dr] Delete remote branch")
+        print("[x] Back to previous menu")
+        print("[q] Quit program")
+
+        choice = input("\nPlease select an option: ")
+
+        if choice == "m":
+            merge_branch_with_main()
+        elif choice == "dl":
+            delete_local_branch()
+        elif choice == "dr":
+            delete_remote_branch()
+        elif choice == "x":
+            break
+        elif choice == "q":
+            sys.exit("Exiting VisualGit...\n")
+        else:
+            print("Invalid choice. Please select a valid option")
+
+def merge_branch_with_main():
+    if not is_git_repo():
+        print_not_git_repo()
+        return
+
+    branch = current_branch()
+    if not branch or branch == "main":
+        print("You are either on the main branch or couldn't determine the current branch.")
+        return
+
+    try:
+        subprocess.run(["git", "checkout", "main"])
+        subprocess.run(["git", "merge", branch])
+        print(f"Merged branch {branch} with main.")
+    except Exception as e:
+        print(f"Error merging branch with main: {e}")
+
+def delete_local_branch():
+    if not is_git_repo():
+        print_not_git_repo()
+        return
+
+    branch = input("Enter the name of the branch to delete: ")
+    if branch == "main":
+        print("You cannot delete the main branch.")
+        return
+
+    try:
+        subprocess.run(["git", "branch", "-d", branch])
+        print(f"Deleted local branch {branch}.")
+    except Exception as e:
+        print(f"Error deleting local branch: {e}")
+
+def delete_remote_branch():
+    if not is_git_repo():
+        print_not_git_repo()
+        return
+
+    branch = input("Enter the name of the remote branch to delete: ")
+    if branch == "main":
+        print("You cannot delete the main branch from remote.")
+        return
+
+    try:
+        subprocess.run(["git", "push", "origin", "--delete", branch])
+        print(f"Deleted remote branch {branch}.")
+    except Exception as e:
+        print(f"Error deleting remote branch: {e}")
 
 
 # CHECK_LOG
@@ -591,6 +720,7 @@ def quick_actions():
     while True:
         print(f"\n{GREEN}Quick Actions:{ENDC}")
         print("[c] Commit & Push in main")
+        print("[cb] Commit & Push in branch")
         print("[x] Back to main menu")
         print("[q] Quit program")
 
@@ -598,6 +728,8 @@ def quick_actions():
 
         if choice == "c":
             commit_and_push()
+        elif choice == "cb":
+            commit_and_push_in_branch()
         elif choice == "x":
             break
         elif choice == "q":

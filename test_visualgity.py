@@ -114,6 +114,10 @@ def main():
 
 # MAIN
 def work_in_main():
+    if current_branch() != "main":
+        print(f"{YELLOW}Currently you are not in main. Please move to main to proceed.{ENDC}")
+        return
+
     while True:
         print(f"\n{GREEN}Work in main:{ENDC}")
         print("[l] Local")
@@ -428,8 +432,9 @@ def branch_local():
             print("\nBranches -Local:")
         print("[c] Check local branches")
         print("[a] Create a local branch")
+        print("[m] Commit in local branch")
         print("[g] Go to branch")
-        print("[m] Go to main")
+        print("[gm] Go to main")
         print("[x] Back to previous menu")
         print("[q] Quit program")
 
@@ -439,9 +444,11 @@ def branch_local():
             check_local_branches()
         elif choice == "a":
             create_local_branch()
+        elif choice == "m":
+            commit_in_local_branch()
         elif choice == "g":
             go_to_branch()
-        elif choice == "m":
+        elif choice == "gm":
             go_to_main()
         elif choice == "x":
             break
@@ -560,7 +567,7 @@ def connect_local_branch_with_remote():
     if not branch:
         print_not_git_repo()
         return
-
+    
     if is_local_branch_connected_to_remote(branch):
         print(f"{YELLOW}The local branch {branch} is already connected to a remote branch.{ENDC}")
         return

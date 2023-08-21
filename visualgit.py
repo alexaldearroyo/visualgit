@@ -60,7 +60,9 @@ def get_current_branch():
     except Exception:
         pass
     return None
-
+def is_current_branch_main():
+    branch = current_branch()
+    return branch == "main"
 
 print("\nVISUAL GIT")
 print("-"*30)
@@ -388,6 +390,7 @@ def delete_remote_repo():
 
 # BRANCHES
 def work_in_branches():
+    current = current_branch()  # Obtener el nombre de la rama actual
     while True:
         print(f"\n{GREEN}Work in branches{ENDC} (Currently on: {current}):")
         print("[l] Local")
@@ -506,6 +509,10 @@ def go_to_main():
 
 # BRANCHES LOCAL_TO_REMOTE
 def branch_local_to_remote():
+    if is_current_branch_main():
+        print(f"{YELLOW}You are now in main. Go to a branch to proceed.{ENDC}")
+        return
+    
     while True:
         current = current_branch()
         if current:
@@ -610,6 +617,9 @@ def commit_and_push_in_branch():
 
 # BRANCHES REMOTE_TO LOCAL
 def branch_remote_to_local():
+    if is_current_branch_main():
+        print(f"{YELLOW}You are now in main. Go to a branch to proceed.{ENDC}")
+        return
     while True:
 
         current = current_branch()
@@ -662,7 +672,13 @@ def pull_remote_changes_to_local():
 # BRANCHES MANAGE_BRANCHES
 def manage_branches():
     while True:
-        print(f"\n{GREEN}Manage branches:{ENDC}")
+        current = current_branch()
+        if current:
+            print(f"\n{GREEN}Manage branches{ENDC} (Currently on: {current}):")
+        else:
+            print(f"\n{GREEN}Manage branches:{ENDC}")
+        print("[cl] Check local branches")
+        print("[cr] Check remote branches")
         print("[m] Merge branch with main")
         print("[dl] Delete local branch")
         print("[dr] Delete remote branch")
@@ -671,7 +687,11 @@ def manage_branches():
 
         choice = input("\nPlease select an option: ")
 
-        if choice == "m":
+        if choice == "cl":
+            check_local_branches()
+        elif choice == "cr":
+            check_remote_branches()
+        elif choice == "m":
             merge_branch_with_main()
         elif choice == "dl":
             delete_local_branch()
@@ -688,7 +708,10 @@ def merge_branch_with_main():
     if not is_git_repo():
         print_not_git_repo()
         return
-
+    if is_current_branch_main():
+        print(f"{YELLOW}You are now in main. Go to a branch to proceed.{ENDC}")
+        return
+    
     branch = current_branch()
     if not branch or branch == "main":
         print("You are either on the main branch or couldn't determine the current branch.")
@@ -713,7 +736,6 @@ def delete_local_branch():
 
     try:
         subprocess.run(["git", "branch", "-d", branch])
-        print(f"Deleted local branch {branch}.")
     except Exception as e:
         print(f"Error deleting local branch: {e}")
 
@@ -768,8 +790,8 @@ def check_user_config():
     try:
         user_name = subprocess.getoutput("git config user.name")
         user_email = subprocess.getoutput("git config user.email")
-        print_colored(f"User Name: {user_name}", "yellow")
-        print_colored(f"User Email: {user_email}", "yellow")
+        print(f"User Name: {user_name}")
+        print(f"User Email: {user_email}")
     except Exception as e:
         print(f"Error checking user configuration: {e}")
 
@@ -777,7 +799,7 @@ def configure_user_name():
     user_name = input("Enter your desired user name: ")
     try:
         subprocess.run(["git", "config", "--global", "user.name", user_name])
-        print_colored(f"User name set to: {user_name}", "yellow")
+        print(f"User name set to: {user_name}")
     except Exception as e:
         print(f"Error setting user name: {e}")
 
@@ -785,7 +807,7 @@ def configure_user_email():
     user_email = input("Enter your desired user email: ")
     try:
         subprocess.run(["git", "config", "--global", "user.email", user_email])
-        print_colored(f"User email set to: {user_email}", "yellow")
+        print(f"User email set to: {user_email}")
     except Exception as e:
         print(f"Error setting user email: {e}")
 

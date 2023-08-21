@@ -2,6 +2,8 @@ import subprocess
 import os
 import sys
 
+YELLOW = '\033[93m'
+ENDC = '\033[0m'
 
 def is_git_installed():
     try:
@@ -14,9 +16,9 @@ def is_git_installed():
 def is_git_repo():
     return os.path.exists('.git')
 def print_git_repo():
-    print("The present working directory is already a git repository. No need to create one.")
+    print(f"{YELLOW}The present working directory is already a git repository. No need to create one.{ENDC}")
 def print_not_git_repo():
-    print("The present working directory is not a git repository, please create one to proceed.")
+    print(f"{YELLOW}The present working directory is not a git repository, please create one to proceed.{ENDC}")
 def is_connected_to_remote():
     try:
         result = subprocess.run(["git", "remote", "get-url", "origin"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -24,10 +26,9 @@ def is_connected_to_remote():
     except Exception:
         return False
 def print_connected_to_remote():
-    print("The local repository is already connected to a remote repository.")
+    print(f"{YELLOW}The local repository is already connected to a remote repository.{ENDC}")
 def print_not_connected_to_remote():
-    print("The local repository is not connected to a remote repository. Please connect it to proceed.")
-    
+    print(f"{YELLOW}The local repository is not connected to a remote repository. Please connect it to proceed.{ENDC}")    
 
 
 print("\nVISUAL GIT")

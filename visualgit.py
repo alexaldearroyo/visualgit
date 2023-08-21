@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import subprocess
 import os
 import sys
@@ -42,10 +44,21 @@ def is_local_branch_connected_to_remote(branch_name):
         return result.stdout.strip() != ""
     except Exception:
         return False
-    
+def get_current_branch():
+    try:
+        result = subprocess.run(["git", "rev-parse", "--abbrev-ref", "HEAD"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+        if result.returncode == 0:
+            return result.stdout.strip()
+    except Exception:
+        pass
+    return None
+
 
 print("\nVISUAL GIT")
 print("-"*30)
+current_branch = get_current_branch()
+if is_git_repo() and current_branch:
+    print(f"Currently on: {current_branch}")
 
 
 def main():
@@ -711,8 +724,53 @@ def check_log():
 
 # CONFIGURATION
 def configuration():
-    # Aquí puedes agregar la funcionalidad para la configuración
-    print("Configuration...")
+    while True:
+        print(f"\n{GREEN}Configuration:{ENDC}")
+        print("[c] Check user name and user email")
+        print("[n] Configure user name")
+        print("[e] Configure user email")
+        print("[x] Back to main menu")
+        print("[q] Quit program")
+
+        choice = input("\nPlease select an option: ")
+
+        if choice == "c":
+            check_user_config()
+        elif choice == "n":
+            configure_user_name()
+        elif choice == "e":
+            configure_user_email()
+        elif choice == "x":
+            break
+        elif choice == "q":
+            sys.exit("Exiting VisualGit...\n")
+        else:
+            print("Invalid choice. Please select a valid option")
+
+def check_user_config():
+    try:
+        user_name = subprocess.getoutput("git config user.name")
+        user_email = subprocess.getoutput("git config user.email")
+        print_colored(f"User Name: {user_name}", "yellow")
+        print_colored(f"User Email: {user_email}", "yellow")
+    except Exception as e:
+        print(f"Error checking user configuration: {e}")
+
+def configure_user_name():
+    user_name = input("Enter your desired user name: ")
+    try:
+        subprocess.run(["git", "config", "--global", "user.name", user_name])
+        print_colored(f"User name set to: {user_name}", "yellow")
+    except Exception as e:
+        print(f"Error setting user name: {e}")
+
+def configure_user_email():
+    user_email = input("Enter your desired user email: ")
+    try:
+        subprocess.run(["git", "config", "--global", "user.email", user_email])
+        print_colored(f"User email set to: {user_email}", "yellow")
+    except Exception as e:
+        print(f"Error setting user email: {e}")
 
 
 # QUICK ACTIONS

@@ -236,6 +236,7 @@ def commit_and_push():
         message = input("Enter commit message: ")
         subprocess.run(["git", "commit", "-m", message])
         subprocess.run(["git", "push", "origin", "main"])
+        sys.exit()
     except Exception as e:
         print(f"Error committing and pushing: {e}")
 

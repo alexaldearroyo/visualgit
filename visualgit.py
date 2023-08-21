@@ -3,10 +3,18 @@
 import subprocess
 import os
 import sys
+import argparse
 
 YELLOW = '\033[93m'
 GREEN = '\033[92m'
 ENDC = '\033[0m'
+
+def handle_args():
+    parser = argparse.ArgumentParser(description='Visual Git Command Line Tool')
+    parser.add_argument('-c', '--commit-push-main', action='store_true', help='Quick action: Commit & Push in main')
+    parser.add_argument('-cb', '--commit-push-branch', action='store_true', help='Quick action: Commit & Push in branch')
+    
+    return parser.parse_args()
 
 def is_git_installed():
     try:
@@ -56,16 +64,25 @@ def get_current_branch():
 
 print("\nVISUAL GIT")
 print("-"*30)
-current_branch = get_current_branch()
-if is_git_repo() and current_branch:
-    print(f"Currently on: {current_branch}")
+this_branch = get_current_branch()
+if is_git_repo() and this_branch:
+    print(f"Currently on: {this_branch}")
 
 
 def main():
+    args = handle_args()
+
+    if args.commit_push_main:
+        commit_and_push()
+        sys.exit()
+    elif args.commit_push_branch:
+        commit_and_push_in_branch()
+        sys.exit()
+
     if not is_git_installed():
         print("Git is not installed. You need to install git to use VisualGit.")
         return
-        
+    
     while True:
         print("\n[m] Work in main")
         print("[b] Work in branches")
@@ -372,7 +389,7 @@ def delete_remote_repo():
 # BRANCHES
 def work_in_branches():
     while True:
-        print(f"\n{GREEN}Work in branches:{ENDC}")
+        print(f"\n{GREEN}Work in branches{ENDC} (Currently on: {current}):")
         print("[l] Local")
         print("[lr] Local to remote")
         print("[rl] Remote to local")

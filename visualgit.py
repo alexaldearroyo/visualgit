@@ -1,9 +1,26 @@
+import subprocess
+
+def is_git_installed():
+    try:
+        result = subprocess.run(["git", "--version"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        if result.returncode == 0:
+            return True
+    except Exception as e:
+        pass
+    return False
+
+print("\nVISUAL GIT")
+print("-"*30)
+
 def main():
+    if not is_git_installed():
+        print("Git is not installed. You need to install git to use VisualGit.")
+        return
+        
     while True:
-        print("\nVISUAL GIT")
-        print("-"*30)
-        print("[m] Work in main")
+        print("\n[m] Work in main")
         print("[b] Work in branches")
+        print("[l] Check log")
         print("[c] Configuration")
         print("[x] Exit\n")
 
@@ -13,6 +30,8 @@ def main():
             work_in_main()
         elif choice == "b":
             work_in_branches()
+        elif choice == "l":
+            check_log()
         elif choice == "c":
             configuration()
         elif choice == "x":
@@ -27,8 +46,8 @@ def work_in_main():
         print("[l] Local")
         print("[lr] Local to remote")
         print("[rl] Remote to local")
-        print("[mr] Manage repos")
-        print("[b] Back to main menu")
+        print("[m] Manage repos")
+        print("[x] Back to main menu")
 
         choice = input("\nPlease select an option: ")
 
@@ -38,9 +57,9 @@ def work_in_main():
             main_local_to_remote()
         elif choice == "rl":
             main_remote_to_local()
-        elif choice == "mr":
+        elif choice == "m":
             main_manage_repos()
-        elif choice == "b":
+        elif choice == "x":
             break
         else:
             print("Invalid choice. Please select a valid option")
@@ -63,8 +82,8 @@ def work_in_branches():
         print("\nWorking in branches:")
         print("[l] Local")
         print("[lr] Local to remote")
-        print("[mb] Manage branches")
-        print("[b] Back to main menu")
+        print("[m] Manage branches")
+        print("[x] Back to main menu")
 
         choice = input("\nPlease select an option: ")
 
@@ -72,9 +91,9 @@ def work_in_branches():
             branch_local()
         elif choice == "lr":
             branch_local_to_remote()
-        elif choice == "mb":
+        elif choice == "m":
             manage_branches()
-        elif choice == "b":
+        elif choice == "x":
             break
         else:
             print("Invalid choice. Please select a valid option")
@@ -87,6 +106,10 @@ def branch_local_to_remote():
 
 def manage_branches():
     print("Managing branches...")
+
+
+def check_log():
+    subprocess.run(["git", "log"])
 
 def configuration():
     # Aquí puedes agregar la funcionalidad para la configuración

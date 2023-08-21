@@ -36,6 +36,13 @@ def current_branch():
         return result.stdout.strip()
     except Exception:
         return None
+def is_local_branch_connected_to_remote(branch_name):
+    try:
+        result = subprocess.run(["git", "for-each-ref", "--format", '%(upstream:short)', f"refs/heads/{branch_name}"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+        return result.stdout.strip() != ""
+    except Exception:
+        return False
+    
 
 print("\nVISUAL GIT")
 print("-"*30)
@@ -242,7 +249,6 @@ def commit_and_push():
         message = input("Enter commit message: ")
         subprocess.run(["git", "commit", "-m", message])
         subprocess.run(["git", "push", "origin", "main"])
-        sys.exit()
     except Exception as e:
         print(f"Error committing and pushing: {e}")
 
@@ -381,7 +387,7 @@ def branch_local():
     while True:
         current = current_branch()
         if current:
-            print(f"\nBranches -Local (Currently on: {current}):")
+            print(f"\n{GREEN}Branches -Local{ENDC} (Currently on: {current}):")
         else:
             print("\nBranches -Local:")
         print("[c] Check local branches")
@@ -467,7 +473,101 @@ def go_to_main():
 
 # BRANCHES LOCAL_TO_REMOTE
 def branch_local_to_remote():
-    print("Transferring from local branch to remote...")
+    while True:
+        current = current_branch()
+        if current:
+            print(f"\n{GREEN}Branches -Local{ENDC} (Currently on: {current}):")
+        else:
+            print("\nBranches -Local:")
+        print("[cl] Check local branches")
+        print("[cr] Check remote branches")
+        print("[l] Connect local branch to remote")
+        print("[m] Commit in local branch")
+        print("[p] Push changes to remote branch")
+        print("[cp] Commit & Push in branch")
+        print("[x] Back to previous menu")
+        print("[q] Quit program")
+
+        choice = input("\nPlease select an option: ")
+
+        if choice == 'cl':
+            check_local_branches()
+        elif choice == "cr":
+            check_remote_branches()
+        elif choice == "l":
+            connect_local_branch_with_remote()
+        elif choice == "m":
+            commit_in_local_branch()
+        elif choice == "p":
+            push_changes_to_remote_branch()
+        elif choice == "cp":
+            commit_and_push_in_branch()
+        elif choice == "x":
+            break
+        elif choice == "q":
+            sys.exit("Exiting VisualGit...\n")
+        else:
+            print("Invalid choice. Please select a valid option")
+
+def check_remote_branches():
+    try:
+        subprocess.run(["git", "branch", "-r"])
+    except Exception as e:
+        print(f"Error checking remote branches: {e}")
+
+def connect_local_branch_with_remote():
+    branch = current_branch()
+    if not branch:
+        print_not_git_repo()
+        return
+
+    if is_local_branch_connected_to_remote(branch):
+        print(f"{YELLOW}The local branch {branch} is already connected to a remote branch.{ENDC}")
+        return
+
+    remote_url = input("Enter the remote repository (GitHub) URL: ")
+    try:
+        subprocess.run(["git", "branch", "--set-upstream-to", f"origin/{branch}", branch])
+        print(f"Connected local branch {branch} with remote: {remote_url}")
+    except Exception as e:
+        print(f"Error connecting local branch with remote: {e}")
+
+def commit_in_local_branch():
+    if not is_git_repo():
+        print_not_git_repo()
+        return
+    
+    try:
+        subprocess.run(["git", "add", "."])
+        message = input("Enter commit message: ")
+        subprocess.run(["git", "commit", "-m", message])
+    except Exception as e:
+        print(f"Error committing in local branch: {e}")
+
+def push_changes_to_remote_branch():
+    branch = current_branch()
+    if not branch:
+        print_not_git_repo()
+        return
+
+    try:
+        subprocess.run(["git", "push", "origin", branch])
+    except Exception as e:
+        print(f"Error pushing changes to remote branch: {e}")
+
+def commit_and_push_in_branch():
+    if not is_git_repo():
+        print_not_git_repo()
+        return
+
+    try:
+        subprocess.run(["git", "add", "."])
+        message = input("Enter commit message: ")
+        subprocess.run(["git", "commit", "-m", message])
+        branch = current_branch()
+        subprocess.run(["git", "push", "origin", branch])
+    except Exception as e:
+        print(f"Error committing and pushing in branch: {e}")
 
 
 # BRANCHES MANAGE_BRANCHES

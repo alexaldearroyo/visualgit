@@ -30,7 +30,12 @@ def print_connected_to_remote():
     print(f"{YELLOW}The local repository is already connected to a remote repository.{ENDC}")
 def print_not_connected_to_remote():
     print(f"{YELLOW}The local repository is not connected to a remote repository. Please connect it to proceed.{ENDC}")    
-
+def current_branch():
+    try:
+        result = subprocess.run(["git", "rev-parse", "--abbrev-ref", "HEAD"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+        return result.stdout.strip()
+    except Exception:
+        return None
 
 print("\nVISUAL GIT")
 print("-"*30)
@@ -67,6 +72,7 @@ def main():
         else:
             print("Invalid choice. Please select a valid option.")
 
+
 # MAIN
 def work_in_main():
     while True:
@@ -96,7 +102,7 @@ def work_in_main():
             print("Invalid choice. Please select a valid option")
 
 
-# MAIN -LOCAL
+# MAIN LOCAL
 def main_local():
     while True:
         print(f"\n{GREEN}Main -Local:{ENDC}")
@@ -347,7 +353,7 @@ def delete_remote_repo():
 # BRANCHES
 def work_in_branches():
     while True:
-        print("\nWorking in branches:")
+        print(f"\n{GREEN}Work in branches:{ENDC}")
         print("[l] Local")
         print("[lr] Local to remote")
         print("[m] Manage branches")
@@ -369,24 +375,118 @@ def work_in_branches():
         else:
             print("Invalid choice. Please select a valid option")
 
-def branch_local():
-    print("Working locally in branches...")
 
+# BRANCHES LOCAL
+def branch_local():
+    while True:
+        current = current_branch()
+        if current:
+            print(f"\nBranches -Local (Currently on: {current}):")
+        else:
+            print("\nBranches -Local:")
+        print("[c] Check local branches")
+        print("[a] Create a local branch")
+        print("[g] Go to branch")
+        print("[m] Go to main")
+        print("[x] Back to previous menu")
+        print("[q] Quit program")
+
+        choice = input("\nPlease select an option: ")
+
+        if choice == "c":
+            check_local_branches()
+        elif choice == "a":
+            create_local_branch()
+        elif choice == "g":
+            go_to_branch()
+        elif choice == "m":
+            go_to_main()
+        elif choice == "x":
+            break
+        elif choice == "q":
+            sys.exit("Exiting VisualGit...\n")
+        else:
+            print("Invalid choice. Please select a valid option")
+
+def check_local_branches():
+    if not is_git_repo():
+        print_not_git_repo()
+        return
+    
+    try:
+        subprocess.run(["git", "branch"])
+    except Exception as e:
+        print(f"Error checking local branches: {e}")
+
+def create_local_branch():
+    if not is_git_repo():
+        print_not_git_repo()
+        return
+    
+    branch_name = input("Enter the name of the new branch: ")
+    try:
+        subprocess.run(["git", "branch", branch_name])
+        print(f"Branch {branch_name} created successfully.")
+    except Exception as e:
+        print(f"Error creating branch {branch_name}: {e}")
+
+def go_to_branch():
+    if not is_git_repo():
+        print_not_git_repo()
+        return
+    
+    try:
+        result = subprocess.run(["git", "branch"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+        branches = result.stdout.strip().split('\n')
+        if branches:
+            print("Local branches:")
+            for idx, branch in enumerate(branches, 1):
+                print(f"{idx}. {branch}")
+            choice = int(input("Select a branch to switch to (by number): "))
+            if 1 <= choice <= len(branches):
+                selected_branch = branches[choice - 1].replace('*', '').strip()  # Remove the '*' which indicates the current branch
+                subprocess.run(["git", "checkout", selected_branch])
+            else:
+                print("Invalid choice.")
+        else:
+            print("No local branches found. Create one to proceed.")
+    except Exception as e:
+        print(f"Error switching branches: {e}")
+
+def go_to_main():
+    if not is_git_repo():
+        print_not_git_repo()
+        return
+    
+    try:
+        subprocess.run(["git", "checkout", "main"])
+        print("Switched to main branch.")
+    except Exception as e:
+        print(f"Error switching to main branch: {e}")
+
+
+# BRANCHES LOCAL_TO_REMOTE
 def branch_local_to_remote():
     print("Transferring from local branch to remote...")
 
+
+# BRANCHES MANAGE_BRANCHES
 def manage_branches():
     print("Managing branches...")
 
 
+# CHECK_LOG
 def check_log():
     subprocess.run(["git", "log"])
 
 
+# CONFIGURATION
 def configuration():
     # Aquí puedes agregar la funcionalidad para la configuración
     print("Configuration...")
 
+
+# QUICK ACTIONS
 def quick_actions():
     while True:
         print(f"\n{GREEN}Quick Actions:{ENDC}")

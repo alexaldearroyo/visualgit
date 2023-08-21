@@ -3,6 +3,7 @@ import os
 import sys
 
 YELLOW = '\033[93m'
+GREEN = '\033[92m'
 ENDC = '\033[0m'
 
 def is_git_installed():
@@ -45,6 +46,7 @@ def main():
         print("[b] Work in branches")
         print("[l] Check log")
         print("[c] Configuration")
+        print("[a] Quick actions")
         print("[q] Quit program\n")
 
         choice = input("Please select an option: ")
@@ -57,6 +59,8 @@ def main():
             check_log()
         elif choice == "c":
             configuration()
+        elif choice == "a":
+            quick_actions()
         elif choice == "q":
             print("Exiting VisualGit...\n")
             break
@@ -66,7 +70,7 @@ def main():
 # MAIN
 def work_in_main():
     while True:
-        print("\nWork in main:")
+        print(f"\n{GREEN}Work in main:{ENDC}")
         print("[l] Local")
         print("[lr] Local to remote")
         print("[rl] Remote to local")
@@ -91,10 +95,11 @@ def work_in_main():
         else:
             print("Invalid choice. Please select a valid option")
 
+
 # MAIN -LOCAL
 def main_local():
     while True:
-        print("\nMain -Local:")
+        print(f"\n{GREEN}Main -Local:{ENDC}")
         print("[c] Check local repos")
         print("[a] Create a local repo")
         print("[m] Commit to local repo")
@@ -126,7 +131,6 @@ def check_local_repos():
     except Exception as e:
             print(f"Error executing git status: {e}")
  
-
 def create_local_repo():
     if is_git_repo():
         print_git_repo()
@@ -155,7 +159,7 @@ def commit_to_local_repo():
 # MAIN LOCAL_TO_REMOTE
 def main_local_to_remote():
     while True:
-        print("\nMain -Local to remote:")
+        print(f"\n{GREEN}Main -Local to remote:{ENDC}")
         print("[c] Check remote repos")
         print("[l] Link local repo with remote")
         print("[p] Push changes to remote")
@@ -179,8 +183,6 @@ def main_local_to_remote():
             sys.exit("Exiting VisualGit...\n")
         else:
             print("Invalid choice. Please select a valid option")
-
-    print("Transferring from local to remote...")
 
 def check_remote_repos():
     try:
@@ -240,12 +242,105 @@ def commit_and_push():
 
 # MAIN REMOTE_TO_LOCAL
 def main_remote_to_local():
-    print("Transferring from remote to local...")
+    while True:
+        print(f"\n{GREEN}Main -Remote to local:{ENDC}")
+        print("[c] Check remote repos")
+        print("[cl] Clone remote repo to local")
+        print("[p] Pull remote changes to local")
+        print("[x] Back to previous menu")
+        print("[q] Quit program")
+
+        choice = input("\nPlease select an option: ")
+
+        if choice == "c":
+            check_remote_repos()
+        elif choice == "cl":
+            clone_remote_to_local()
+        elif choice == "p":
+            pull_remote_changes()
+        elif choice == "x":
+            break
+        elif choice == "q":
+            sys.exit("Exiting VisualGit...\n")
+        else:
+            print("Invalid choice. Please select a valid option")
+
+def clone_remote_to_local():
+    remote_url = input("Enter the remote repository (GitHub) URL to clone: ")
+    directory_name = input("Enter the directory name for the cloned repo (leave empty for default): ")
+    try:
+        if directory_name:
+            subprocess.run(["git", "clone", remote_url, directory_name])
+        else:
+            subprocess.run(["git", "clone", remote_url])
+        print(f"Successfully cloned {remote_url} to {directory_name if directory_name else 'current directory'}.")
+    except Exception as e:
+        print(f"Error cloning remote repository: {e}")
+
+def pull_remote_changes():
+    if not is_git_repo():
+        print_not_git_repo()
+        return
+
+    if not is_connected_to_remote():
+        print_not_connected_to_remote()
+        return
+
+    try:
+        subprocess.run(["git", "pull"])
+        print("Successfully pulled changes from remote.")
+    except Exception as e:
+        print(f"Error pulling changes from remote: {e}")
 
 
 # MAIN MANAGE_REPOS
 def main_manage_repos():
-    print("Managing repositories...")
+    while True:
+        print(f"\n{GREEN}Main -Manage repos:{ENDC}")
+        print("[dl] Delete local repo")
+        print("[dr] Delete remote repo")
+        print("[x] Back to previous menu")
+        print("[q] Quit program")
+
+        choice = input("\nPlease select an option: ")
+
+        if choice == "dl":
+            delete_local_repo()
+        elif choice == "dr":
+            delete_remote_repo()
+        elif choice == "x":
+            break
+        elif choice == "q":
+            sys.exit("Exiting VisualGit...\n")
+        else:
+            print("Invalid choice. Please select a valid option")
+
+def delete_local_repo():
+    if not is_git_repo():
+        print_not_git_repo()
+        return
+
+    confirm = input("Are you sure you want to delete the local git repository? (yes/no): ").lower()
+    if confirm == 'yes':
+        try:
+            subprocess.run(["rm", "-rf", ".git"])
+            print("Local repository deleted successfully.")
+        except Exception as e:
+            print(f"Error deleting local repository: {e}")
+    else:
+        print("Local repository deletion cancelled.")
+
+def delete_remote_repo():
+    if not is_git_repo():
+        print_not_git_repo()
+        return
+
+    if not is_connected_to_remote():
+        print_not_connected_to_remote()
+        return
+
+    print("To delete a remote repository, you need to do it through the web interface of your Git hosting provider (e.g., GitHub, GitLab).")
+    print("This action cannot be performed directly through the git command line for security reasons.")
 
 
 # BRANCHES
@@ -286,9 +381,29 @@ def manage_branches():
 def check_log():
     subprocess.run(["git", "log"])
 
+
 def configuration():
     # Aquí puedes agregar la funcionalidad para la configuración
     print("Configuration...")
+
+def quick_actions():
+    while True:
+        print(f"\n{GREEN}Quick Actions:{ENDC}")
+        print("[c] Commit & Push in main")
+        print("[x] Back to main menu")
+        print("[q] Quit program")
+
+        choice = input("\nPlease select an option: ")
+
+        if choice == "c":
+            commit_and_push()
+        elif choice == "x":
+            break
+        elif choice == "q":
+            sys.exit("Exiting VisualGit...\n")
+        else:
+            print("Invalid choice. Please select a valid option")
+
 
 if __name__ == "__main__":
     main()

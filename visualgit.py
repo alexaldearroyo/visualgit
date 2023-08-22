@@ -146,7 +146,7 @@ def main_local():
     while True:
         print(f"\n{GREEN}Main -Local:{ENDC}")
         print("[c] Check local repos")
-        print("[a] Create a local repo")
+        print("[a] Add a local repo")
         print("[m] Commit to local repo")
         print("[x] Back to previous menu")
         print("[q] Quit program")
@@ -617,11 +617,7 @@ def commit_and_push_in_branch():
 
 # BRANCHES REMOTE_TO LOCAL
 def branch_remote_to_local():
-    if is_current_branch_main():
-        print(f"{YELLOW}You are now in main. Go to a branch to proceed.{ENDC}")
-        return
     while True:
-
         current = current_branch()
         if current:
             print(f"\n{GREEN}Branches -Remote to local{ENDC} (Currently on: {current}):")
@@ -663,7 +659,7 @@ def pull_remote_changes_to_local():
         return
 
     try:
-        subprocess.run(["git", "pull", "origin", branch])
+        subprocess.run(["git", "pull", "origin", branch, "--allow-unrelated-histories"])
         print(f"Pulled changes from remote to local branch {branch}")
     except Exception as e:
         print(f"Error pulling changes from remote: {e}")
@@ -719,7 +715,7 @@ def merge_branch_with_main():
 
     try:
         subprocess.run(["git", "checkout", "main"])
-        subprocess.run(["git", "merge", branch])
+        subprocess.run(["git", "merge", branch, "--allow-unrelated-histories"])
         print(f"Merged branch {branch} with main.")
     except Exception as e:
         print(f"Error merging branch with main: {e}")

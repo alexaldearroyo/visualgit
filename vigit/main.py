@@ -8,11 +8,12 @@ import os
 from enum import Enum
 from simple_term_menu import TerminalMenu
 
-from utils import *
-from checks import *
-from mainm import *
-from branx import *
-from config import *
+from .utils import YELLOW, GREEN, ENDC, global_menu
+
+from .checks import is_git_installed, is_git_repo, print_not_git_repo, is_connected_to_remote, print_connected_to_remote, print_not_connected_to_remote, current_branch, is_local_branch_connected_to_remote, get_current_branch
+from .mainm import main_menu, main_local_menu, main_lr_menu , work_in_main, create_local_repo, commit_to_local_repo, commit_and_push
+from .branx import branch_menu, branch_local_menu, branch_lr_menu, work_in_branches, go_to_branch, go_to_main, manage_branch_menu, commit_and_push_in_branch, merge_branch_with_main
+from .config import config_menu, configuration, check_user_config, configure_user_name, configure_user_email
 
 
 def handle_args():

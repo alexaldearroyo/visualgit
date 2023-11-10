@@ -1,9 +1,8 @@
 import subprocess
 import os
 
-from checks import *
-
-from utils import *
+from .checks import is_git_installed, is_git_repo, print_not_git_repo, is_connected_to_remote, print_connected_to_remote, print_not_connected_to_remote, current_branch, is_local_branch_connected_to_remote, get_current_branch
+from .utils import YELLOW, GREEN, ENDC, global_menu
 
 from enum import Enum
 
@@ -42,9 +41,9 @@ def configuration():
         elif menu_entry_index == 2:
             configure_user_email()
         elif menu_entry_index == 3:
+            clear_screen()
             break
         elif menu_entry_index == 4:
-            clear_screen()
             quit()
         else:
             invalid_opt()

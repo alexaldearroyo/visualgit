@@ -1,7 +1,7 @@
 import subprocess
 import os
 
-from utils import *
+from .utils import YELLOW, GREEN, ENDC, global_menu
 
 
 def is_git_installed():

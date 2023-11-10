@@ -1,37 +1,50 @@
 import subprocess
+import os
+
 from checks import *
 
 from utils import *
 
 from enum import Enum
 
-
+def clear_screen():
+    os.system('cls' if os.name == 'nt' else 'clear')
+    print("\nVISUAL GIT")
+    print("-" * 30)
+    
 class config_menu(Enum):
-    CHECK = 'c'
-    CONFIG_NAME = 'n'
-    CONFIG_EMAIL = 'e'
-    MANAGE_BRANCHES = 'm'
+    CHECK = 'See Repos'
+    CONFIG_NAME = 'Name Configuration'
+    CONFIG_EMAIL = 'Email Configuration'
+    MANAGE_BRANCHES = 'Manage Branches'
 
 def configuration():
     while True:
+        
         print(f"\n{GREEN}Configuration:{ENDC}")
-        print("[c] Check user name and user email")
-        print("[n] Configure user name")
-        print("[e] Configure user email")
-        print("[x] Back to main menu")
-        print("[q] Quit program")
 
-        choice = input("\nPlease select an option: ")
+        menu_options = [
+            f"{config_menu.CHECK.value}",
+            f"{config_menu.CONFIG_NAME.value}",
+            f"{config_menu.CONFIG_EMAIL.value}",
+            f"{config_menu.MANAGE_BRANCHES.value}",
+            f"{global_menu.BACK.value}",
+            f"{global_menu.QUIT.value}",
+        ]
+        
+        terminal_menu = TerminalMenu(menu_options, title="Please select an option:")
+        menu_entry_index = terminal_menu.show()
 
-        if choice == config_menu.CHECK.value:
+        if menu_entry_index == 0:
             check_user_config()
-        elif choice == config_menu.CONFIG_NAME.value:
+        elif menu_entry_index == 1:
             configure_user_name()
-        elif choice == config_menu.CONFIG_EMAIL.value:
+        elif menu_entry_index == 2:
             configure_user_email()
-        elif choice == global_menu.BACK.value:
+        elif menu_entry_index == 3:
             break
-        elif choice == global_menu.QUIT.value:
+        elif menu_entry_index == 4:
+            clear_screen()
             quit()
         else:
             invalid_opt()

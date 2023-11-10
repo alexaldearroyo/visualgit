@@ -1,55 +1,65 @@
 import subprocess
 from checks import *
 import sys
+import os
 
 from utils import *
 from mainm import *
 
 from enum import Enum
 
+def clear_screen():
+    os.system('cls' if os.name == 'nt' else 'clear')
+    print("\nVISUAL GIT")
+    print("-" * 30)
+    
 
 class branch_menu(Enum):
-    BRANCH_LOCAL = 'l'
-    BRANCH_LOCAL_TO_REMOTE = 'lr'
-    BRANCH_REMOTE_TO_LOCAL = 'rl'
-    MANAGE_BRANCHES = 'm'
+    BRANCH_LOCAL = 'Local'
+    BRANCH_LOCAL_TO_REMOTE = 'Local to Remote'
+    BRANCH_REMOTE_TO_LOCAL = 'Remote to Local'
+    MANAGE_BRANCHES = 'Manage Branches'
 
 
 def work_in_branches():
     current = current_branch()
     while True:
+        
         print(f"\n{GREEN}Work in branches{ENDC} (Currently on: {current}):")
-        print("[l] Local")
-        print("[lr] Local to remote")
-        print("[rl] Remote to local")
-        print("[m] Manage branches")
-        print("[x] Back to main menu")
-        print("[q] Quit program")
+        
+        menu_options = [
+            f"[l] {branch_menu.BRANCH_LOCAL.value}",
+            f"[t] {branch_menu.BRANCH_LOCAL_TO_REMOTE.value}",
+            f"[r] {branch_menu.BRANCH_REMOTE_TO_LOCAL.value}",
+            f"[m] {branch_menu.MANAGE_BRANCHES.value}",
+            f"[x] Back to main menu",
+            "[q] Quit program"
+        ]
 
-        choice = input("\nPlease select an option: ")
-
-        if choice == branch_menu.BRANCH_LOCAL.value:
+        terminal_menu = TerminalMenu(menu_options, title="Please select an option:")
+        menu_entry_index = terminal_menu.show()
+  
+        if menu_entry_index == 0:
             branch_local()
-        elif choice == branch_menu.BRANCH_LOCAL_TO_REMOTE.value:
+        elif menu_entry_index == 1:
             branch_local_to_remote()
-        elif choice == branch_menu.BRANCH_REMOTE_TO_LOCAL.value:
+        elif menu_entry_index == 2:
             branch_remote_to_local()
-        elif choice == branch_menu.MANAGE_BRANCHES.value:
+        elif menu_entry_index == 3:
             manage_branches()
-        elif choice == global_menu.BACK.value:
+        elif menu_entry_index == 4:
+            clear_screen()
             break
-        elif choice == global_menu.QUIT.value:
+        elif menu_entry_index == 5:
             sys.exit("Exiting VisualGit...\n")
-        else:
-            print("Invalid choice. Please select a valid option")
 
 
 # BRANCHES LOCAL
 class branch_local_menu(Enum):
-    CHECK_LOCAL_BRANCH = 'cl'
-    ADD_LOCAL_BRANCH = 'a'
-    GOTO_BRANCH = 'g'
-    GOTO_MAIN = 'gm'
+    CHECK_LOCAL_BRANCH = 'See Local Branches'
+    ADD_LOCAL_BRANCH = 'Add a Local Branch'
+    GOTO_BRANCH = 'Go to Branch'
+    GOTO_MAIN = 'Go to Main'
 
 def branch_local():
     while True:
@@ -58,32 +68,35 @@ def branch_local():
             print(f"\n{GREEN}Branches -Local{ENDC} (Currently on: {current}):")
         else:
             print("\nBranches -Local:")
-        print("[cl] Check local branches")
-        print("[a] Add a local branch")
-        print("[c] Commit in current branch")
-        print("[g] Go to branch")
-        print("[gm] Go to main")
-        print("[x] Back to previous menu")
-        print("[q] Quit program")
+        
+        options = [
+            f"[s] See Local Branches",
+            f"[a] Add a Local Branch",
+            f"[c] Commit to Current Branch",
+            f"[b] Go to Branch",
+            f"[g] Go to Main",
+            "[x] Back to previous menu",
+            "[q] Quit program"
+        ]
 
-        choice = input("\nPlease select an option: ")
-
-        if choice == branch_local_menu.CHECK_LOCAL_BRANCH.value:
+        terminal_menu = TerminalMenu(options, title="Please select an option:")
+        menu_entry_index = terminal_menu.show()
+        
+        if menu_entry_index == 0:
             check_local_branches()
-        elif choice == branch_local_menu.ADD_LOCAL_BRANCH.value:
+        elif menu_entry_index == 1:
             create_local_branch()
-        elif choice == main_local_menu.COMMIT_LOCAL.value:
+        elif menu_entry_index == 2:
             commit_to_local_repo()
-        elif choice == branch_local_menu.GOTO_BRANCH.value:
+        elif menu_entry_index == 3:
             go_to_branch()
-        elif choice == branch_local_menu.GOTO_MAIN.value:
+        elif menu_entry_index == 4:
             go_to_main()
-        elif choice == global_menu.BACK.value:
+        elif menu_entry_index == 5:
+            clear_screen()
             break
-        elif choice == global_menu.QUIT.value:
+        elif menu_entry_index == 6:
             quit()
-        else:
-            invalid_opt()
 
 def check_local_branches():
     if not is_git_repo():
@@ -148,12 +161,12 @@ def go_to_main():
 
 # BRANCHES LOCAL_TO_REMOTE
 class branch_lr_menu(Enum):
-    CHECK_REMOTE_BRANCH = 'cr'
-    LINK_REMOTE_BRANCH = 'l'
-    COMMIT_LOCAL_BRANCH = 'm'
-    PUSH_BRANCH = 'p'
-    COMMIT_PUSH_BRANCH = 'cb'
-# test
+    CHECK_REMOTE_BRANCH = 'See Remote Branches'
+    LINK_REMOTE_BRANCH = 'Join Local Branch to Remote'
+    COMMIT_LOCAL_BRANCH = 'Commit to Local Branch'
+    PUSH_BRANCH = 'Push Changes to Remote Branch'
+    COMMIT_PUSH_BRANCH = 'Commit & Push in Branch'
+
 def branch_local_to_remote():
     if is_current_branch_main():
         print(f"{YELLOW}You are now in main. Go to a branch to proceed.{ENDC}\nTo go to a branch: Quick actions -> Go to branch")
@@ -165,32 +178,36 @@ def branch_local_to_remote():
             print(f"\n{GREEN}Branches -Local to remote{ENDC} (Currently on: {current}):")
         else:
             print(f"\n{GREEN}Branches -Local to remote:{ENDC}")
-        print("[cl] Check local branches")
-        print("[cr] Check remote branches")
-        print("[l] Link local branch to remote")
-        print("[m] Commit in local branch")
-        print("[p] Push changes to remote branch")
-        print("[cb] Commit & Push in branch")
-        print("[x] Back to previous menu")
-        print("[q] Quit program")
+            
+        menu_options = [
+            f"[s] {branch_lr_menu.CHECK_REMOTE_BRANCH.value}",
+            f"[j] {branch_lr_menu.LINK_REMOTE_BRANCH.value}",
+            f"[c] {branch_lr_menu.COMMIT_LOCAL_BRANCH.value}",
+            f"[p] {branch_lr_menu.PUSH_BRANCH.value}",
+            f"[b] {branch_lr_menu.COMMIT_PUSH_BRANCH.value}",
+            "[x] Back to previous menu",
+            "[q] Quit program"
+        ]
+            
+        terminal_menu = TerminalMenu(menu_options, title="Please select an option:")
+        menu_entry_index = terminal_menu.show()
 
-        choice = input("\nPlease select an option: ")
-
-        if choice == branch_local_menu.CHECK_LOCAL_BRANCH.value:
+        if menu_entry_index == 0:
             check_local_branches()
-        elif choice == branch_lr_menu.CHECK_REMOTE_BRANCH.value:
+        elif menu_entry_index == 1:
             check_remote_branches()
-        elif choice == branch_lr_menu.LINK_REMOTE_BRANCH.value:
+        elif menu_entry_index == 2:
             connect_local_branch_with_remote()
-        elif choice == branch_lr_menu.COMMIT_LOCAL_BRANCH.value:
+        elif menu_entry_index == 3:
             commit_in_local_branch()
-        elif choice == branch_lr_menu.PUSH_BRANCH.value:
+        elif menu_entry_index == 4:
             push_changes_to_remote_branch()
-        elif choice == branch_lr_menu.COMMIT_PUSH_BRANCH.value:
+        elif menu_entry_index == 5:
             commit_and_push_in_branch()
-        elif choice == global_menu.BACK.value:
+        elif menu_entry_index == 6:
+            clear_screen()
             break
-        elif choice == global_menu.QUIT.value:
+        elif menu_entry_index == 7:
             quit()
         else:
             invalid_opt()
@@ -273,8 +290,8 @@ def commit_and_push_in_branch():
 
 # BRANCHES REMOTE_TO LOCAL
 class branch_rl_menu(Enum):
-    CLONE_BRANCH = 'c'
-    PULL_BRANCH = 'p'
+    CLONE_BRANCH = 'Join Remote Branch to Local'
+    PULL_BRANCH = 'Yank Remote Branch Changes to Local'
 
 def branch_remote_to_local():
     while True:
@@ -283,26 +300,31 @@ def branch_remote_to_local():
             print(f"\n{GREEN}Branches -Remote to local{ENDC} (Currently on: {current}):")
         else:
             print(f"\n{GREEN}Branches -Remote to local:{ENDC}")
-        print("[cr] Check remote branches")
-        print("[cl] Check local branches")
-        print("[c] Clone remote branch to local")
-        print("[p] Pull remote branch changes to local")
-        print("[x] Back to previous menu")
-        print("[q] Quit program")
+            
+        menu_options = [
+            f"[s] {branch_lr_menu.CHECK_REMOTE_BRANCH.value}",
+            f"[l] {branch_local_menu.CHECK_LOCAL_BRANCH.value}",
+            f"[j] {branch_rl_menu.CLONE_BRANCH.value}",
+            f"[y] {branch_rl_menu.PULL_BRANCH.value}",
+            "[x] Back to previous menu",
+            "[q] Quit program"
+        ]
+        
+        terminal_menu = TerminalMenu(menu_options, title="Please select an option:")
+        menu_entry_index = terminal_menu.show()
 
-        choice = input("\nPlease select an option: ")
-
-        if choice == branch_lr_menu.CHECK_REMOTE_BRANCH.value:
+        if menu_entry_index == 0:
             check_remote_branches()
-        elif choice == branch_local_menu.CHECK_LOCAL_BRANCH.value:
+        elif menu_entry_index == 1:
             check_local_branches()
-        elif choice == branch_rl_menu.CLONE_BRANCH.value:
+        elif menu_entry_index == 2:
             clone_remote_branch_to_local()
-        elif choice == branch_rl_menu.PULL_BRANCH.value:
+        elif menu_entry_index == 3:
             pull_remote_changes_to_local()
-        elif choice == global_menu.BACK.value:
+        elif menu_entry_index == 4:
+            clear_screen()
             break
-        elif choice == global_menu.QUIT.value:
+        elif menu_entry_index == 5:
             quit()
         else:
             invalid_opt()
@@ -330,10 +352,10 @@ def pull_remote_changes_to_local():
 
 # BRANCHES MANAGE_BRANCHES
 class manage_branch_menu(Enum):
-    MERGE = 'm'
-    PULL_BRANCH = 'p'
-    DELETE_LOCAL_BRANCH = 'dl'
-    DELETE_REMOTE_BRANCH = 'dr'
+    MERGE = 'Merge Branch with Main'
+    PULL_BRANCH = 'Yank Remote Branch Changes to Local'
+    DELETE_LOCAL_BRANCH = 'Delete Local Branch'
+    DELETE_REMOTE_BRANCH = 'Delete Remote Branch'
 
 
 def manage_branches():
@@ -343,39 +365,41 @@ def manage_branches():
             print(f"\n{GREEN}Manage branches{ENDC} (Currently on: {current}):")
         else:
             print(f"\n{GREEN}Manage branches:{ENDC}")
-        print("[cl] Check local branches")
-        print("[cr] Check remote branches")
-        print("[m] Merge branch with main")
-        print("[g] Go to branch")
-        print("[gm] Go to main")
-        print("[dl] Delete local branch")
-        print("[dr] Delete remote branch")
-        print("[x] Back to previous menu")
-        print("[q] Quit program")
+            
+        menu_options = [
+            f"[s] {branch_local_menu.CHECK_LOCAL_BRANCH.value}",
+            f"[r] {branch_lr_menu.CHECK_REMOTE_BRANCH.value}",
+            f"[m] {manage_branch_menu.MERGE.value}",
+            f"[g] {branch_local_menu.GOTO_BRANCH.value}",
+            f"[gm] {branch_local_menu.GOTO_MAIN.value}",
+            f"[dl] {manage_branch_menu.DELETE_LOCAL_BRANCH.value}",
+            f"[dr] {manage_branch_menu.DELETE_REMOTE_BRANCH.value}",
+            "[x] Back to previous menu",
+            "[q] Quit program"
+        ]
+            
+        terminal_menu = TerminalMenu(menu_options, title="Please select an option:")
+        menu_entry_index = terminal_menu.show()
 
-        choice = input("\nPlease select an option: ")
-
-        if choice == branch_local_menu.CHECK_LOCAL_BRANCH.value:
+        if menu_entry_index == 0:
             check_local_branches()
-        elif choice == branch_lr_menu.CHECK_REMOTE_BRANCH.value:
+        elif menu_entry_index == 1:
             check_remote_branches()
-        elif choice == manage_branch_menu.MERGE.value:
+        elif menu_entry_index == 2:
             merge_branch_with_main()
-        elif choice == branch_local_menu.GOTO_BRANCH.value:
+        elif menu_entry_index == 3:
             go_to_branch()
-        elif choice == branch_local_menu.GOTO_MAIN.value:
+        elif menu_entry_index == 4:
             go_to_main()
-        elif choice == manage_branch_menu.DELETE_LOCAL_BRANCH.value:
+        elif menu_entry_index == 5:
             delete_local_branch()
-        elif choice == manage_branch_menu.DELETE_REMOTE_BRANCH.value:
+        elif menu_entry_index == 6:
             delete_remote_branch()
-        elif choice == global_menu.BACK.value:
+        elif menu_entry_index == 7:
+            clear_screen()
             break
-        elif choice == global_menu.QUIT.value:
+        elif menu_entry_index == 8:
             quit()
-        else:
-            invalid_opt()
-
 
 def merge_branch_with_main():
     if not is_git_repo():

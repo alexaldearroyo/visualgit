@@ -9,9 +9,9 @@ ENDC = '\033[0m'
 
 # GLOBAL MENU
 class global_menu(Enum):
-    CHECK_REMOTE = 'cr'
-    BACK = 'x'
-    QUIT = 'q'
+    CHECK_REMOTE = 'See Remote Repos'
+    BACK = 'Go Back'
+    QUIT = 'Quit'
 
 # REPEATING CHOICES
 def quit():

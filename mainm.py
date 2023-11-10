@@ -1,41 +1,54 @@
 import subprocess
-from checks import *
+import os
 
+from checks import *
 from utils import *
 
 from enum import Enum
+from simple_term_menu import TerminalMenu
 
-# //test
+def clear_screen():
+    os.system('cls' if os.name == 'nt' else 'clear')
+    print("\nVISUAL GIT")
+    print("-" * 30)
+    
+
 class main_menu(Enum):
-    LOCAL = 'l'
-    LOCAL_TO_REMOTE = 'lr'
-    REMOTE_TO_LOCAL = 'rl'
-    MANAGE_REPOS = 'm'
-
-
+    LOCAL = 'Local'
+    LOCAL_TO_REMOTE = 'Local to Remote'
+    REMOTE_TO_LOCAL = 'Remote to Local'
+    MANAGE_REPOS = 'Manage Repos'
+    
+    
 def work_in_main():
     while True:
-        print(f"\n{GREEN}Work in main:{ENDC}")
-        print("[l] Local")
-        print("[lr] Local to remote")
-        print("[rl] Remote to local")
-        print("[m] Manage repos")
-        print("[x] Back to main menu")
-        print("[q] Quit program")
+        
+        print(f"\n{GREEN}Work in main: {ENDC}")
+    
+        menu_options = [
+            f"[l] {main_menu.LOCAL.value}",
+            f"[t] {main_menu.LOCAL_TO_REMOTE.value}",
+            f"[r] {main_menu.REMOTE_TO_LOCAL.value}",
+            f"[m] {main_menu.MANAGE_REPOS.value}",
+            "[x] Back to main menu",
+            "[q] Quit program"
+        ]
+        
+        terminal_menu = TerminalMenu(menu_options, title="Please select an option:")
+        menu_entry_index = terminal_menu.show()
 
-        choice = input("\nPlease select an option: ")
-
-        if choice == main_menu.LOCAL.value:
+        if menu_entry_index == 0:
             main_local()
-        elif choice == main_menu.LOCAL_TO_REMOTE.value:
+        elif menu_entry_index == 1:
             main_local_to_remote()
-        elif choice == main_menu.REMOTE_TO_LOCAL.value:
+        elif menu_entry_index == 2:
             main_remote_to_local()
-        elif choice == main_menu.MANAGE_REPOS.value:
+        elif menu_entry_index == 3:
             main_manage_repos()
-        elif choice == global_menu.BACK.value:
+        elif menu_entry_index == 4:
+            clear_screen()
             break
-        elif choice == global_menu.QUIT.value:
+        elif menu_entry_index == 5:
             quit()
         else:
             invalid_opt()
@@ -43,34 +56,38 @@ def work_in_main():
 
 # MAIN LOCAL
 class main_local_menu(Enum):
-    CHECK_LOCAL = 'cl'
-    ADD_LOCAL = 'a'
-    COMMIT_LOCAL = 'c'
+    CHECK_LOCAL = 'See Local Repos'
+    ADD_LOCAL = 'Add a Local Repo'
+    COMMIT_LOCAL = 'Commit to Local Repo'
 
 
 def main_local():
     while True:
+        
         print(f"\n{GREEN}Main -Local:{ENDC}")
-        print("[cl] Check local repos")
-        print("[a] Add a local repo")
-        print("[c] Commit to local repo")
-        print("[x] Back to previous menu")
-        print("[q] Quit program")
 
-        choice = input("\nPlease select an option: ")
+        menu_options = [
+            f"[s] {main_local_menu.CHECK_LOCAL.value}",
+            f"[a] {main_local_menu.ADD_LOCAL.value}",
+            f"[c] {main_local_menu.COMMIT_LOCAL.value}",
+            "[x] Back to previous menu",
+            "[q] Quit program"
+        ]
 
-        if choice == main_local_menu.CHECK_LOCAL.value:
+        terminal_menu = TerminalMenu(menu_options, title="Please select an option:")
+        menu_entry_index = terminal_menu.show()
+
+        if menu_entry_index == 0:
             check_local_repos()
-        elif choice == main_local_menu.ADD_LOCAL.value:
+        elif menu_entry_index == 1:
             create_local_repo()
-        elif choice == main_local_menu.COMMIT_LOCAL.value:
+        elif menu_entry_index == 2:
             commit_to_local_repo()
-        elif choice == global_menu.BACK.value:
+        elif menu_entry_index == 3:
+            clear_screen()
             break
-        elif choice == global_menu.QUIT.value:
+        elif menu_entry_index == 4:
             quit()
-        else:
-            invalid_opt()
 
 def check_local_repos():
     if not is_git_repo():
@@ -109,39 +126,43 @@ def commit_to_local_repo():
 
 # MAIN LOCAL_TO_REMOTE
 class main_lr_menu(Enum):
-    CHECK_REMOTE = 'cr'
-    LINK = 'l'
-    PUSH = 'p'
-    COMMIT_AND_PUSH = 'cp'
+    CHECK_REMOTE = 'See Remote Repos'
+    LINK = 'Join Local to Remote'
+    PUSH = 'Push Changes to Remote'
+    COMMIT_AND_PUSH = 'Commit & Push'
 
 
 def main_local_to_remote():
     while True:
+        
         print(f"\n{GREEN}Main -Local to remote:{ENDC}")
-        print("[cr] Check remote repos")
-        print("[l] Link local repo with remote")
-        print("[p] Push changes to remote")
-        print("[cp] Commit & Push")
-        print("[x] Back to previous menu")
-        print("[q] Quit program")
+        
+        menu_options = [
+            f"[s] {main_lr_menu.CHECK_REMOTE.value}",
+            f"[j] {main_lr_menu.LINK.value}",
+            f"[p] {main_lr_menu.PUSH.value}",
+            f"[c] {main_lr_menu.COMMIT_AND_PUSH.value}",
+            "[x] Back to previous menu",
+            "[q] Quit program"
+        ]
 
-        choice = input("\nPlease select an option: ")
+        terminal_menu = TerminalMenu(menu_options, title="Please select an option:")
+        menu_entry_index = terminal_menu.show()
 
-        if choice == main_lr_menu.CHECK_REMOTE.value:
+        if menu_entry_index == 0:
             check_remote_repos()
-        elif choice == main_lr_menu.LINK.value:
+        elif menu_entry_index == 1:
             connect_local_with_remote()
-        elif choice == main_lr_menu.PUSH.value:
+        elif menu_entry_index == 2:
             push_changes_to_remote()
-        elif choice == main_lr_menu.COMMIT_AND_PUSH.value:
+        elif menu_entry_index == 3:
             commit_and_push()
-        elif choice == global_menu.BACK.value:
+        elif menu_entry_index == 4:
+            clear_screen()
             break
-        elif choice == global_menu.QUIT.value:
+        elif menu_entry_index == 5:
             quit()
-        else:
-            invalid_opt
-
+        
 def check_remote_repos():
     if not is_connected_to_remote():
         print_not_connected_to_remote()
@@ -203,34 +224,38 @@ def commit_and_push():
 
 # MAIN REMOTE_TO_LOCAL
 class main_rl_menu(Enum):
-    CLONE = 'c'
-    REMOTE_TO_LOCAL = 'rl'
-    PULL = 'p'
+    CLONE = 'Join Remote to Local'
+    REMOTE_TO_LOCAL = 'Join Remote to Local'
+    PULL = 'Yank Changes from Remote'
 
 
 def main_remote_to_local():
     while True:
+        
         print(f"\n{GREEN}Main -Remote to local:{ENDC}")
-        print("[cr] Check remote repos")
-        print("[c] Clone remote repo to local")
-        print("[p] Pull remote changes to local")
-        print("[x] Back to previous menu")
-        print("[q] Quit program")
+        
+        menu_options = [
+            f"[s] {main_lr_menu.CHECK_REMOTE.value}",
+            f"[j] {main_rl_menu.CLONE.value}",
+            f"[p] {main_rl_menu.PULL.value}",
+            "[x] Back to previous menu",
+            "[q] Quit program"
+        ]
 
-        choice = input("\nPlease select an option: ")
+        terminal_menu = TerminalMenu(menu_options, title="Please select an option:")
+        menu_entry_index = terminal_menu.show()
 
-        if choice == main_lr_menu.CHECK_REMOTE.value:
+        if menu_entry_index == 0:
             check_remote_repos()
-        elif choice == main_rl_menu.CLONE.value:
+        elif menu_entry_index == 1:
             clone_remote_to_local()
-        elif choice == main_rl_menu.PULL.value:
+        elif menu_entry_index == 2:
             pull_remote_changes()
-        elif choice == global_menu.BACK.value:
+        elif menu_entry_index == 3:
+            clear_screen()
             break
-        elif choice == global_menu.QUIT.value:
+        elif menu_entry_index == 4:
             quit()
-        else:
-            invalid_opt()
 
 def clone_remote_to_local():
     remote_url = input("Enter the remote repository (GitHub) URL to clone: ")
@@ -262,35 +287,40 @@ def pull_remote_changes():
 
 # MAIN MANAGE_REPOS
 class manage_menu(Enum):
-    DELETE_LOCAL = 'dl'
-    DELETE_REMOTE = 'dr'
+    DELETE_LOCAL = 'Delete Local Repo'
+    DELETE_REMOTE = 'Delete Remote Repo'
 
 def main_manage_repos():
     while True:
+        
         print(f"\n{GREEN}Main -Manage repos:{ENDC}")
-        print("[cl] Check local repos")
-        print("[cr] Check remote repos")
-        print("[dl] Delete local repo")
-        print("[dr] Delete remote repo")
-        print("[x] Back to previous menu")
-        print("[q] Quit program")
-
-        choice = input("\nPlease select an option: ")
-
-        if choice == main_local_menu.CHECK_LOCAL.value:
+        
+        menu_options = [
+            f"[l] {main_local_menu.CHECK_LOCAL.value}",
+            f"[r] {main_lr_menu.CHECK_REMOTE.value}",
+            f"[d] {manage_menu.DELETE_LOCAL.value}",
+            f"[e] {manage_menu.DELETE_REMOTE.value}",
+            f"[x] Back to previous menu",
+            "[q] Quit program"
+        ]
+        
+        terminal_menu = TerminalMenu(menu_options, title="Please select an option:")
+        menu_entry_index = terminal_menu.show()
+        
+        if menu_entry_index == 0:
             check_local_repos()
-        elif choice == main_lr_menu.CHECK_REMOTE.value:
+        elif menu_entry_index == 1:
             check_remote_repos()
-        elif choice == manage_menu.DELETE_LOCAL.value:
+        elif menu_entry_index == 2:
             delete_local_repo()
-        elif choice == manage_menu.DELETE_REMOTE.value:
+        elif menu_entry_index == 3:
             delete_remote_repo()
-        elif choice == global_menu.BACK.value:
+        elif menu_entry_index == 4:
+            clear_screen()
             break
-        elif choice == global_menu.QUIT.value:
+        elif menu_entry_index == 5:
             quit()
-        else:
-            invalid_opt()
+    
 
 def delete_local_repo():
     if not is_git_repo():

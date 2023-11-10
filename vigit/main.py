@@ -25,6 +25,14 @@ def handle_args():
         action="store_true",
         help="Quick action: Add a local repo",
     )
+    
+    parser.add_argument(
+        "-c",
+        "--commit",
+        action="store_true",
+        help="Quick action: Commit to local repo",
+    )
+    
     parser.add_argument(
         "-cp",
         "--commit-push-main",
@@ -39,7 +47,7 @@ def handle_args():
     )
     parser.add_argument(
         "-m",
-        "--merge-branch-with-main",
+        "--merge",
         action="store_true",
         help="Quick action: Merge branch with main",
     )
@@ -68,15 +76,17 @@ class start_menu(Enum):
 def main():
     args = handle_args()
 
-    if getattr(args, "a", False):
+    if args.add:
         create_local_repo()
-    if getattr(args, "cp", False):
+    if args.commit:
+        commit_to_local_repo()
+    if args.commit_push_main:
         commit_and_push()
-        sys.exit()
-    if getattr(args, "cb", False):
+        return
+    if args.commit_push_branch:
         commit_and_push_in_branch()
-        sys.exit()
-    if getattr(args, "m", False):
+        return
+    if args.merge:
         merge_branch_with_main()
 
     if not is_git_installed():

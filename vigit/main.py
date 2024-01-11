@@ -8,12 +8,12 @@ import os
 from enum import Enum
 from simple_term_menu import TerminalMenu
 
-from .utils import YELLOW, GREEN, ENDC, global_menu
+from .utils import YELLOW, GREEN, ENDC
 
-from .checks import is_git_installed, is_git_repo, print_not_git_repo, is_connected_to_remote, print_connected_to_remote, print_not_connected_to_remote, current_branch, is_local_branch_connected_to_remote, get_current_branch
-from .mainm import main_menu, main_local_menu, main_lr_menu , work_in_main, create_local_repo, commit_to_local_repo, commit_and_push
-from .branx import branch_menu, branch_local_menu, branch_lr_menu, work_in_branches, go_to_branch, go_to_main, manage_branch_menu, commit_and_push_in_branch, merge_branch_with_main
-from .config import config_menu, configuration, check_user_config, configure_user_name, configure_user_email
+from .checks import is_git_installed, is_git_repo, print_not_git_repo, current_branch, get_current_branch
+from .mainm import main_local_menu, main_lr_menu , work_in_main, create_local_repo, commit_to_local_repo, commit_and_push
+from .branx import branch_local_menu, branch_lr_menu, work_in_branches, go_to_branch, go_to_main, manage_branch_menu, commit_and_push_in_branch, merge_branch_with_main, create_local_branch
+from .config import configuration
 
 
 def handle_args():
@@ -24,6 +24,13 @@ def handle_args():
         "--add",
         action="store_true",
         help="Quick action: Add a local repo",
+    )
+    
+    parser.add_argument(
+        "-ab",
+        "--add-branch",
+        action="store_true",
+        help="Quick action: Add a local branch",
     )
     
     parser.add_argument(
@@ -78,6 +85,8 @@ def main():
 
     if args.add:
         create_local_repo()
+    if args.add_branch:
+        create_local_branch()
     if args.commit:
         commit_to_local_repo()
     if args.commit_push_main:

@@ -9,7 +9,7 @@ setup(
             'vigit = vigit.main:main',
         ],
     },
-    # Agrega dependencias si las hay
+    # Add dependencies if any
     install_requires=[
         'simple_term_menu',
     ],

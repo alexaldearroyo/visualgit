@@ -3,19 +3,41 @@
 ![Python Version](https://img.shields.io/badge/python-3.6+-blue.svg)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
-`Visual Git` is a command-line tool designed to facilitate and automate various tasks related to Git and GitHub repositories. This package provides a friendly and efficient interface for managing Git and GitHub repositories, performing status checks, and more.
+`Visual Git` is a command-line tool developed in Python designed to simplify and visualize common Git operations. It provides an interactive menu interface for managing local and remote Git repositories, branches, commits, and user configurations.
+
+
+![Screenshot](./Resources/screenshot.png)
 
 ## Features
 
-- **Git Installation Check**: Verifies if Git is installed on the system.
-- **Git Repository Detection**: Determines if the current directory is a Git repository.
-- **Remote Repository Connection**: Checks if the local repository is connected to a remote.
-- **Branch Management**: Facilitates the creation, deletion, and switching between Git branches.
-- **Commit Verification**: Checks for commits on the current branch.
+- **Repository Management**: Create, check, and connect local repositories with remote ones.
+- **Branch Management**: Create, switch, and manage local and remote branches.
+- **Commits and Pushes**: Facilitate making commits and pushing to specific branches.
+- **User Configuration**: Easily configure the Git user name and email.
+- **Git Installation Check**: Verify if Git is installed on the system.
 
-## Libraries Used
+## Requirements
+
+- Python 3.x
+- Git installed on the system
+
+## Dependencies
 
 - `simple-term-menu`: Used to make menus navigable through the keyboard arrow keys.
+
+## Installation
+
+Clone this repository to your local machine using:
+
+```bash
+git clone https://github.com/your-username/visual-git.git
+```
+
+Run the following command to install:
+
+```bash
+python setup.py install
+```
 
 ## Usage
 
@@ -31,9 +53,4 @@ For more information on available commands, use:
 vigit --help
 ```
 
-## Wishlist
-
-- Make program installable through `pip` or `homebrew`.
-- Amplify command arguments to increase functionality.
-
-### Alex Arroyo © 2023
+### © Alex Arroyo 2023

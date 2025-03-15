@@ -25,21 +25,21 @@ def handle_args():
         action="store_true",
         help="Quick action: Add a local repo",
     )
-    
+
     parser.add_argument(
         "-ab",
         "--add-branch",
         action="store_true",
         help="Quick action: Add a local branch",
     )
-    
+
     parser.add_argument(
         "-c",
         "--commit",
         action="store_true",
         help="Quick action: Commit to local repo",
     )
-    
+
     parser.add_argument(
         "-cp",
         "--commit-push-main",
@@ -71,7 +71,7 @@ def clear_screen():
     os.system('cls' if os.name == 'nt' else 'clear')
     print("\nVISUAL GIT")
     print("-" * 30)
-    
+
 class start_menu(Enum):
     WORK_IN_MAIN = "Work in Main"
     WORK_IN_BRANCHES = "Work in Branches"
@@ -119,7 +119,7 @@ def main():
             f"[x] {start_menu.QUICK_ACTIONS.value}",
             "[q] Quit program"
         ]
-      
+
         terminal_menu = TerminalMenu(menu_options, title="Please select an option:")
         menu_entry_index = terminal_menu.show()
 
@@ -155,7 +155,7 @@ def quick_actions():
     while True:
 
         print(f"\n{GREEN}Quick Actions:{ENDC}")
-        
+
         menu_options = [
             f"[a] {main_local_menu.ADD_LOCAL.value}",
             f"[c] {main_local_menu.COMMIT_LOCAL.value}",
@@ -166,7 +166,7 @@ def quick_actions():
             f"[m] {branch_local_menu.GOTO_MAIN.value}",
             f"[x] Back to previous menu",
             "[q] Quit program"
-        ]    
+        ]
 
         terminal_menu = TerminalMenu(menu_options, title="Please select an option:")
         menu_entry_index = terminal_menu.show()

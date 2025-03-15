@@ -96,3 +96,37 @@ def list_local_branches():
         print(branches)
     except subprocess.CalledProcessError as e:
         print(f"Error listing branches: {e}")
+
+def has_unstaged_changes():
+    """Verifica si hay cambios sin preparar en el repositorio."""
+    try:
+        result = subprocess.run(
+            ["git", "diff", "--quiet"],
+            capture_output=True
+        )
+        return result.returncode != 0
+    except Exception:
+        return False
+
+def has_staged_changes():
+    """Verifica si hay cambios preparados para commit."""
+    try:
+        result = subprocess.run(
+            ["git", "diff", "--quiet", "--staged"],
+            capture_output=True
+        )
+        return result.returncode != 0
+    except Exception:
+        return False
+
+def has_stash():
+    """Verifica si hay stashes guardados."""
+    try:
+        result = subprocess.run(
+            ["git", "stash", "list"],
+            capture_output=True,
+            text=True
+        )
+        return bool(result.stdout.strip())
+    except Exception:
+        return False

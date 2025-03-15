@@ -19,34 +19,34 @@ from .config import configuration
 def handle_args():
     parser = argparse.ArgumentParser(description="Visual Git Command Line Tool")
 
-    # Crear subparsers para los diferentes comandos
-    subparsers = parser.add_subparsers(dest='command', help='Comandos disponibles')
+    # Create subparsers for different commands
+    subparsers = parser.add_subparsers(dest='command', help='Available commands')
 
-    # Comando: vg add
-    add_parser = subparsers.add_parser('add', help='Quick action: Add a local repo')
+    # Command: vg a (add repo)
+    add_parser = subparsers.add_parser('a', help='Quick action: Add a local repo')
 
-    # Comando: vg ab (add-branch)
+    # Command: vg ab (add-branch)
     ab_parser = subparsers.add_parser('ab', help='Quick action: Add a local branch')
 
-    # Comando: vg c (commit)
+    # Command: vg c (commit)
     c_parser = subparsers.add_parser('c', help='Quick action: Commit to local repo')
 
-    # Comando: vg cp (commit-push-main)
+    # Command: vg cp (commit-push-main)
     cp_parser = subparsers.add_parser('cp', help='Quick action: Commit & Push in main')
 
-    # Comando: vg cb (commit-push-branch)
+    # Command: vg cb (commit-push-branch)
     cb_parser = subparsers.add_parser('cb', help='Quick action: Commit & Push in branch')
 
-    # Comando: vg o (merge/one)
+    # Command: vg o (merge/one)
     o_parser = subparsers.add_parser('o', help='Quick action: Merge branch with main')
 
-    # Comando: vg n (new configuration)
+    # Command: vg n (new configuration)
     n_parser = subparsers.add_parser('n', help='Quick action: New Configuration')
 
-    # Comando: vg s (see log)
+    # Command: vg s (see log)
     s_parser = subparsers.add_parser('s', help='Quick action: See log')
 
-    # Mantener compatibilidad con las opciones anteriores
+    # Maintain compatibility with previous options
     parser.add_argument("-a", "--add", action="store_true", help="Quick action: Add a local repo")
     parser.add_argument("-ab", "--add-branch", action="store_true", help="Quick action: Add a local branch")
     parser.add_argument("-c", "--commit", action="store_true", help="Quick action: Commit to local repo")

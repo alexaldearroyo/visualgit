@@ -33,7 +33,7 @@ def work_in_branches():
             f"[t] {branch_menu.BRANCH_LOCAL_TO_REMOTE.value}",
             f"[r] {branch_menu.BRANCH_REMOTE_TO_LOCAL.value}",
             f"[m] {branch_menu.MANAGE_BRANCHES.value}",
-            f"[a] Operaciones avanzadas",
+            f"[a] Advanced operations",
             f"[x] Back to main menu",
             "[q] Quit program"
         ]
@@ -120,7 +120,7 @@ def check_local_branches():
         for branch in branches:
             print(f"  {branch}")
     except Exception as e:
-        print(f"Error al mostrar las ramas locales: {e}")
+        print(f"Error displaying local branches: {e}")
 
 def create_local_branch():
     if not is_git_repo():
@@ -180,16 +180,16 @@ def go_to_branch_force():
         branches = result.stdout.strip().split('\n')
 
         if branches:
-            print("Ramas locales:")
+            print("Local branches:")
             for idx, branch in enumerate(branches, 1):
                 print(f"{idx}. {branch}")
 
-            choice = int(input("Selecciona una rama para cambiar (por número): "))
+            choice = int(input("Select a branch to switch to (by number): "))
 
             if 1 <= choice <= len(branches):
-                selected_branch = branches[choice - 1].replace('*', '').strip()  # Quitar el '*' que indica la rama actual
+                selected_branch = branches[choice - 1].replace('*', '').strip()  # Remove the '*' which indicates the current branch
 
-                # Verificar si hay cambios sin confirmar
+                # Check if there are uncommitted changes
                 status_result = subprocess.run(
                     ["git", "status", "--porcelain"],
                     stdout=subprocess.PIPE,
@@ -197,32 +197,31 @@ def go_to_branch_force():
                 )
 
                 if status_result.stdout.strip():
-                    print(f"{YELLOW}Tienes cambios sin confirmar que se perderán al cambiar de rama.{ENDC}")
-                    force_option = input("¿Qué deseas hacer?\n1. Guardar cambios en stash y cambiar\n2. Descartar cambios y cambiar\n3. Cancelar\nSelecciona opción (1-3): ")
+                    print(f"{YELLOW}You have uncommitted changes that will be lost when switching branches.{ENDC}")
+                    force_option = input("What would you like to do?\n1. Save changes to stash and switch\n2. Discard changes and switch\n3. Cancel\nSelect option (1-3): ")
 
                     if force_option == "1":
-                        # Guardar en stash y cambiar
-                        subprocess.run(["git", "stash", "push", "-u", "-m", f"Cambios automáticos antes de cambiar a {selected_branch}"])
+                        # Save to stash and switch
+                        subprocess.run(["git", "stash", "push", "-u", "-m", f"Automatic changes before switching to {selected_branch}"])
                         subprocess.run(["git", "checkout", selected_branch])
-                        print(f"{GREEN}Cambios guardados en stash y cambiado a rama {selected_branch}.{ENDC}")
-                        print("Para recuperar tus cambios, usa 'git stash pop' cuando vuelvas a esta rama.")
+                        print(f"{GREEN}Changes saved to stash and switched to branch {selected_branch}.{ENDC}")
+                        print("To recover your changes, use 'git stash pop' when you return to this branch.")
                     elif force_option == "2":
-                        # Forzar el cambio descartando cambios
+                        # Force switch discarding changes
                         subprocess.run(["git", "checkout", "-f", selected_branch])
-                        print(f"{GREEN}Cambiado a rama {selected_branch}. Los cambios sin confirmar han sido descartados.{ENDC}")
+                        print(f"{GREEN}Switched to branch {selected_branch}. Uncommitted changes have been discarded.{ENDC}")
                     else:
-                        print("Operación cancelada.")
+                        print("Operation cancelled.")
                 else:
-                    # No hay cambios, cambiar normalmente
+                    # No changes, switch normally
                     subprocess.run(["git", "checkout", selected_branch])
-                    print(f"{GREEN}Cambiado a rama {selected_branch}.{ENDC}")
+                    print(f"{GREEN}Switched to branch {selected_branch}.{ENDC}")
             else:
-                print("Opción inválida.")
+                print("Invalid option.")
         else:
-            print("No se encontraron ramas locales. Crea una para continuar.")
+            print("No local branches found. Create one to continue.")
     except Exception as e:
-        print(f"Error al cambiar de rama: {e}")
-
+        print(f"Error switching branches: {e}")
 
 # BRANCHES LOCAL_TO_REMOTE
 class branch_lr_menu(Enum):
@@ -337,26 +336,26 @@ def push_changes_to_remote_branch():
         return
 
     try:
-        # Intentar hacer un push normal primero
+        # Try to do a normal push first
         result = subprocess.run(
             ["git", "push", "origin", branch],
             capture_output=True,
             text=True
         )
 
-        # Si el push normal es exitoso
+        # If the normal push is successful
         if result.returncode == 0:
-            print(f"{GREEN}Cambios enviados correctamente a la rama remota {branch}.{ENDC}")
+            print(f"{GREEN}Changes successfully sent to remote branch {branch}.{ENDC}")
         else:
-            # Si el push falla, mostrar el error y ofrecer force push
-            print(f"{YELLOW}No se pudieron enviar los cambios a la rama remota.{ENDC}")
-            print(f"Razón: {result.stderr.strip()}")
+            # If the push fails, show the error and offer force push
+            print(f"{YELLOW}Could not send changes to remote branch.{ENDC}")
+            print(f"Reason: {result.stderr.strip()}")
 
-            # Preguntar si quiere hacer un force push
-            force_push = input(f"\n¿Quieres forzar el push? {YELLOW}ADVERTENCIA: Esto puede sobrescribir cambios en el repositorio remoto. Esta acción es potencialmente destructiva.{ENDC} (s/n): ").lower()
+            # Ask if they want to do a force push
+            force_push = input(f"\nDo you want to force push? {YELLOW}WARNING: This may overwrite changes in the remote repository. This action is potentially destructive.{ENDC} (y/n): ").lower()
 
-            if force_push == 's':
-                print(f"{YELLOW}Ejecutando force push...{ENDC}")
+            if force_push == 'y':
+                print(f"{YELLOW}Executing force push...{ENDC}")
                 force_result = subprocess.run(
                     ["git", "push", "--force", "origin", branch],
                     capture_output=True,
@@ -364,14 +363,14 @@ def push_changes_to_remote_branch():
                 )
 
                 if force_result.returncode == 0:
-                    print(f"{GREEN}Force push completado. Los cambios han sido enviados forzosamente a la rama remota {branch}.{ENDC}")
+                    print(f"{GREEN}Force push completed. Changes have been forcibly sent to remote branch {branch}.{ENDC}")
                 else:
-                    print(f"{YELLOW}El force push falló: {force_result.stderr.strip()}{ENDC}")
+                    print(f"{YELLOW}Force push failed: {force_result.stderr.strip()}{ENDC}")
             else:
-                print("Operación de push cancelada.")
+                print("Push operation cancelled.")
 
     except Exception as e:
-        print(f"Error enviando cambios a la rama remota: {e}")
+        print(f"Error sending changes to remote branch: {e}")
 
 def commit_and_push_in_branch():
     if not is_git_repo():
@@ -449,31 +448,31 @@ def pull_remote_changes_to_local():
         return
 
     try:
-        # Intentar hacer un pull normal primero
+        # Try to do a normal pull first
         result = subprocess.run(
             ["git", "pull", "origin", branch, "--allow-unrelated-histories"],
             capture_output=True,
             text=True
         )
 
-        # Si el pull normal es exitoso
+        # If the normal pull is successful
         if result.returncode == 0:
-            print(f"{GREEN}Cambios remotos incorporados correctamente a la rama local {branch}.{ENDC}")
+            print(f"{GREEN}Remote changes successfully incorporated into local branch {branch}.{ENDC}")
         else:
-            # Si el pull falla, mostrar el error y ofrecer opciones avanzadas
-            print(f"{YELLOW}No se pudieron incorporar los cambios remotos.{ENDC}")
-            print(f"Razón: {result.stderr.strip()}")
+            # If the pull fails, show the error and offer advanced options
+            print(f"{YELLOW}Could not incorporate remote changes.{ENDC}")
+            print(f"Reason: {result.stderr.strip()}")
 
-            # Preguntar qué estrategia quiere usar
-            print("\nOpciones disponibles:")
-            print("1. Rebase (reposiciona tus cambios encima de los remotos)")
-            print("2. Force pull (descarta cambios locales no confirmados)")
-            print("3. Cancelar operación")
+            # Ask what strategy they want to use
+            print("\nAvailable options:")
+            print("1. Rebase (repositions your changes on top of remote changes)")
+            print("2. Force pull (discards uncommitted local changes)")
+            print("3. Cancel operation")
 
-            choice = input("\nSelecciona una opción (1-3): ")
+            choice = input("\nSelect an option (1-3): ")
 
             if choice == "1":
-                print(f"{YELLOW}Ejecutando pull con rebase...{ENDC}")
+                print(f"{YELLOW}Executing pull with rebase...{ENDC}")
                 rebase_result = subprocess.run(
                     ["git", "pull", "--rebase", "origin", branch],
                     capture_output=True,
@@ -481,28 +480,28 @@ def pull_remote_changes_to_local():
                 )
 
                 if rebase_result.returncode == 0:
-                    print(f"{GREEN}Pull con rebase completado correctamente.{ENDC}")
+                    print(f"{GREEN}Pull with rebase completed successfully.{ENDC}")
                 else:
-                    print(f"{YELLOW}El pull con rebase falló: {rebase_result.stderr.strip()}{ENDC}")
-                    print("Puede que necesites resolver conflictos manualmente.")
+                    print(f"{YELLOW}Pull with rebase failed: {rebase_result.stderr.strip()}{ENDC}")
+                    print("You may need to resolve conflicts manually.")
 
             elif choice == "2":
-                confirm = input(f"{YELLOW}ADVERTENCIA: Esto descartará todos los cambios locales no confirmados. ¿Estás seguro? (s/n): {ENDC}").lower()
-                if confirm == "s":
-                    # Guardar trabajo actual
+                confirm = input(f"{YELLOW}WARNING: This will discard all uncommitted local changes. Are you sure? (y/n): {ENDC}").lower()
+                if confirm == "y":
+                    # Save current work
                     subprocess.run(["git", "stash", "push", "-u"])
-                    # Resetear cambios locales
+                    # Reset local changes
                     subprocess.run(["git", "reset", "--hard", f"origin/{branch}"])
-                    print(f"{GREEN}Los cambios locales han sido reseteados al estado del repositorio remoto.{ENDC}")
-                    print("Tus cambios no confirmados se han guardado en git stash.")
+                    print(f"{GREEN}Local changes have been reset to the state of the remote repository.{ENDC}")
+                    print("Your uncommitted changes have been saved in git stash.")
                 else:
-                    print("Operación cancelada.")
+                    print("Operation cancelled.")
 
             else:
-                print("Operación cancelada.")
+                print("Operation cancelled.")
 
     except Exception as e:
-        print(f"Error al incorporar cambios remotos: {e}")
+        print(f"Error incorporating remote changes: {e}")
 
 
 # BRANCHES MANAGE_BRANCHES
@@ -564,43 +563,43 @@ def merge_branch_with_main():
         print_not_git_repo()
         return
     if is_current_branch_main():
-        print(f"{YELLOW}Ya estás en la rama main. Ve a otra rama para proceder.{ENDC}\nPara ir a otra rama: Acciones rápidas -> Ir a rama")
+        print(f"{YELLOW}You are already on the main branch. Go to another branch to proceed.{ENDC}\nTo go to another branch: Quick actions -> Go to branch")
         return
 
     branch = current_branch()
     if not branch or branch == "main":
-        print("Estás en la rama main o no se pudo determinar la rama actual.")
+        print("You are on the main branch or the current branch could not be determined.")
         return
 
     try:
-        # Ir a la rama main
+        # Go to the main branch
         subprocess.run(["git", "checkout", "main"])
 
-        # Intentar hacer un merge normal primero
+        # Try to do a normal merge first
         result = subprocess.run(
             ["git", "merge", branch, "--allow-unrelated-histories"],
             capture_output=True,
             text=True
         )
 
-        # Si el merge normal es exitoso
+        # If the normal merge is successful
         if result.returncode == 0:
-            print(f"{GREEN}Rama {branch} fusionada correctamente con main.{ENDC}")
+            print(f"{GREEN}Branch {branch} successfully merged with main.{ENDC}")
         else:
-            # Si el merge falla, mostrar el error y ofrecer opciones
-            print(f"{YELLOW}No se pudo fusionar la rama {branch} con main.{ENDC}")
-            print(f"Razón: {result.stderr.strip()}")
+            # If the merge fails, show the error and offer options
+            print(f"{YELLOW}Could not merge branch {branch} with main.{ENDC}")
+            print(f"Reason: {result.stderr.strip()}")
 
-            # Ofrecer opciones para resolver
-            print("\nOpciones disponibles:")
-            print("1. Merge forzado (estrategia ours - prioriza cambios de main)")
-            print("2. Merge forzado (estrategia theirs - prioriza cambios de la rama)")
-            print("3. Cancelar operación")
+            # Offer options to resolve
+            print("\nAvailable options:")
+            print("1. Force merge (ours strategy - prioritizes main changes)")
+            print("2. Force merge (theirs strategy - prioritizes branch changes)")
+            print("3. Cancel operation")
 
-            choice = input("\nSelecciona una opción (1-3): ")
+            choice = input("\nSelect an option (1-3): ")
 
             if choice == "1":
-                print(f"{YELLOW}Ejecutando merge forzado (ours)...{ENDC}")
+                print(f"{YELLOW}Executing forced merge (ours)...{ENDC}")
                 ours_result = subprocess.run(
                     ["git", "merge", "-X", "ours", branch],
                     capture_output=True,
@@ -608,12 +607,12 @@ def merge_branch_with_main():
                 )
 
                 if ours_result.returncode == 0:
-                    print(f"{GREEN}Merge forzado completado. Se han priorizado los cambios de main.{ENDC}")
+                    print(f"{GREEN}Forced merge completed. Main changes have been prioritized.{ENDC}")
                 else:
-                    print(f"{YELLOW}El merge forzado falló: {ours_result.stderr.strip()}{ENDC}")
+                    print(f"{YELLOW}Forced merge failed: {ours_result.stderr.strip()}{ENDC}")
 
             elif choice == "2":
-                print(f"{YELLOW}Ejecutando merge forzado (theirs)...{ENDC}")
+                print(f"{YELLOW}Executing forced merge (theirs)...{ENDC}")
                 theirs_result = subprocess.run(
                     ["git", "merge", "-X", "theirs", branch],
                     capture_output=True,
@@ -621,18 +620,18 @@ def merge_branch_with_main():
                 )
 
                 if theirs_result.returncode == 0:
-                    print(f"{GREEN}Merge forzado completado. Se han priorizado los cambios de la rama {branch}.{ENDC}")
+                    print(f"{GREEN}Forced merge completed. Changes from branch {branch} have been prioritized.{ENDC}")
                 else:
-                    print(f"{YELLOW}El merge forzado falló: {theirs_result.stderr.strip()}{ENDC}")
+                    print(f"{YELLOW}Forced merge failed: {theirs_result.stderr.strip()}{ENDC}")
 
             else:
-                print("Operación de merge cancelada.")
-                # Volver a la rama original
+                print("Merge operation cancelled.")
+                # Return to the original branch
                 subprocess.run(["git", "checkout", branch])
 
     except Exception as e:
-        print(f"Error al fusionar rama con main: {e}")
-        # Intentar volver a la rama original en caso de error
+        print(f"Error merging branch with main: {e}")
+        # Try to return to the original branch in case of error
         try:
             subprocess.run(["git", "checkout", branch])
         except:
@@ -757,24 +756,24 @@ def delete_remote_branch():
     except Exception as e:
         print(f"Error deleting remote branch: {e}")
 
-# Nueva sección para operaciones avanzadas
+# New section for advanced operations
 
 def advanced_operations():
     while True:
-        print(f"\n{GREEN}Operaciones avanzadas{ENDC}")
-        print(f"{YELLOW}ADVERTENCIA: Algunas de estas operaciones pueden ser destructivas.{ENDC}")
+        print(f"\n{GREEN}Advanced Operations{ENDC}")
+        print(f"{YELLOW}WARNING: Some of these operations can be destructive.{ENDC}")
 
         menu_options = [
-            "Reset (deshacer cambios a niveles específicos)",
-            "Clean (eliminar archivos no rastreados)",
-            "Force push (enviar cambios forzadamente)",
-            "Stash (guardar cambios temporalmente)",
-            "Cherry-pick (seleccionar commits específicos)",
-            "Rebase interactivo (reorganizar/editar commits)",
-            "Volver al menú principal"
+            "Reset (undo changes at specific levels)",
+            "Clean (remove untracked files)",
+            "Force push (forcefully send changes)",
+            "Stash (temporarily save changes)",
+            "Cherry-pick (select specific commits)",
+            "Interactive rebase (reorganize/edit commits)",
+            "Return to main menu"
         ]
 
-        terminal_menu = TerminalMenu(menu_options, title="Selecciona una operación:")
+        terminal_menu = TerminalMenu(menu_options, title="Select an operation:")
         choice = terminal_menu.show()
 
         if choice == 0:
@@ -794,55 +793,57 @@ def advanced_operations():
             break
 
 def reset_operations():
-    print(f"\n{GREEN}Operaciones de Reset{ENDC}")
-    print(f"{YELLOW}ADVERTENCIA: Estas operaciones pueden ser destructivas.{ENDC}")
+    print(f"\n{GREEN}Reset Operations{ENDC}")
+    print(f"{YELLOW}WARNING: These operations can be destructive.{ENDC}")
 
     menu_options = [
-        "Soft reset (conserva cambios en el área de preparación)",
-        "Mixed reset (conserva cambios en archivos pero los saca del área de preparación)",
-        "Hard reset (descarta todos los cambios locales)",
-        "Volver al menú anterior"
+        "Soft reset (preserves changes in staging area)",
+        "Mixed reset (preserves changes in files but removes them from staging area)",
+        "Hard reset (discards all local changes)",
+        "Return to previous menu"
     ]
 
-    terminal_menu = TerminalMenu(menu_options, title="Selecciona el tipo de reset:")
+    terminal_menu = TerminalMenu(menu_options, title="Select reset type:")
     choice = terminal_menu.show()
 
-    if choice == 3:  # Volver atrás
+    if choice == 3:  # Return to previous menu
         return
 
-    # Obtener el commit al que hacer reset
-    print("\nOpciones de reset:")
-    print("1. Reset al último commit")
-    print("2. Reset a un número específico de commits atrás")
-    print("3. Reset a un hash de commit específico")
+    # Get the commit to reset to
+    print("\nReset options:")
+    print("1. Reset to the last commit")
+    print("2. Reset to a specific number of commits back")
+    print("3. Reset to a specific commit hash")
 
-    reset_option = input("Selecciona una opción (1-3): ")
+    reset_option = input("Select an option (1-3): ")
 
     reset_target = ""
+
     if reset_option == "1":
         reset_target = "HEAD~1"
     elif reset_option == "2":
-        num_commits = input("¿Cuántos commits atrás? ")
+        num_commits = input("How many commits back? ")
         try:
             reset_target = f"HEAD~{int(num_commits)}"
         except ValueError:
-            print("Número inválido. Operación cancelada.")
+            print("Invalid number. Operation cancelled.")
             return
     elif reset_option == "3":
-        # Mostrar últimos commits para referencia
+        # Show recent commits for reference
         subprocess.run(["git", "--no-pager", "log", "--oneline", "-n", "10"])
-        reset_target = input("\nIngresa el hash del commit: ")
+        reset_target = input("\nEnter the commit hash: ")
     else:
-        print("Opción inválida. Operación cancelada.")
+        print("Invalid option. Operation cancelled.")
         return
 
-    # Confirmar la operación
-    confirm = input(f"{YELLOW}Esta operación puede ser destructiva. ¿Estás seguro? (s/n): {ENDC}").lower()
-    if confirm != "s":
-        print("Operación cancelada.")
+    # Confirm the operation
+    confirm = input(f"{YELLOW}This operation can be destructive. Are you sure? (y/n): {ENDC}").lower()
+    if confirm != "y":
+        print("Operation cancelled.")
         return
 
-    # Ejecutar el reset correspondiente
+
+    # Execute the corresponding reset
     reset_type = ["--soft", "--mixed", "--hard"][choice]
     try:
         result = subprocess.run(
@@ -852,65 +853,65 @@ def reset_operations():
         )
 
         if result.returncode == 0:
-            print(f"{GREEN}Reset {reset_type} completado correctamente.{ENDC}")
+            print(f"{GREEN}Reset {reset_type} completed successfully.{ENDC}")
             if reset_type == "--hard":
-                print("Todos los cambios locales han sido descartados.")
+                print("All local changes have been discarded.")
             elif reset_type == "--soft":
-                print("Los cambios se han conservado en el área de preparación.")
+                print("Changes have been preserved in the staging area.")
             else:  # mixed
-                print("Los cambios se han conservado en los archivos pero se han sacado del área de preparación.")
+                print("Changes have been preserved in files but removed from the staging area.")
         else:
-            print(f"{YELLOW}Error al ejecutar reset: {result.stderr.strip()}{ENDC}")
+            print(f"{YELLOW}Error executing reset: {result.stderr.strip()}{ENDC}")
     except Exception as e:
-        print(f"Error durante el reset: {e}")
+        print(f"Error during reset: {e}")
 
 def clean_untracked_files():
-    print(f"\n{GREEN}Limpiar archivos no rastreados{ENDC}")
+    print(f"\n{GREEN}Clean untracked files{ENDC}")
 
-    # Mostrar archivos no rastreados
-    print("\nArchivos no rastreados:")
+    # Show untracked files
+    print("\nUntracked files:")
     subprocess.run(["git", "ls-files", "--others", "--exclude-standard"])
 
     menu_options = [
-        "Modo interactivo (seleccionar archivos a eliminar)",
-        "Eliminar todos los archivos no rastreados",
-        "Eliminar archivos no rastreados y directorios",
-        "Volver al menú anterior"
+        "Interactive mode (select files to delete)",
+        "Delete all untracked files",
+        "Delete untracked files and directories",
+        "Back to previous menu"
     ]
 
-    terminal_menu = TerminalMenu(menu_options, title="Selecciona una opción:")
+    terminal_menu = TerminalMenu(menu_options, title="Select an option:")
     choice = terminal_menu.show()
 
-    if choice == 3:  # Volver atrás
+    if choice == 3:  # Go back
         return
 
-    # Confirmar la operación
+    # Confirm the operation
     if choice == 0:
-        print("Iniciando modo interactivo...")
+        print("Starting interactive mode...")
         subprocess.run(["git", "clean", "-i"])
     else:
-        # Para opciones 1 y 2, pedir confirmación explícita
-        clean_message = "todos los archivos no rastreados"
+        # For options 1 and 2, ask for explicit confirmation
+        clean_message = "all untracked files"
         clean_command = ["git", "clean", "-f"]
 
         if choice == 1:
-            clean_message = "todos los archivos no rastreados"
+            clean_message = "all untracked files"
         elif choice == 2:
-            clean_message = "todos los archivos no rastreados y directorios"
+            clean_message = "all untracked files and directories"
             clean_command = ["git", "clean", "-fd"]
 
-        confirm = input(f"{YELLOW}¿Estás seguro de que quieres eliminar {clean_message}? Esta acción no se puede deshacer. (s/n): {ENDC}").lower()
-        if confirm == "s":
+        confirm = input(f"{YELLOW}Are you sure you want to delete {clean_message}? This action cannot be undone. (y/n): {ENDC}").lower()
+        if confirm == "y":
             try:
                 result = subprocess.run(clean_command, capture_output=True, text=True)
                 if result.returncode == 0:
-                    print(f"{GREEN}Limpieza completada correctamente.{ENDC}")
+                    print(f"{GREEN}Cleaning completed successfully.{ENDC}")
                 else:
-                    print(f"{YELLOW}Error durante la limpieza: {result.stderr.strip()}{ENDC}")
+                    print(f"{YELLOW}Error during cleaning: {result.stderr.strip()}{ENDC}")
             except Exception as e:
-                print(f"Error durante la limpieza: {e}")
+                print(f"Error during cleaning: {e}")
         else:
-            print("Operación cancelada.")
+            print("Operation cancelled.")
 
 def force_push():
     branch = current_branch()
@@ -919,35 +920,35 @@ def force_push():
         return
 
     print(f"\n{GREEN}Force Push{ENDC}")
-    print(f"{YELLOW}ADVERTENCIA: Esta operación puede sobrescribir cambios en el repositorio remoto.{ENDC}")
+    print(f"{YELLOW}WARNING: This operation may overwrite changes in the remote repository.{ENDC}")
 
-    # Ofrecer opciones para diferentes tipos de force push
+    # Offer options for different types of force push
     menu_options = [
-        "Force push normal (--force)",
-        "Force push seguro (--force-with-lease)",
-        "Volver al menú anterior"
+        "Normal force push (--force)",
+        "Safe force push (--force-with-lease)",
+        "Back to previous menu"
     ]
 
-    terminal_menu = TerminalMenu(menu_options, title="Selecciona el tipo de force push:")
+    terminal_menu = TerminalMenu(menu_options, title="Select the type of force push:")
     choice = terminal_menu.show()
 
-    if choice == 2:  # Volver atrás
+    if choice == 2:  # Go back
         return
 
-    # Confirmar la operación
-    warning_message = "Esta acción puede sobrescribir cambios remotos permanentemente."
+    # Confirm the operation
+    warning_message = "This action may permanently overwrite remote changes."
     if choice == 0:
-        confirm = input(f"{YELLOW}Force push normal: {warning_message} ¿Estás seguro? (s/n): {ENDC}").lower()
+        confirm = input(f"{YELLOW}Normal force push: {warning_message} Are you sure? (y/n): {ENDC}").lower()
         push_option = "--force"
     else:  # choice == 1
-        confirm = input(f"{YELLOW}Force push seguro: Solo sobrescribirá si no hay cambios nuevos en remoto. ¿Continuar? (s/n): {ENDC}").lower()
+        confirm = input(f"{YELLOW}Safe force push: Will only overwrite if there are no new changes in remote. Continue? (y/n): {ENDC}").lower()
         push_option = "--force-with-lease"
 
-    if confirm != "s":
-        print("Operación cancelada.")
+    if confirm != "y":
+        print("Operation cancelled.")
         return
 
-    # Ejecutar el force push
+    # Execute the force push
     try:
         result = subprocess.run(
             ["git", "push", push_option, "origin", branch],
@@ -956,30 +957,30 @@ def force_push():
         )
 
         if result.returncode == 0:
-            print(f"{GREEN}Force push completado. Los cambios han sido enviados forzosamente a la rama remota {branch}.{ENDC}")
+            print(f"{GREEN}Force push completed. Changes have been forcibly sent to remote branch {branch}.{ENDC}")
         else:
-            print(f"{YELLOW}El force push falló: {result.stderr.strip()}{ENDC}")
+            print(f"{YELLOW}Force push failed: {result.stderr.strip()}{ENDC}")
     except Exception as e:
-        print(f"Error durante el force push: {e}")
+        print(f"Error during force push: {e}")
 
 def stash_operations():
-    print(f"\n{GREEN}Operaciones con Stash{ENDC}")
+    print(f"\n{GREEN}Stash Operations{ENDC}")
 
     menu_options = [
-        "Guardar cambios en stash",
-        "Listar stashes guardados",
-        "Aplicar stash (conservando en la lista)",
-        "Aplicar y eliminar stash",
-        "Eliminar stash específico",
-        "Eliminar todos los stashes",
-        "Volver al menú anterior"
+        "Save changes to stash",
+        "List saved stashes",
+        "Apply stash (keeping in list)",
+        "Apply and remove stash",
+        "Delete specific stash",
+        "Delete all stashes",
+        "Back to previous menu"
     ]
 
-    terminal_menu = TerminalMenu(menu_options, title="Selecciona una operación:")
+    terminal_menu = TerminalMenu(menu_options, title="Select an operation:")
     choice = terminal_menu.show()
 
-    if choice == 0:  # Guardar en stash
-        message = input("Mensaje descriptivo para el stash (opcional): ")
+    if choice == 0:  # Save to stash
+        message = input("Descriptive message for the stash (optional): ")
         try:
             if message:
                 result = subprocess.run(["git", "stash", "push", "-m", message], capture_output=True, text=True)
@@ -988,135 +989,135 @@ def stash_operations():
 
             if result.returncode == 0:
                 if "No local changes to save" in result.stdout:
-                    print("No hay cambios locales para guardar en stash.")
+                    print("No local changes to save in stash.")
                 else:
-                    print(f"{GREEN}Cambios guardados correctamente en stash.{ENDC}")
+                    print(f"{GREEN}Changes successfully saved to stash.{ENDC}")
             else:
-                print(f"{YELLOW}Error al guardar en stash: {result.stderr.strip()}{ENDC}")
+                print(f"{YELLOW}Error saving to stash: {result.stderr.strip()}{ENDC}")
         except Exception as e:
-            print(f"Error en la operación de stash: {e}")
+            print(f"Error in stash operation: {e}")
 
-    elif choice == 1:  # Listar stashes
+    elif choice == 1:  # List stashes
         try:
             result = subprocess.run(["git", "stash", "list"], capture_output=True, text=True)
             if result.stdout.strip():
-                print("\nStashes guardados:")
+                print("\nSaved stashes:")
                 print(result.stdout)
             else:
-                print("No hay stashes guardados.")
+                print("No saved stashes.")
         except Exception as e:
-            print(f"Error al listar stashes: {e}")
+            print(f"Error listing stashes: {e}")
 
-    elif choice in [2, 3]:  # Aplicar stash
-        # Primero listar los stashes disponibles
+    elif choice in [2, 3]:  # Apply stash
+        # First list available stashes
         try:
             stash_list = subprocess.run(["git", "stash", "list"], capture_output=True, text=True).stdout.strip()
 
             if not stash_list:
-                print("No hay stashes guardados.")
+                print("No saved stashes.")
                 return
 
-            print("\nStashes disponibles:")
+            print("\nAvailable stashes:")
             print(stash_list)
 
-            stash_index = input("\nIngresa el índice del stash (0 para el más reciente, 1 para el siguiente, etc.): ")
+            stash_index = input("\nEnter the stash index (0 for most recent, 1 for next, etc.): ")
             try:
                 stash_ref = f"stash@{{{stash_index}}}"
             except ValueError:
-                print("Índice inválido. Operación cancelada.")
+                print("Invalid index. Operation cancelled.")
                 return
 
-            if choice == 2:  # Aplicar conservando
+            if choice == 2:  # Apply keeping
                 result = subprocess.run(["git", "stash", "apply", stash_ref], capture_output=True, text=True)
-                success_message = "Stash aplicado correctamente y conservado en la lista."
+                success_message = "Stash applied successfully and kept in the list."
             else:  # choice == 3, apply and drop
                 result = subprocess.run(["git", "stash", "pop", stash_ref], capture_output=True, text=True)
-                success_message = "Stash aplicado correctamente y eliminado de la lista."
+                success_message = "Stash applied successfully and removed from the list."
 
             if result.returncode == 0:
                 print(f"{GREEN}{success_message}{ENDC}")
             else:
-                print(f"{YELLOW}Error al aplicar stash: {result.stderr.strip()}{ENDC}")
+                print(f"{YELLOW}Error applying stash: {result.stderr.strip()}{ENDC}")
         except Exception as e:
-            print(f"Error en la operación de stash: {e}")
+            print(f"Error in stash operation: {e}")
 
-    elif choice == 4:  # Eliminar stash específico
+    elif choice == 4:  # Delete specific stash
         try:
             stash_list = subprocess.run(["git", "stash", "list"], capture_output=True, text=True).stdout.strip()
 
             if not stash_list:
-                print("No hay stashes guardados.")
+                print("No saved stashes.")
                 return
 
-            print("\nStashes disponibles:")
+            print("\nAvailable stashes:")
             print(stash_list)
 
-            stash_index = input("\nIngresa el índice del stash a eliminar: ")
+            stash_index = input("\nEnter the index of the stash to delete: ")
             try:
                 stash_ref = f"stash@{{{stash_index}}}"
             except ValueError:
-                print("Índice inválido. Operación cancelada.")
+                print("Invalid index. Operation cancelled.")
                 return
 
-            confirm = input(f"{YELLOW}¿Estás seguro de que quieres eliminar este stash? Esta acción no se puede deshacer. (s/n): {ENDC}").lower()
-            if confirm != "s":
-                print("Operación cancelada.")
+            confirm = input(f"{YELLOW}Are you sure you want to delete this stash? This action cannot be undone. (y/n): {ENDC}").lower()
+            if confirm != "y":
+                print("Operation cancelled.")
                 return
 
             result = subprocess.run(["git", "stash", "drop", stash_ref], capture_output=True, text=True)
             if result.returncode == 0:
-                print(f"{GREEN}Stash eliminado correctamente.{ENDC}")
+                print(f"{GREEN}Stash deleted successfully.{ENDC}")
             else:
-                print(f"{YELLOW}Error al eliminar stash: {result.stderr.strip()}{ENDC}")
+                print(f"{YELLOW}Error deleting stash: {result.stderr.strip()}{ENDC}")
         except Exception as e:
-            print(f"Error en la operación de stash: {e}")
+            print(f"Error in stash operation: {e}")
 
-    elif choice == 5:  # Eliminar todos los stashes
-        confirm = input(f"{YELLOW}¿Estás seguro de que quieres eliminar TODOS los stashes? Esta acción no se puede deshacer. (s/n): {ENDC}").lower()
-        if confirm != "s":
-            print("Operación cancelada.")
+    elif choice == 5:  # Delete all stashes
+        confirm = input(f"{YELLOW}Are you sure you want to delete ALL stashes? This action cannot be undone. (y/n): {ENDC}").lower()
+        if confirm != "y":
+            print("Operation cancelled.")
             return
 
         try:
             result = subprocess.run(["git", "stash", "clear"], capture_output=True, text=True)
-            print(f"{GREEN}Todos los stashes han sido eliminados.{ENDC}")
+            print(f"{GREEN}All stashes have been deleted.{ENDC}")
         except Exception as e:
-            print(f"Error al eliminar stashes: {e}")
+            print(f"Error deleting stashes: {e}")
 
-    elif choice == 6:  # Volver atrás
+    elif choice == 6:  # Go back
         return
 
 def cherry_pick_commits():
-    print(f"\n{GREEN}Cherry-pick (seleccionar commits específicos){ENDC}")
+    print(f"\n{GREEN}Cherry-pick (select specific commits){ENDC}")
 
-    # Mostrar últimos commits para seleccionar
-    print("\nÚltimos commits disponibles:")
+    # Show latest commits to select from
+    print("\nLatest available commits:")
     try:
         subprocess.run(["git", "--no-pager", "log", "--oneline", "-n", "20"])
     except Exception as e:
-        print(f"Error al mostrar commits: {e}")
+        print(f"Error showing commits: {e}")
         return
 
-    commit_hash = input("\nIngresa el hash del commit que quieres aplicar: ")
+    commit_hash = input("\nEnter the hash of the commit you want to apply: ")
     if not commit_hash:
-        print("Operación cancelada.")
+        print("Operation cancelled.")
         return
 
-    # Opciones para el cherry-pick
+    # Options for cherry-pick
     menu_options = [
-        "Cherry-pick normal (crear nuevo commit)",
-        "Cherry-pick sin crear commit (--no-commit)",
-        "Cherry-pick y editar mensaje de commit (--edit)",
-        "Volver al menú anterior"
+        "Normal cherry-pick (create new commit)",
+        "Cherry-pick without creating commit (--no-commit)",
+        "Cherry-pick and edit commit message (--edit)",
+        "Back to previous menu"
     ]
 
-    terminal_menu = TerminalMenu(menu_options, title="Selecciona una opción:")
+    terminal_menu = TerminalMenu(menu_options, title="Select an option:")
     choice = terminal_menu.show()
 
-    if choice == 3:  # Volver atrás
+    if choice == 3:  # Go back
         return
 
-    # Preparar el comando según la opción
+    # Prepare command according to option
     cherry_pick_cmd = ["git", "cherry-pick"]
     if choice == 1:
         cherry_pick_cmd.append("--no-commit")
@@ -1125,104 +1126,104 @@ def cherry_pick_commits():
 
     cherry_pick_cmd.append(commit_hash)
 
-    # Ejecutar cherry-pick
+    # Execute cherry-pick
     try:
         result = subprocess.run(cherry_pick_cmd, capture_output=True, text=True)
 
         if result.returncode == 0:
-            print(f"{GREEN}Cherry-pick completado correctamente.{ENDC}")
+            print(f"{GREEN}Cherry-pick completed successfully.{ENDC}")
             if choice == 1:
-                print("Los cambios se han aplicado pero no se ha creado un commit. Puedes modificarlos y luego hacer commit.")
+                print("Changes have been applied but no commit has been created. You can modify them and then commit.")
         else:
-            print(f"{YELLOW}Error al hacer cherry-pick: {result.stderr.strip()}{ENDC}")
+            print(f"{YELLOW}Error during cherry-pick: {result.stderr.strip()}{ENDC}")
 
-            # Ofrecer opciones en caso de conflicto
+            # Offer options in case of conflict
             if "conflict" in result.stderr:
-                print("\nSe detectaron conflictos. Opciones disponibles:")
+                print("\nConflicts detected. Available options:")
                 conflict_options = [
-                    "Continuar manualmente (resolver conflictos en el editor)",
-                    "Abortar cherry-pick y volver al estado anterior",
-                    "Volver al menú"
+                    "Continue manually (resolve conflicts in editor)",
+                    "Abort cherry-pick and return to previous state",
+                    "Back to menu"
                 ]
 
-                conflict_menu = TerminalMenu(conflict_options, title="¿Qué deseas hacer?")
+                conflict_menu = TerminalMenu(conflict_options, title="What do you want to do?")
                 conflict_choice = conflict_menu.show()
 
                 if conflict_choice == 0:
-                    print("Continúa resolviendo los conflictos manualmente en tu editor.")
-                    print("Después de resolverlos, usa 'git add' para los archivos modificados y 'git cherry-pick --continue'.")
+                    print("Continue resolving conflicts manually in your editor.")
+                    print("After resolving them, use 'git add' for the modified files and 'git cherry-pick --continue'.")
                 elif conflict_choice == 1:
                     abort_result = subprocess.run(["git", "cherry-pick", "--abort"], capture_output=True, text=True)
                     if abort_result.returncode == 0:
-                        print(f"{GREEN}Cherry-pick abortado. Se ha restaurado el estado anterior.{ENDC}")
+                        print(f"{GREEN}Cherry-pick aborted. Previous state has been restored.{ENDC}")
                     else:
-                        print(f"{YELLOW}Error al abortar cherry-pick: {abort_result.stderr.strip()}{ENDC}")
+                        print(f"{YELLOW}Error aborting cherry-pick: {abort_result.stderr.strip()}{ENDC}")
     except Exception as e:
-        print(f"Error durante el cherry-pick: {e}")
+        print(f"Error during cherry-pick: {e}")
 
 def interactive_rebase():
-    print(f"\n{GREEN}Rebase interactivo{ENDC}")
-    print(f"{YELLOW}ADVERTENCIA: Esta operación reescribe el historial de commits.{ENDC}")
+    print(f"\n{GREEN}Interactive Rebase{ENDC}")
+    print(f"{YELLOW}WARNING: This operation rewrites commit history.{ENDC}")
 
-    # Mostrar últimos commits para referencia
-    print("\nÚltimos commits:")
+    # Show recent commits for reference
+    print("\nRecent commits:")
     try:
         subprocess.run(["git", "--no-pager", "log", "--oneline", "-n", "10"])
     except Exception as e:
-        print(f"Error al mostrar commits: {e}")
+        print(f"Error displaying commits: {e}")
         return
 
-    # Opciones para el rebase
-    print("\nEspecifica cuántos commits quieres incluir en el rebase:")
-    print("1. Últimos N commits")
-    print("2. Desde un commit específico")
-    print("3. Volver al menú anterior")
+    # Rebase options
+    print("\nSpecify how many commits you want to include in the rebase:")
+    print("1. Last N commits")
+    print("2. From a specific commit")
+    print("3. Return to previous menu")
 
-    rebase_option = input("Selecciona una opción (1-3): ")
+    rebase_option = input("Select an option (1-3): ")
 
     if rebase_option == "3" or not rebase_option:
         return
 
     rebase_target = ""
     if rebase_option == "1":
-        num_commits = input("¿Cuántos commits atrás? ")
+        num_commits = input("How many commits back? ")
         try:
             rebase_target = f"HEAD~{int(num_commits)}"
         except ValueError:
-            print("Número inválido. Operación cancelada.")
+            print("Invalid number. Operation cancelled.")
             return
     elif rebase_option == "2":
-        rebase_target = input("Ingresa el hash del commit base: ")
+        rebase_target = input("Enter the base commit hash: ")
     else:
-        print("Opción inválida. Operación cancelada.")
+        print("Invalid option. Operation cancelled.")
         return
 
-    # Confirmación extra debido a la naturaleza destructiva
-    confirm = input(f"{YELLOW}El rebase interactivo modificará el historial de commits. Esta operación puede causar problemas si los commits ya han sido compartidos. ¿Estás seguro? (s/n): {ENDC}").lower()
-    if confirm != "s":
-        print("Operación cancelada.")
+    # Extra confirmation due to destructive nature
+    confirm = input(f"{YELLOW}Interactive rebase will modify commit history. This operation can cause problems if commits have already been shared. Are you sure? (y/n): {ENDC}").lower()
+    if confirm != "y":
+        print("Operation cancelled.")
         return
 
-    # Ejecutar el rebase interactivo
-    print("\nSe abrirá el editor para el rebase interactivo. Instrucciones:")
-    print("- pick: mantener el commit como está")
-    print("- reword: mantener el commit pero cambiar su mensaje")
-    print("- edit: mantener el commit pero pausar para modificarlo")
-    print("- squash: combinar con el commit anterior (mantiene ambos mensajes)")
-    print("- fixup: combinar con el commit anterior (descarta su mensaje)")
-    print("- drop: eliminar el commit")
-    print("\nGuarda y cierra el editor para continuar con el rebase.")
+    # Execute interactive rebase
+    print("\nThe editor will open for interactive rebase. Instructions:")
+    print("- pick: keep the commit as is")
+    print("- reword: keep the commit but change its message")
+    print("- edit: keep the commit but pause to modify it")
+    print("- squash: combine with previous commit (keeps both messages)")
+    print("- fixup: combine with previous commit (discards its message)")
+    print("- drop: remove the commit")
+    print("\nSave and close the editor to continue with the rebase.")
 
-    input("\nPresiona Enter para continuar...")
+    input("\nPress Enter to continue...")
 
     try:
-        # El flag -i indica rebase interactivo
+        # The -i flag indicates interactive rebase
         result = subprocess.run(["git", "rebase", "-i", rebase_target])
 
-        # El resultado dependerá de la interacción del usuario con el editor
+        # The result will depend on user interaction with the editor
         if result.returncode == 0:
-            print(f"{GREEN}Rebase interactivo completado correctamente.{ENDC}")
+            print(f"{GREEN}Interactive rebase completed successfully.{ENDC}")
         else:
-            print(f"{YELLOW}El rebase interactivo no completó correctamente. Puede que haya conflictos por resolver.{ENDC}")
+            print(f"{YELLOW}Interactive rebase did not complete successfully. There may be conflicts to resolve.{ENDC}")
     except Exception as e:
-        print(f"Error durante el rebase interactivo: {e}")
+        print(f"Error during interactive rebase: {e}")

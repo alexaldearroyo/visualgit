@@ -506,7 +506,7 @@ def pull_remote_changes_to_local():
 
 # BRANCHES MANAGE_BRANCHES
 class manage_branch_menu(Enum):
-    MERGE = 'Merge Branch with Main'
+    MERGE = 'Merge One Branch with Main'
     PULL_BRANCH = 'Yank Remote Branch Changes to Local'
     DELETE_LOCAL_BRANCH = 'Delete Local Branch'
     DELETE_REMOTE_BRANCH = 'Delete Remote Branch'
@@ -516,24 +516,23 @@ def manage_branches():
     while True:
         current = current_branch()
         if current:
-            print(f"\n{GREEN}Gestionar ramas{ENDC} (Actualmente en: {current}):")
+            print(f"\n{GREEN}Manage branches{ENDC} (Currently on: {current}):")
         else:
-            print(f"\n{GREEN}Gestionar ramas:{ENDC}")
+            print(f"\n{GREEN}Manage branches:{ENDC}")
 
         menu_options = [
-            f"[s] {branch_local_menu.CHECK_LOCAL_BRANCH.value}",
+            f"[l] {branch_local_menu.CHECK_LOCAL_BRANCH.value}",
             f"[r] {branch_lr_menu.CHECK_REMOTE_BRANCH.value}",
-            f"[m] {manage_branch_menu.MERGE.value}",
+            f"[o] {manage_branch_menu.MERGE.value}",
             f"[g] {branch_local_menu.GOTO_BRANCH.value}",
-            f"[gf] Ir a rama (forzado)",
-            f"[gm] {branch_local_menu.GOTO_MAIN.value}",
-            f"[dl] {manage_branch_menu.DELETE_LOCAL_BRANCH.value}",
-            f"[dr] {manage_branch_menu.DELETE_REMOTE_BRANCH.value}",
-            "[x] Volver al menú anterior",
-            "[q] Salir del programa"
+            f"[m] {branch_local_menu.GOTO_MAIN.value}",
+            f"[d] {manage_branch_menu.DELETE_LOCAL_BRANCH.value}",
+            f"[e] {manage_branch_menu.DELETE_REMOTE_BRANCH.value}",
+            "[x] Back to previous menu",
+            "[q] Quit program"
         ]
 
-        terminal_menu = TerminalMenu(menu_options, title="Por favor, selecciona una opción:")
+        terminal_menu = TerminalMenu(menu_options, title="Please select an option:")
         menu_entry_index = terminal_menu.show()
 
         if menu_entry_index == 0:
@@ -545,17 +544,15 @@ def manage_branches():
         elif menu_entry_index == 3:
             go_to_branch()
         elif menu_entry_index == 4:
-            go_to_branch_force()
-        elif menu_entry_index == 5:
             go_to_main()
-        elif menu_entry_index == 6:
+        elif menu_entry_index == 5:
             delete_local_branch()
-        elif menu_entry_index == 7:
+        elif menu_entry_index == 6:
             delete_remote_branch()
-        elif menu_entry_index == 8:
+        elif menu_entry_index == 7:
             clear_screen()
             break
-        elif menu_entry_index == 9:
+        elif menu_entry_index == 8:
             quit()
 
 def merge_branch_with_main():

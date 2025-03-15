@@ -17,7 +17,15 @@ from .config import configuration
 
 
 def handle_args():
-    parser = argparse.ArgumentParser(description="Visual Git Command Line Tool")
+    parser = argparse.ArgumentParser(add_help=False)
+    parser.add_argument('-h', '--help', action='help', help='Show this help message and exit')
+
+    parser.add_argument(
+        "-n",
+        "--new",
+        action="store_true",
+        help="Quick action: New Configuration",
+    )
 
     parser.add_argument(
         "-a",
@@ -53,10 +61,18 @@ def handle_args():
         help="Quick action: Commit & Push in branch",
     )
     parser.add_argument(
-        "-m",
+        "-o",
         "--merge",
+        "--one",
         action="store_true",
         help="Quick action: Merge branch with main",
+    )
+
+    parser.add_argument(
+        "-s",
+        "--see",
+        action="store_true",
+        help="Quick action: See log",
     )
 
     return parser.parse_args()
@@ -98,6 +114,12 @@ def main():
         return
     if args.merge:
         merge_branch_with_main()
+    if args.new:
+        configuration()
+        return
+    if args.see:
+        check_log()
+        return
 
     if not is_git_installed():
         print("Git is not installed. You need to install git to use VisualGit.")
@@ -148,7 +170,14 @@ def main():
 
 
 def check_log():
-    subprocess.run(["git", "log"])
+    if not is_git_repo():
+        print_not_git_repo()
+        return
+
+    try:
+        subprocess.run(["git", "log", "--oneline"])
+    except Exception as e:
+        print(f"Error checking log: {e}")
 
 
 def quick_actions():

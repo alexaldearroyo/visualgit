@@ -15,7 +15,7 @@ def is_git_installed():
 
 def is_git_repo():
     try:
-        # Usar git rev-parse para verificar si estamos en un repositorio Git
+        # Use git rev-parse to verify if we are in a Git repository
         result = subprocess.run(
             ["git", "rev-parse", "--is-inside-work-tree"],
             stdout=subprocess.PIPE,
@@ -98,7 +98,7 @@ def list_local_branches():
         print(f"Error listing branches: {e}")
 
 def has_unstaged_changes():
-    """Verifica si hay cambios sin preparar en el repositorio."""
+    """Checks if there are unstaged changes in the repository."""
     try:
         result = subprocess.run(
             ["git", "diff", "--quiet"],
@@ -109,7 +109,7 @@ def has_unstaged_changes():
         return False
 
 def has_staged_changes():
-    """Verifica si hay cambios preparados para commit."""
+    """Checks if there are changes staged for commit."""
     try:
         result = subprocess.run(
             ["git", "diff", "--quiet", "--staged"],
@@ -120,7 +120,7 @@ def has_staged_changes():
         return False
 
 def has_stash():
-    """Verifica si hay stashes guardados."""
+    """Checks if there are saved stashes."""
     try:
         result = subprocess.run(
             ["git", "stash", "list"],

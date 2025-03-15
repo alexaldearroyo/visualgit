@@ -1,0 +1,14 @@
+setup.py
+vigit/__init__.py
+vigit/branx.py
+vigit/checks.py
+vigit/config.py
+vigit/main.py
+vigit/mainm.py
+vigit/utils.py
+vigit.egg-info/PKG-INFO
+vigit.egg-info/SOURCES.txt
+vigit.egg-info/dependency_links.txt
+vigit.egg-info/entry_points.txt
+vigit.egg-info/requires.txt
+vigit.egg-info/top_level.txt

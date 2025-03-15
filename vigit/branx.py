@@ -77,8 +77,8 @@ def branch_local():
             f"[s] See Local Branches",
             f"[a] Add a Local Branch",
             f"[c] Commit to Current Branch",
-            f"[b] Go to Branch",
-            f"[g] Go to Main",
+            f"[g] Go to Branch",
+            f"[m] Go to Main",
             "[x] Back to previous menu",
             "[q] Quit program"
         ]

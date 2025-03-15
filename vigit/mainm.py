@@ -11,20 +11,20 @@ def clear_screen():
     os.system('cls' if os.name == 'nt' else 'clear')
     print("\nVISUAL GIT")
     print("-" * 30)
-    
+
 
 class main_menu(Enum):
     LOCAL = 'Local'
     LOCAL_TO_REMOTE = 'Local to Remote'
     REMOTE_TO_LOCAL = 'Remote to Local'
     MANAGE_REPOS = 'Manage Repos'
-    
-    
+
+
 def work_in_main():
     while True:
-        
+
         print(f"\n{GREEN}Work in main: {ENDC}")
-    
+
         menu_options = [
             f"[l] {main_menu.LOCAL.value}",
             f"[t] {main_menu.LOCAL_TO_REMOTE.value}",
@@ -33,7 +33,7 @@ def work_in_main():
             "[x] Back to main menu",
             "[q] Quit program"
         ]
-        
+
         terminal_menu = TerminalMenu(menu_options, title="Please select an option:")
         menu_entry_index = terminal_menu.show()
 
@@ -63,7 +63,7 @@ class main_local_menu(Enum):
 
 def main_local():
     while True:
-        
+
         print(f"\n{GREEN}Main -Local:{ENDC}")
 
         menu_options = [
@@ -93,17 +93,17 @@ def check_local_repos():
     if not is_git_repo():
         print_not_git_repo()
         return
-    
+
     try:
         subprocess.run(["git", "status"])
     except Exception as e:
             print(f"Error executing git status: {e}")
- 
+
 def create_local_repo():
     if is_git_repo():
         print_git_repo()
         return
-    
+
     try:
         subprocess.run(["git", "init"])
         print("Local repository has been successfully created in the present working directory.")
@@ -114,7 +114,7 @@ def commit_to_local_repo():
     if not is_git_repo():
         print_not_git_repo()
         return
-    
+
     try:
         subprocess.run(["git", "add", "."])
         message = input("Enter commit message: ")
@@ -134,9 +134,9 @@ class main_lr_menu(Enum):
 
 def main_local_to_remote():
     while True:
-        
+
         print(f"\n{GREEN}Main -Local to remote:{ENDC}")
-        
+
         menu_options = [
             f"[s] {main_lr_menu.CHECK_REMOTE.value}",
             f"[j] {main_lr_menu.LINK.value}",
@@ -162,7 +162,7 @@ def main_local_to_remote():
             break
         elif menu_entry_index == 5:
             quit()
-        
+
 def check_remote_repos():
     if not is_connected_to_remote():
         print_not_connected_to_remote()
@@ -176,7 +176,7 @@ def connect_local_with_remote():
     if not is_git_repo():
         print_not_git_repo()
         return
-    
+
     if is_connected_to_remote():
         print_connected_to_remote()
         return
@@ -193,11 +193,11 @@ def push_changes_to_remote():
     if not is_git_repo():
         print_not_git_repo()
         return
-    
+
     if not is_connected_to_remote():
         print_not_connected_to_remote()
         return
-    
+
     try:
         subprocess.run(["git", "push", "-u", "origin", "main"])
     except Exception as e:
@@ -208,7 +208,7 @@ def commit_and_push():
     if not is_git_repo():
         print_not_git_repo()
         return
-    
+
     if not is_connected_to_remote():
         print_not_connected_to_remote()
         return
@@ -231,13 +231,13 @@ class main_rl_menu(Enum):
 
 def main_remote_to_local():
     while True:
-        
+
         print(f"\n{GREEN}Main -Remote to local:{ENDC}")
-        
+
         menu_options = [
             f"[s] {main_lr_menu.CHECK_REMOTE.value}",
             f"[j] {main_rl_menu.CLONE.value}",
-            f"[p] {main_rl_menu.PULL.value}",
+            f"[y] {main_rl_menu.PULL.value}",
             "[x] Back to previous menu",
             "[q] Quit program"
         ]
@@ -292,9 +292,9 @@ class manage_menu(Enum):
 
 def main_manage_repos():
     while True:
-        
+
         print(f"\n{GREEN}Main -Manage repos:{ENDC}")
-        
+
         menu_options = [
             f"[l] {main_local_menu.CHECK_LOCAL.value}",
             f"[r] {main_lr_menu.CHECK_REMOTE.value}",
@@ -303,10 +303,10 @@ def main_manage_repos():
             f"[x] Back to previous menu",
             "[q] Quit program"
         ]
-        
+
         terminal_menu = TerminalMenu(menu_options, title="Please select an option:")
         menu_entry_index = terminal_menu.show()
-        
+
         if menu_entry_index == 0:
             check_local_repos()
         elif menu_entry_index == 1:
@@ -320,7 +320,7 @@ def main_manage_repos():
             break
         elif menu_entry_index == 5:
             quit()
-    
+
 
 def delete_local_repo():
     if not is_git_repo():
@@ -348,4 +348,3 @@ def delete_remote_repo():
 
     print("To delete a remote repository, you need to do it through the web interface of your Git hosting provider (e.g., GitHub, GitLab).")
     print("This action cannot be performed directly through the git command line for security reasons.")
-

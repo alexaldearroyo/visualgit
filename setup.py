@@ -6,7 +6,7 @@ setup(
     packages=find_packages(),
     entry_points={
         'console_scripts': [
-            'vigit = vigit.main:main',
+            'vg = vigit.main:main',
         ],
     },
     # Add dependencies if any

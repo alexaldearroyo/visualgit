@@ -17,63 +17,44 @@ from .config import configuration
 
 
 def handle_args():
-    parser = argparse.ArgumentParser(add_help=False)
-    parser.add_argument('-h', '--help', action='help', help='Show this help message and exit')
+    parser = argparse.ArgumentParser(description="Visual Git Command Line Tool")
 
-    parser.add_argument(
-        "-n",
-        "--new",
-        action="store_true",
-        help="Quick action: New Configuration",
-    )
+    # Crear subparsers para los diferentes comandos
+    subparsers = parser.add_subparsers(dest='command', help='Comandos disponibles')
 
-    parser.add_argument(
-        "-a",
-        "--add",
-        action="store_true",
-        help="Quick action: Add a local repo",
-    )
+    # Comando: vg add
+    add_parser = subparsers.add_parser('add', help='Quick action: Add a local repo')
 
-    parser.add_argument(
-        "-ab",
-        "--add-branch",
-        action="store_true",
-        help="Quick action: Add a local branch",
-    )
+    # Comando: vg ab (add-branch)
+    ab_parser = subparsers.add_parser('ab', help='Quick action: Add a local branch')
 
-    parser.add_argument(
-        "-c",
-        "--commit",
-        action="store_true",
-        help="Quick action: Commit to local repo",
-    )
+    # Comando: vg c (commit)
+    c_parser = subparsers.add_parser('c', help='Quick action: Commit to local repo')
 
-    parser.add_argument(
-        "-cp",
-        "--commit-push-main",
-        action="store_true",
-        help="Quick action: Commit & Push in main",
-    )
-    parser.add_argument(
-        "-cb",
-        "--commit-push-branch",
-        action="store_true",
-        help="Quick action: Commit & Push in branch",
-    )
-    parser.add_argument(
-        "-o",
-        "--merge",
-        "--one",
-        action="store_true",
-        help="Quick action: Merge branch with main",
-    )
+    # Comando: vg cp (commit-push-main)
+    cp_parser = subparsers.add_parser('cp', help='Quick action: Commit & Push in main')
 
-    parser.add_argument(
-        "-s",
-        "--see",
-        action="store_true",
-        help="Quick action: See log",
-    )
+    # Comando: vg cb (commit-push-branch)
+    cb_parser = subparsers.add_parser('cb', help='Quick action: Commit & Push in branch')
+
+    # Comando: vg o (merge/one)
+    o_parser = subparsers.add_parser('o', help='Quick action: Merge branch with main')
+
+    # Comando: vg n (new configuration)
+    n_parser = subparsers.add_parser('n', help='Quick action: New Configuration')
+
+    # Comando: vg s (see log)
+    s_parser = subparsers.add_parser('s', help='Quick action: See log')
+
+    # Mantener compatibilidad con las opciones anteriores
+    parser.add_argument("-a", "--add", action="store_true", help="Quick action: Add a local repo")
+    parser.add_argument("-ab", "--add-branch", action="store_true", help="Quick action: Add a local branch")
+    parser.add_argument("-c", "--commit", action="store_true", help="Quick action: Commit to local repo")
+    parser.add_argument("-cp", "--commit-push-main", action="store_true", help="Quick action: Commit & Push in main")
+    parser.add_argument("-cb", "--commit-push-branch", action="store_true", help="Quick action: Commit & Push in branch")
+    parser.add_argument("-o", "--merge", "--one", action="store_true", help="Quick action: Merge branch with main")
+    parser.add_argument("-n", "--new", action="store_true", help="Quick action: New Configuration")
+    parser.add_argument("-s", "--see", action="store_true", help="Quick action: See log")
 
     return parser.parse_args()
 
@@ -99,13 +80,43 @@ class start_menu(Enum):
 def main():
     args = handle_args()
 
+    # Manejar los subcomandos
+    if hasattr(args, 'command') and args.command:
+        if args.command == 'add':
+            create_local_repo()
+            return
+        elif args.command == 'ab':
+            create_local_branch()
+            return
+        elif args.command == 'c':
+            commit_to_local_repo()
+            return
+        elif args.command == 'cp':
+            commit_and_push()
+            return
+        elif args.command == 'cb':
+            commit_and_push_in_branch()
+            return
+        elif args.command == 'o':
+            merge_branch_with_main()
+            return
+        elif args.command == 'n':
+            configuration()
+            return
+        elif args.command == 's':
+            check_log()
+            return
+
+    # Manejar las opciones tradicionales con guiones (para compatibilidad)
     if args.add:
         create_local_repo()
+        return
     if args.add_branch:
         create_local_branch()
+        return
     if args.commit:
         commit_to_local_repo()
-        quit()
+        return
     if args.commit_push_main:
         commit_and_push()
         return
@@ -114,6 +125,7 @@ def main():
         return
     if args.merge:
         merge_branch_with_main()
+        return
     if args.new:
         configuration()
         return

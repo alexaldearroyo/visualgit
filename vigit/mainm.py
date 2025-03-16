@@ -209,8 +209,16 @@ def push_changes_to_remote():
         return
 
     try:
+        # Get current branch
+        branch = subprocess.run(["git", "rev-parse", "--abbrev-ref", "HEAD"],
+                               capture_output=True, text=True).stdout.strip()
+
+        if not branch:
+            print("Error determining the current branch.")
+            return
+
         # Try normal push first
-        push_result = subprocess.run(["git", "push", "-u", "origin", "main"], capture_output=True, text=True)
+        push_result = subprocess.run(["git", "push", "-u", "origin", branch], capture_output=True, text=True)
 
         # If push fails, offer force push
         if push_result.returncode != 0:
@@ -219,12 +227,12 @@ def push_changes_to_remote():
 
             force = input(f"\n{YELLOW}Do you want to force push? This will OVERWRITE remote changes (y/n): {ENDC}").lower()
             if force == 'y':
-                subprocess.run(["git", "push", "--force", "origin", "main"])
-                print(f"{GREEN}Force push completed successfully.{ENDC}")
+                subprocess.run(["git", "push", "--force", "origin", branch])
+                print(f"{GREEN}Force push completed successfully to branch {branch}.{ENDC}")
             else:
                 print("Push canceled.")
         else:
-            print(f"{GREEN}Push completed successfully.{ENDC}")
+            print(f"{GREEN}Push completed successfully to branch {branch}.{ENDC}")
 
     except Exception as e:
         print(f"Error pushing changes to remote: {e}")
@@ -235,13 +243,21 @@ def commit_and_push():
         return
 
     try:
+        # Get current branch
+        branch = subprocess.run(["git", "rev-parse", "--abbrev-ref", "HEAD"],
+                               capture_output=True, text=True).stdout.strip()
+
+        if not branch:
+            print("Error determining the current branch.")
+            return
+
         # First we try to commit
         subprocess.run(["git", "add", "."])
         message = input("Enter commit message: ")
         commit_result = subprocess.run(["git", "commit", "-m", message])
 
         # We try to push
-        push_result = subprocess.run(["git", "push", "origin", "main"], capture_output=True, text=True)
+        push_result = subprocess.run(["git", "push", "origin", branch], capture_output=True, text=True)
 
         # If push fails, we offer options
         if push_result.returncode != 0:
@@ -255,24 +271,24 @@ def commit_and_push():
 
             if choice == "1":
                 # Pull with rebase to keep local commits at the end
-                pull_result = subprocess.run(["git", "pull", "--rebase", "origin", "main"])
+                pull_result = subprocess.run(["git", "pull", "--rebase", "origin", branch])
                 if pull_result.returncode == 0:
                     # Try push again
-                    subprocess.run(["git", "push", "origin", "main"])
+                    subprocess.run(["git", "push", "origin", branch])
                     print(f"{GREEN}Changes integrated and pushed successfully!{ENDC}")
                 else:
                     print(f"{YELLOW}There were conflicts during the pull. Please resolve conflicts manually.{ENDC}")
             elif choice == "2":
                 confirm = input(f"{YELLOW}WARNING! Force push will overwrite remote changes. Are you sure? (y/n): {ENDC}").lower()
                 if confirm == 'y':
-                    subprocess.run(["git", "push", "--force", "origin", "main"])
+                    subprocess.run(["git", "push", "--force", "origin", branch])
                     print(f"{GREEN}Force push completed.{ENDC}")
                 else:
                     print("Operation cancelled.")
             else:
                 print("Operation cancelled.")
         else:
-            print(f"{GREEN}Commit and push completed successfully!{ENDC}")
+            print(f"{GREEN}Commit and push completed successfully to branch {branch}!{ENDC}")
 
     except Exception as e:
         print(f"Error during commit and push: {e}")

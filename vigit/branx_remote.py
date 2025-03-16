@@ -3,6 +3,7 @@ from simple_term_menu import TerminalMenu
 from .utils import YELLOW, GREEN, ENDC
 from .constants import branch_remote_menu, branch_local_menu
 from .checks import is_git_repo, print_not_git_repo, current_branch, is_local_branch_connected_to_remote, has_commits, print_not_commits, is_current_branch_main
+from .mainm import commit_and_push
 
 def clear_screen():
     import os
@@ -162,23 +163,8 @@ def push_changes_to_remote_branch():
         print(f"Error sending changes to remote branch: {e}")
 
 def commit_and_push_in_branch():
-    if not is_git_repo():
-        print_not_git_repo()
-        return
-
-    branch = current_branch()
-    if not branch:
-        print("Error determining the current branch.")
-        return
-
-    try:
-        subprocess.run(["git", "add", "."])
-        message = input("Enter commit message: ")
-        subprocess.run(["git", "commit", "-m", message])
-        subprocess.run(["git", "push", "origin", branch])
-        print(f"Changes committed and pushed to branch {branch}")
-    except Exception as e:
-        print(f"Error committing and pushing in branch: {e}")
+    # Call the main commit_and_push function which now works with the current branch
+    commit_and_push()
 
 def clone_remote_branch_to_local():
     remote_branch = input("Enter the name of the remote branch you want to clone: ")

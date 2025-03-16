@@ -32,7 +32,7 @@ class branch_remote_menu(Enum):
     PULL_BRANCH = 'Yank Remote Branch Changes to Local'
 
 class manage_branch_menu(Enum):
-    MERGE = 'Merge One Branch with Main'
+    MERGE = 'Fusion Branch with Main'
     PULL_BRANCH = 'Yank Remote Branch Changes to Local'
     DELETE_LOCAL_BRANCH = 'Delete Local Branch'
     DELETE_REMOTE_BRANCH = 'Delete Remote Branch'
@@ -62,3 +62,13 @@ class start_menu(Enum):
     CHECK_LOG = "See Log"
     CONFIGURATION = "New Configuration"
     QUICK_ACTIONS = "Quick Actions"
+
+class updated_start_menu(Enum):
+    LOCAL = "Local"
+    REMOTE = "Remote"
+    MANAGE_REPOS = "Manage Repos"
+    MANAGE_BRANCHES = "Manage Branches"
+    ADVANCED_OPERATIONS = "Advanced Operations"
+    CONFIGURATION = "New Configuration"
+    QUICK_ACTIONS = "Quick Actions"
+    CHECK_LOG = "See Log"

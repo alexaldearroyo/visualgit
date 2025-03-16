@@ -1,4 +1,9 @@
 # ADVANCED OPERATIONS
+import subprocess
+from simple_term_menu import TerminalMenu
+from .utils import YELLOW, GREEN, ENDC
+from .checks import is_git_repo, print_not_git_repo, current_branch
+
 def advanced_operations():
     while True:
         print(f"\n{GREEN}Advanced Operations{ENDC}")

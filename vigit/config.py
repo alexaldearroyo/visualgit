@@ -12,11 +12,10 @@ def clear_screen():
     print("-" * 30)
 
 class config_menu(Enum):
-    CHECK = 'See Repos'
+    CHECK = 'See Credentials'
     CONFIG_NAME = 'Name Configuration'
     CONFIG_EMAIL = 'Email Configuration'
     CONFIG_GITHUB_API = 'GitHub API Configuration'
-    MANAGE_BRANCHES = 'Manage Branches'
 
 def configuration():
     while True:
@@ -28,7 +27,6 @@ def configuration():
             f"[n] {config_menu.CONFIG_NAME.value}",
             f"[e] {config_menu.CONFIG_EMAIL.value}",
             f"[g] {config_menu.CONFIG_GITHUB_API.value}",
-            f"[m] {config_menu.MANAGE_BRANCHES.value}",
             f"[x] {global_menu.BACK.value}",
             f"[q] {global_menu.QUIT.value}"
         ]
@@ -45,11 +43,9 @@ def configuration():
         elif menu_entry_index == 3:
             configure_github_api()
         elif menu_entry_index == 4:
-            manage_branches()
-        elif menu_entry_index == 5:
             clear_screen()
             break
-        elif menu_entry_index == 6:
+        elif menu_entry_index == 5:
             quit()
         else:
             invalid_opt()
@@ -97,10 +93,6 @@ def configure_github_api():
         print(f"\n{GREEN}GitHub token successfully saved.{ENDC}")
     except Exception as e:
         print(f"\n{YELLOW}Error saving GitHub token: {e}{ENDC}")
-
-def manage_branches():
-    # Implementation of manage_branches function
-    pass
 
 def invalid_opt():
     print("Invalid option selected. Please try again.")

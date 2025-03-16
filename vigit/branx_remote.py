@@ -100,10 +100,45 @@ def connect_local_branch_with_remote():
         print(f"{YELLOW}The local branch {branch} is already connected to a remote branch.{ENDC}")
         return
 
-    remote_url = input("Enter the remote repository (GitHub) URL: ")
+    # Verificar si el repositorio está conectado a un remoto
     try:
-        subprocess.run(["git", "branch", "--set-upstream-to", f"origin/{branch}", branch])
-        print(f"Connected local branch {branch} with remote: {remote_url}")
+        remote_exists = subprocess.run(
+            ["git", "remote", "-v"],
+            capture_output=True,
+            text=True
+        ).stdout.strip() != ""
+
+        if not remote_exists:
+            remote_url = input("Enter the remote repository (GitHub) URL: ")
+            subprocess.run(["git", "remote", "add", "origin", remote_url])
+            print(f"Connected local repository with remote: {remote_url}")
+    except Exception as e:
+        print(f"Error connecting with remote: {e}")
+        return
+
+    try:
+        # Crear la rama en remoto y enlazarla con la local
+        # Primero hacemos push de la rama local al remoto
+        push_result = subprocess.run(
+            ["git", "push", "-u", "origin", branch],
+            capture_output=True,
+            text=True
+        )
+
+        if push_result.returncode == 0:
+            print(f"{GREEN}Local branch {branch} successfully pushed and connected to remote.{ENDC}")
+        else:
+            print(f"{YELLOW}Could not push branch to remote. Error: {push_result.stderr.strip()}{ENDC}")
+
+            # Si falló, intentamos establecer la conexión manualmente
+            set_upstream = subprocess.run(
+                ["git", "branch", "--set-upstream-to", f"origin/{branch}", branch]
+            )
+
+            if set_upstream.returncode == 0:
+                print(f"{GREEN}Connected local branch {branch} with remote.{ENDC}")
+            else:
+                print(f"{YELLOW}Could not connect branch to remote.{ENDC}")
     except Exception as e:
         print(f"Error connecting local branch with remote: {e}")
 

@@ -3,8 +3,9 @@ from simple_term_menu import TerminalMenu
 from .utils import YELLOW, GREEN, ENDC
 from .constants import manage_branch_menu, branch_remote_menu, branch_local_menu
 from .checks import is_git_repo, print_not_git_repo, current_branch, is_current_branch_main
-from .branx_local import check_local_branches, go_to_branch, go_to_main
-from .branx_remote import check_remote_branches
+from .branx_local import check_local_branches, go_to_branch, go_to_main, create_local_branch
+from .branx_remote import check_remote_branches, connect_local_branch_with_remote
+from .mainm import clear_screen
 
 def manage_branches():
     while True:
@@ -15,6 +16,8 @@ def manage_branches():
             print(f"\n{GREEN}Manage branches:{ENDC}")
 
         menu_options = [
+            f"[a] {manage_branch_menu.ADD_BRANCH.value}",
+            f"[j] {manage_branch_menu.LINK_BRANCH.value}",
             f"[l] {branch_local_menu.CHECK_LOCAL_BRANCH.value}",
             f"[r] {branch_remote_menu.CHECK_REMOTE_BRANCH.value}",
             f"[f] {manage_branch_menu.MERGE.value}",
@@ -30,23 +33,27 @@ def manage_branches():
         menu_entry_index = terminal_menu.show()
 
         if menu_entry_index == 0:
-            check_local_branches()
+            create_local_branch()
         elif menu_entry_index == 1:
-            check_remote_branches()
+            connect_local_branch_with_remote()
         elif menu_entry_index == 2:
-            merge_branch_with_main()
+            check_local_branches()
         elif menu_entry_index == 3:
-            go_to_branch()
+            check_remote_branches()
         elif menu_entry_index == 4:
-            go_to_main()
+            merge_branch_with_main()
         elif menu_entry_index == 5:
-            delete_local_branch()
+            go_to_branch()
         elif menu_entry_index == 6:
-            delete_remote_branch()
+            go_to_main()
         elif menu_entry_index == 7:
+            delete_local_branch()
+        elif menu_entry_index == 8:
+            delete_remote_branch()
+        elif menu_entry_index == 9:
             clear_screen()
             break
-        elif menu_entry_index == 8:
+        elif menu_entry_index == 10:
             quit()
 
 def merge_branch_with_main():

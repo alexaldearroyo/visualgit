@@ -28,20 +28,17 @@ def handle_args():
     # Command: vg a (add repo)
     add_parser = subparsers.add_parser('a', help='Quick action: Add a local repo')
 
-    # Command: vg ab (add-branch)
-    ab_parser = subparsers.add_parser('ab', help='Quick action: Add a local branch')
+    # Command: vg b (add-branch)
+    b_parser = subparsers.add_parser('b', help='Quick action: Add a local branch')
 
     # Command: vg c (commit)
     c_parser = subparsers.add_parser('c', help='Quick action: Commit to local repo')
 
-    # Command: vg cp (commit-push-main)
-    cp_parser = subparsers.add_parser('cp', help='Quick action: Commit & Push in main')
+    # Command: vg p (commit-push-main)
+    p_parser = subparsers.add_parser('p', help='Quick action: Commit & Push in main')
 
-    # Command: vg cb (commit-push-branch)
-    cb_parser = subparsers.add_parser('cb', help='Quick action: Commit & Push in branch')
-
-    # Command: vg o (merge/one)
-    o_parser = subparsers.add_parser('o', help='Quick action: Merge branch with main')
+    # Command: vg f (merge/fusion)
+    f_parser = subparsers.add_parser('f', help='Quick action: Merge branch with main')
 
     # Command: vg n (new configuration)
     n_parser = subparsers.add_parser('n', help='Quick action: New Configuration')
@@ -51,11 +48,10 @@ def handle_args():
 
     # Maintain compatibility with previous options
     parser.add_argument("-a", "--add", action="store_true", help="Quick action: Add a local repo")
-    parser.add_argument("-ab", "--add-branch", action="store_true", help="Quick action: Add a local branch")
+    parser.add_argument("-b", "--add-branch", action="store_true", help="Quick action: Add a local branch")
     parser.add_argument("-c", "--commit", action="store_true", help="Quick action: Commit to local repo")
-    parser.add_argument("-cp", "--commit-push-main", action="store_true", help="Quick action: Commit & Push in main")
-    parser.add_argument("-cb", "--commit-push-branch", action="store_true", help="Quick action: Commit & Push in branch")
-    parser.add_argument("-o", "--merge", "--one", action="store_true", help="Quick action: Merge branch with main")
+    parser.add_argument("-p", "--commit-push-main", action="store_true", help="Quick action: Commit & Push in main")
+    parser.add_argument("-f", "--merge", "--fusion", action="store_true", help="Quick action: Merge branch with main")
     parser.add_argument("-n", "--new", action="store_true", help="Quick action: New Configuration")
     parser.add_argument("-s", "--see", action="store_true", help="Quick action: See log")
 
@@ -80,19 +76,16 @@ def main():
         if args.command == 'add':
             create_local_repo()
             return
-        elif args.command == 'ab':
+        elif args.command == 'b':
             create_local_branch()
             return
         elif args.command == 'c':
             commit_to_local_repo()
             return
-        elif args.command == 'cp':
+        elif args.command == 'p':
             commit_and_push()
             return
-        elif args.command == 'cb':
-            commit_and_push_in_branch()
-            return
-        elif args.command == 'o':
+        elif args.command == 'f':
             merge_branch_with_main()
             return
         elif args.command == 'n':
@@ -114,9 +107,6 @@ def main():
         return
     if args.commit_push_main:
         commit_and_push()
-        return
-    if args.commit_push_branch:
-        commit_and_push_in_branch()
         return
     if args.merge:
         merge_branch_with_main()

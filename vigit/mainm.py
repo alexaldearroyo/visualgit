@@ -131,6 +131,9 @@ class main_remote_menu(Enum):
     CLONE = 'Join Remote to Local'
     PULL = 'Yank Changes from Remote'
 
+#test comment
+
+#this is a change
 
 def main_remote():
     while True:

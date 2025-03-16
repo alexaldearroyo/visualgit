@@ -51,11 +51,10 @@ Visual Git supports two command styles:
 
 ```bash
 vg -a          # Add local repo
-vg -ab         # Add local branch
+vg -b          # Add local branch
 vg -c          # Commit to local repo
-vg -cp         # Commit & push in main
-vg -cb         # Commit & push in branch
-vg -o          # Merge branch with main
+vg -p          # Commit & push in main
+vg -f          # Merge branch with main
 vg -n          # New configuration
 vg -s          # See log
 ```
@@ -64,11 +63,10 @@ vg -s          # See log
 
 ```bash
 vg a           # Add local repo
-vg ab          # Add local branch
+vg b           # Add local branch
 vg c           # Commit to local repo
-vg cp          # Commit & push in main
-vg cb          # Commit & push in branch
-vg o           # Merge branch with main
+vg p           # Commit & push in main
+vg f           # Merge branch with main
 vg n           # New configuration
 vg s           # See log
 ```
@@ -96,13 +94,13 @@ Access these operations from the menu:
 
 2. **Create a branch and commit**:
    ```bash
-   vg ab           # Create branch
+   vg b            # Create branch
    vg c            # Make commit
    ```
 
 3. **Merge branch with main**:
    ```bash
-   vg o
+   vg f
    ```
 
 ## Help

@@ -6,6 +6,7 @@ vigit/branx.py
 vigit/branx_local.py
 vigit/branx_ltr.py
 vigit/branx_manage.py
+vigit/branx_remote.py
 vigit/branx_rtl.py
 vigit/checks.py
 vigit/config.py

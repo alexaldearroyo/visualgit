@@ -1,6 +1,12 @@
+README.md
 setup.py
 vigit/__init__.py
+vigit/advanced.py
 vigit/branx.py
+vigit/branx_local.py
+vigit/branx_ltr.py
+vigit/branx_manage.py
+vigit/branx_rtl.py
 vigit/checks.py
 vigit/config.py
 vigit/main.py

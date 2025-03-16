@@ -9,10 +9,13 @@ from enum import Enum
 from simple_term_menu import TerminalMenu
 
 from .utils import YELLOW, GREEN, ENDC
-
+from .constants import start_menu, main_menu, main_local_menu, main_lr_menu, branch_local_menu, branch_lr_menu, manage_branch_menu
 from .checks import is_git_installed, is_git_repo, print_not_git_repo, current_branch, get_current_branch, is_current_branch_main
-from .mainm import main_local_menu, main_lr_menu , work_in_main, create_local_repo, commit_to_local_repo, commit_and_push
-from .branx import branch_local_menu, branch_lr_menu, work_in_branches, go_to_branch, go_to_main, manage_branch_menu, commit_and_push_in_branch, merge_branch_with_main, create_local_branch
+from .mainm import work_in_main, create_local_repo, commit_to_local_repo, commit_and_push
+from .branx_local import go_to_branch, go_to_main, create_local_branch
+from .branx_ltr import commit_and_push_in_branch
+from .branx_manage import merge_branch_with_main
+from .branx import work_in_branches
 from .config import configuration
 
 

@@ -72,14 +72,6 @@ def clear_screen():
     print("\nVISUAL GIT")
     print("-" * 30)
 
-class start_menu(Enum):
-    WORK_IN_MAIN = "Work in Main"
-    WORK_IN_BRANCHES = "Work in Branches"
-    CHECK_LOG = "See Log"
-    CONFIGURATION = "New Configuration"
-    QUICK_ACTIONS = "Quick Actions"
-
-
 def main():
     args = handle_args()
 
@@ -197,7 +189,6 @@ def check_log():
 
 def quick_actions():
     while True:
-
         print(f"\n{GREEN}Quick Actions:{ENDC}")
 
         menu_options = [
@@ -208,7 +199,7 @@ def quick_actions():
             f"[o] {manage_branch_menu.MERGE.value}",
             f"[g] {branch_local_menu.GOTO_BRANCH.value}",
             f"[m] {branch_local_menu.GOTO_MAIN.value}",
-            f"[x] Back to previous menu",
+            "[x] Back to previous menu",
             "[q] Quit program"
         ]
 

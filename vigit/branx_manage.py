@@ -1,7 +1,7 @@
 import subprocess
 from simple_term_menu import TerminalMenu
 from .utils import YELLOW, GREEN, ENDC
-from .constants import manage_branch_menu, branch_lr_menu, branch_local_menu
+from .constants import manage_branch_menu, branch_remote_menu, branch_local_menu
 from .checks import is_git_repo, print_not_git_repo, current_branch, is_current_branch_main
 
 def manage_branches():
@@ -14,7 +14,7 @@ def manage_branches():
 
         menu_options = [
             f"[l] {branch_local_menu.CHECK_LOCAL_BRANCH.value}",
-            f"[r] {branch_lr_menu.CHECK_REMOTE_BRANCH.value}",
+            f"[r] {branch_remote_menu.CHECK_REMOTE_BRANCH.value}",
             f"[o] {manage_branch_menu.MERGE.value}",
             f"[g] {branch_local_menu.GOTO_BRANCH.value}",
             f"[m] {branch_local_menu.GOTO_MAIN.value}",

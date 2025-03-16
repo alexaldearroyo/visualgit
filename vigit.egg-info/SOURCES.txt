@@ -10,6 +10,7 @@ vigit/branx_rtl.py
 vigit/checks.py
 vigit/config.py
 vigit/constants.py
+vigit/github_ops.py
 vigit/main.py
 vigit/mainm.py
 vigit/utils.py

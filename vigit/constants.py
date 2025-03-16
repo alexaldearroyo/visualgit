@@ -2,8 +2,7 @@ from enum import Enum
 
 class branch_menu(Enum):
     BRANCH_LOCAL = 'Local'
-    BRANCH_LOCAL_TO_REMOTE = 'Local to Remote'
-    BRANCH_REMOTE_TO_LOCAL = 'Remote to Local'
+    BRANCH_REMOTE = 'Remote'
     MANAGE_BRANCHES = 'Manage Branches'
 
 class branch_local_menu(Enum):
@@ -23,6 +22,15 @@ class branch_rl_menu(Enum):
     CLONE_BRANCH = 'Join Remote Branch to Local'
     PULL_BRANCH = 'Yank Remote Branch Changes to Local'
 
+class branch_remote_menu(Enum):
+    CHECK_REMOTE_BRANCH = 'See Remote Branches'
+    LINK_REMOTE_BRANCH = 'Join Local Branch to Remote'
+    COMMIT_LOCAL_BRANCH = 'Commit to Local Branch'
+    PUSH_BRANCH = 'Push Changes to Remote Branch'
+    COMMIT_PUSH_BRANCH = 'Commit & Push in Branch'
+    CLONE_BRANCH = 'Join Remote Branch to Local'
+    PULL_BRANCH = 'Yank Remote Branch Changes to Local'
+
 class manage_branch_menu(Enum):
     MERGE = 'Merge One Branch with Main'
     PULL_BRANCH = 'Yank Remote Branch Changes to Local'
@@ -31,8 +39,7 @@ class manage_branch_menu(Enum):
 
 class main_menu(Enum):
     LOCAL = 'Local'
-    LOCAL_TO_REMOTE = 'Local to Remote'
-    REMOTE_TO_LOCAL = 'Remote to Local'
+    REMOTE = 'Remote'
     MANAGE_REPOS = 'Manage Repos'
 
 class main_local_menu(Enum):
@@ -40,11 +47,14 @@ class main_local_menu(Enum):
     ADD_LOCAL = 'Add a Local Repo'
     COMMIT_LOCAL = 'Commit to Local Repo'
 
-class main_lr_menu(Enum):
+class main_remote_menu(Enum):
     CHECK_REMOTE = 'See Remote Repos'
+    ADD_REMOTE = 'Add Remote Repo'
     LINK = 'Join Local to Remote'
     PUSH = 'Push Changes to Remote'
     COMMIT_AND_PUSH = 'Commit & Push'
+    CLONE = 'Join Remote to Local'
+    PULL = 'Yank Changes from Remote'
 
 class start_menu(Enum):
     WORK_IN_MAIN = "Work in Main"

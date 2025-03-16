@@ -9,11 +9,11 @@ from enum import Enum
 from simple_term_menu import TerminalMenu
 
 from .utils import YELLOW, GREEN, ENDC
-from .constants import start_menu, main_menu, main_local_menu, main_lr_menu, branch_local_menu, branch_lr_menu, manage_branch_menu
+from .constants import start_menu, main_menu, main_local_menu, main_remote_menu, branch_local_menu, branch_remote_menu, manage_branch_menu
 from .checks import is_git_installed, is_git_repo, print_not_git_repo, current_branch, get_current_branch, is_current_branch_main
 from .mainm import work_in_main, create_local_repo, commit_to_local_repo, commit_and_push
 from .branx_local import go_to_branch, go_to_main, create_local_branch
-from .branx_ltr import commit_and_push_in_branch
+from .branx_remote import commit_and_push_in_branch
 from .branx_manage import merge_branch_with_main
 from .branx import work_in_branches
 from .config import configuration
@@ -75,7 +75,7 @@ def clear_screen():
 def main():
     args = handle_args()
 
-    # Manejar los subcomandos
+    # Handle subcommands
     if hasattr(args, 'command') and args.command:
         if args.command == 'add':
             create_local_repo()
@@ -102,7 +102,7 @@ def main():
             check_log()
             return
 
-    # Manejar las opciones tradicionales con guiones (para compatibilidad)
+    # Handle traditional options with dashes (for compatibility)
     if args.add:
         create_local_repo()
         return
@@ -194,8 +194,8 @@ def quick_actions():
         menu_options = [
             f"[a] {main_local_menu.ADD_LOCAL.value}",
             f"[c] {main_local_menu.COMMIT_LOCAL.value}",
-            f"[p] {main_lr_menu.COMMIT_AND_PUSH.value}",
-            f"[b] {branch_lr_menu.COMMIT_PUSH_BRANCH.value}",
+            f"[p] {main_remote_menu.COMMIT_AND_PUSH.value}",
+            f"[b] {branch_remote_menu.COMMIT_PUSH_BRANCH.value}",
             f"[o] {manage_branch_menu.MERGE.value}",
             f"[g] {branch_local_menu.GOTO_BRANCH.value}",
             f"[m] {branch_local_menu.GOTO_MAIN.value}",

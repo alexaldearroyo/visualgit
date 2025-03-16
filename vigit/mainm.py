@@ -3,6 +3,7 @@ import os
 
 from .checks import is_git_repo, print_not_git_repo, is_connected_to_remote, print_connected_to_remote, print_not_connected_to_remote, print_git_repo
 from .utils import YELLOW, GREEN, ENDC
+from .github_ops import create_github_repository
 
 from enum import Enum
 from simple_term_menu import TerminalMenu
@@ -15,8 +16,7 @@ def clear_screen():
 
 class main_menu(Enum):
     LOCAL = 'Local'
-    LOCAL_TO_REMOTE = 'Local to Remote'
-    REMOTE_TO_LOCAL = 'Remote to Local'
+    REMOTE = 'Remote'
     MANAGE_REPOS = 'Manage Repos'
 
 
@@ -27,8 +27,7 @@ def work_in_main():
 
         menu_options = [
             f"[l] {main_menu.LOCAL.value}",
-            f"[t] {main_menu.LOCAL_TO_REMOTE.value}",
-            f"[r] {main_menu.REMOTE_TO_LOCAL.value}",
+            f"[r] {main_menu.REMOTE.value}",
             f"[m] {main_menu.MANAGE_REPOS.value}",
             "[x] Back to main menu",
             "[q] Quit program"
@@ -40,15 +39,13 @@ def work_in_main():
         if menu_entry_index == 0:
             main_local()
         elif menu_entry_index == 1:
-            main_local_to_remote()
+            main_remote()
         elif menu_entry_index == 2:
-            main_remote_to_local()
-        elif menu_entry_index == 3:
             main_manage_repos()
-        elif menu_entry_index == 4:
+        elif menu_entry_index == 3:
             clear_screen()
             break
-        elif menu_entry_index == 5:
+        elif menu_entry_index == 4:
             quit()
         else:
             invalid_opt()
@@ -106,9 +103,9 @@ def create_local_repo():
 
     try:
         subprocess.run(["git", "init"])
-        print("Local repository has been successfully created in the present working directory.")
+        print("Local repository successfully created in the current directory.")
     except Exception as e:
-        print(f"Error while creating local repository: {e}")
+        print(f"Error while creating the repository: {e}")
 
 def commit_to_local_repo():
     if not is_git_repo():
@@ -124,24 +121,29 @@ def commit_to_local_repo():
         print(f"Error making commit: {e}")
 
 
-# MAIN LOCAL_TO_REMOTE
-class main_lr_menu(Enum):
+# MAIN REMOTE
+class main_remote_menu(Enum):
     CHECK_REMOTE = 'See Remote Repos'
+    ADD_REMOTE = 'Add Remote Repo'
     LINK = 'Join Local to Remote'
     PUSH = 'Push Changes to Remote'
     COMMIT_AND_PUSH = 'Commit & Push'
+    CLONE = 'Join Remote to Local'
+    PULL = 'Yank Changes from Remote'
 
 
-def main_local_to_remote():
+def main_remote():
     while True:
-
-        print(f"\n{GREEN}Main -Local to remote:{ENDC}")
+        print(f"\n{GREEN}Main -Remote:{ENDC}")
 
         menu_options = [
-            f"[s] {main_lr_menu.CHECK_REMOTE.value}",
-            f"[j] {main_lr_menu.LINK.value}",
-            f"[p] {main_lr_menu.PUSH.value}",
-            f"[c] {main_lr_menu.COMMIT_AND_PUSH.value}",
+            f"[s] {main_remote_menu.CHECK_REMOTE.value}",
+            f"[a] {main_remote_menu.ADD_REMOTE.value}",
+            f"[j] {main_remote_menu.LINK.value}",
+            f"[p] {main_remote_menu.PUSH.value}",
+            f"[c] {main_remote_menu.COMMIT_AND_PUSH.value}",
+            f"[n] {main_remote_menu.CLONE.value}",
+            f"[y] {main_remote_menu.PULL.value}",
             "[x] Back to previous menu",
             "[q] Quit program"
         ]
@@ -152,15 +154,21 @@ def main_local_to_remote():
         if menu_entry_index == 0:
             check_remote_repos()
         elif menu_entry_index == 1:
-            connect_local_with_remote()
+            create_remote_repo()
         elif menu_entry_index == 2:
-            push_changes_to_remote()
+            connect_local_with_remote()
         elif menu_entry_index == 3:
-            commit_and_push()
+            push_changes_to_remote()
         elif menu_entry_index == 4:
+            commit_and_push()
+        elif menu_entry_index == 5:
+            clone_remote_to_local()
+        elif menu_entry_index == 6:
+            pull_remote_changes()
+        elif menu_entry_index == 7:
             clear_screen()
             break
-        elif menu_entry_index == 5:
+        elif menu_entry_index == 8:
             quit()
 
 def check_remote_repos():
@@ -266,40 +274,22 @@ def commit_and_push():
     except Exception as e:
         print(f"Error during commit and push: {e}")
 
-# MAIN REMOTE_TO_LOCAL
-class main_rl_menu(Enum):
-    CLONE = 'Join Remote to Local'
-    REMOTE_TO_LOCAL = 'Join Remote to Local'
-    PULL = 'Yank Changes from Remote'
+def create_remote_repo():
+    if not is_git_repo():
+        print_not_git_repo()
+        return
 
+    name = input("Name for the GitHub repository: ")
+    description = input("Description (optional, press Enter to skip): ")
+    private = input("Private repository? (y/n): ").lower() == 'y'
 
-def main_remote_to_local():
-    while True:
-
-        print(f"\n{GREEN}Main -Remote to local:{ENDC}")
-
-        menu_options = [
-            f"[s] {main_lr_menu.CHECK_REMOTE.value}",
-            f"[j] {main_rl_menu.CLONE.value}",
-            f"[y] {main_rl_menu.PULL.value}",
-            "[x] Back to previous menu",
-            "[q] Quit program"
-        ]
-
-        terminal_menu = TerminalMenu(menu_options, title="Please select an option:")
-        menu_entry_index = terminal_menu.show()
-
-        if menu_entry_index == 0:
-            check_remote_repos()
-        elif menu_entry_index == 1:
-            clone_remote_to_local()
-        elif menu_entry_index == 2:
-            pull_remote_changes()
-        elif menu_entry_index == 3:
-            clear_screen()
-            break
-        elif menu_entry_index == 4:
-            quit()
+    remote_url = create_github_repository(name, description, private)
+    if remote_url:
+        try:
+            subprocess.run(["git", "remote", "add", "origin", remote_url])
+            print("Local repository successfully connected with GitHub.")
+        except Exception as e:
+            print(f"Error connecting to the remote repository: {e}")
 
 def clone_remote_to_local():
     remote_url = input("Enter the remote repository (GitHub) URL to clone: ")
@@ -328,7 +318,6 @@ def pull_remote_changes():
     except Exception as e:
         print(f"Error pulling changes from remote: {e}")
 
-
 # MAIN MANAGE_REPOS
 class manage_menu(Enum):
     DELETE_LOCAL = 'Delete Local Repo'
@@ -341,7 +330,7 @@ def main_manage_repos():
 
         menu_options = [
             f"[l] {main_local_menu.CHECK_LOCAL.value}",
-            f"[r] {main_lr_menu.CHECK_REMOTE.value}",
+            f"[r] {main_remote_menu.CHECK_REMOTE.value}",
             f"[d] {manage_menu.DELETE_LOCAL.value}",
             f"[e] {manage_menu.DELETE_REMOTE.value}",
             f"[x] Back to previous menu",

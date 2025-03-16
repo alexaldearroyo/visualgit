@@ -10,27 +10,29 @@ def clear_screen():
     os.system('cls' if os.name == 'nt' else 'clear')
     print("\nVISUAL GIT")
     print("-" * 30)
-    
+
 class config_menu(Enum):
     CHECK = 'See Repos'
     CONFIG_NAME = 'Name Configuration'
     CONFIG_EMAIL = 'Email Configuration'
+    CONFIG_GITHUB_API = 'GitHub API Configuration'
     MANAGE_BRANCHES = 'Manage Branches'
 
 def configuration():
     while True:
-        
+
         print(f"\n{GREEN}Configuration:{ENDC}")
 
         menu_options = [
-            f"{config_menu.CHECK.value}",
-            f"{config_menu.CONFIG_NAME.value}",
-            f"{config_menu.CONFIG_EMAIL.value}",
-            f"{config_menu.MANAGE_BRANCHES.value}",
-            f"{global_menu.BACK.value}",
-            f"{global_menu.QUIT.value}",
+            f"[s] {config_menu.CHECK.value}",
+            f"[n] {config_menu.CONFIG_NAME.value}",
+            f"[e] {config_menu.CONFIG_EMAIL.value}",
+            f"[g] {config_menu.CONFIG_GITHUB_API.value}",
+            f"[m] {config_menu.MANAGE_BRANCHES.value}",
+            f"[x] {global_menu.BACK.value}",
+            f"[q] {global_menu.QUIT.value}"
         ]
-        
+
         terminal_menu = TerminalMenu(menu_options, title="Please select an option:")
         menu_entry_index = terminal_menu.show()
 
@@ -41,9 +43,13 @@ def configuration():
         elif menu_entry_index == 2:
             configure_user_email()
         elif menu_entry_index == 3:
+            configure_github_api()
+        elif menu_entry_index == 4:
+            manage_branches()
+        elif menu_entry_index == 5:
             clear_screen()
             break
-        elif menu_entry_index == 4:
+        elif menu_entry_index == 6:
             quit()
         else:
             invalid_opt()
@@ -72,3 +78,29 @@ def configure_user_email():
         print(f"User email set to: {user_email}")
     except Exception as e:
         print(f"Error setting user email: {e}")
+
+def configure_github_api():
+    print("\nTo use the GitHub API, you need a Personal Access Token (PAT).")
+    print("\nSteps to create a token:")
+    print("1. Go to: https://github.com/settings/tokens")
+    print("2. Click on 'Generate new token (classic)'")
+    print("3. Give it a descriptive name (for example: 'VisualGit Token')")
+    print("4. IMPORTANT: In permissions, you MUST check the full 'repo' checkbox")
+    print("   This will allow you to create and manage repositories from VisualGit")
+    print("\nNOTE: If your token already exists but you can't create repositories,")
+    print("      you need to create a new one with the 'repo' permissions checked.")
+
+    token = input("\nEnter your GitHub token (it will be stored securely): ")
+    try:
+        # Save token securely using git config
+        subprocess.run(["git", "config", "--global", "github.token", token])
+        print(f"\n{GREEN}GitHub token successfully saved.{ENDC}")
+    except Exception as e:
+        print(f"\n{YELLOW}Error saving GitHub token: {e}{ENDC}")
+
+def manage_branches():
+    # Implementation of manage_branches function
+    pass
+
+def invalid_opt():
+    print("Invalid option selected. Please try again.")

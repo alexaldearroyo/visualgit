@@ -84,7 +84,6 @@ def check_remote_branches():
                                text=True)
 
         branches = result.stdout.strip().split('\n')
-        print("\nRamas remotas:")
         for branch in branches:
             print(f"  {branch}")
     except Exception as e:

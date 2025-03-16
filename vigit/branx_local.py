@@ -61,7 +61,6 @@ def check_local_branches():
                                text=True)
 
         branches = result.stdout.strip().split('\n')
-        print("\nRamas locales:")
         for branch in branches:
             print(f"  {branch}")
     except Exception as e:

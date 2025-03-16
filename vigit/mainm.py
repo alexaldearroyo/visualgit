@@ -92,9 +92,83 @@ def check_local_repos():
         return
 
     try:
-        subprocess.run(["git", "status"])
+        # Obtener la ruta absoluta del repositorio
+        repo_path = subprocess.run(
+            ["git", "rev-parse", "--show-toplevel"],
+            capture_output=True,
+            text=True
+        ).stdout.strip()
+
+        # Obtener el nombre del repositorio (último elemento de la ruta)
+        repo_name = repo_path.split('/')[-1]
+
+        # Obtener la rama actual
+        current = subprocess.run(
+            ["git", "rev-parse", "--abbrev-ref", "HEAD"],
+            capture_output=True,
+            text=True
+        ).stdout.strip()
+
+        # Obtener todas las ramas locales
+        branches = subprocess.run(
+            ["git", "branch"],
+            capture_output=True,
+            text=True
+        ).stdout.strip()
+
+        # Obtener remotos configurados
+        remotes = subprocess.run(
+            ["git", "remote", "-v"],
+            capture_output=True,
+            text=True
+        ).stdout.strip()
+
+        # Obtener un resumen del estado
+        status = subprocess.run(
+            ["git", "status", "--short"],
+            capture_output=True,
+            text=True
+        ).stdout.strip()
+
+        # Mostrar la información recopilada
+        print(f"\n{GREEN}Local Repository:{ENDC}")
+        print(f"Name: {GREEN}{repo_name}{ENDC}")
+        print(f"Path: {repo_path}")
+        print(f"Current branch: {GREEN}{current}{ENDC}")
+
+        print(f"\n{GREEN}Local Branches:{ENDC}")
+        if branches:
+            print(branches)
+        else:
+            print("No local branches")
+
+        print(f"\n{GREEN}Remote Repositories:{ENDC}")
+        if remotes:
+            print(remotes)
+        else:
+            print("No remote repositories configured")
+
+        print(f"\n{GREEN}Repository Status:{ENDC}")
+        if status:
+            print(status)
+        else:
+            print("The workspace is clean")
+
+        # Also show the last commit
+        last_commit = subprocess.run(
+            ["git", "log", "-1", "--oneline"],
+            capture_output=True,
+            text=True
+        ).stdout.strip()
+
+        print(f"\n{GREEN}Last Commit:{ENDC}")
+        if last_commit:
+            print(last_commit)
+        else:
+            print("No commits in this repository")
+
     except Exception as e:
-            print(f"Error executing git status: {e}")
+        print(f"Error getting repository information: {e}")
 
 def create_local_repo():
     if is_git_repo():
@@ -128,12 +202,8 @@ class main_remote_menu(Enum):
     LINK = 'Join Local to Remote'
     PUSH = 'Push Changes to Remote'
     COMMIT_AND_PUSH = 'Commit & Push'
-    CLONE = 'Join Remote to Local'
+    CLONE = 'Fork Remote to Local'
     PULL = 'Yank Changes from Remote'
-
-#test comment
-
-#this is a change
 
 def main_remote():
     while True:
@@ -145,7 +215,7 @@ def main_remote():
             f"[j] {main_remote_menu.LINK.value}",
             f"[p] {main_remote_menu.PUSH.value}",
             f"[c] {main_remote_menu.COMMIT_AND_PUSH.value}",
-            f"[n] {main_remote_menu.CLONE.value}",
+            f"[f] {main_remote_menu.CLONE.value}",
             f"[y] {main_remote_menu.PULL.value}",
             "[x] Back to previous menu",
             "[q] Quit program"
@@ -299,8 +369,18 @@ def create_remote_repo():
         return
 
     name = input("Name for the GitHub repository: ")
+    if not name:
+        print("Operation cancelled: repository name not provided.")
+        return
+
     description = input("Description (optional, press Enter to skip): ")
-    private = input("Private repository? (y/n): ").lower() == 'y'
+
+    while True:
+        private_input = input("Private repository? (y/n): ").lower()
+        if private_input in ['y', 'n']:
+            private = private_input == 'y'
+            break
+        print("Please enter 'y' for private or 'n' for public.")
 
     remote_url = create_github_repository(name, description, private)
     if remote_url:

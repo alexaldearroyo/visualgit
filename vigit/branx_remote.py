@@ -26,7 +26,7 @@ def branch_remote():
             f"[c] {branch_remote_menu.COMMIT_LOCAL_BRANCH.value}",
             f"[p] {branch_remote_menu.PUSH_BRANCH.value}",
             f"[k] {branch_remote_menu.COMMIT_PUSH_BRANCH.value}",
-            f"[n] {branch_remote_menu.CLONE_BRANCH.value}",
+            f"[f] {branch_remote_menu.CLONE_BRANCH.value}",
             f"[y] {branch_remote_menu.PULL_BRANCH.value}",
             "[x] Back to previous menu",
             "[q] Quit program"

@@ -19,7 +19,7 @@ class branch_lr_menu(Enum):
     COMMIT_PUSH_BRANCH = 'Commit & Push in Branch'
 
 class branch_rl_menu(Enum):
-    CLONE_BRANCH = 'Join Remote Branch to Local'
+    CLONE_BRANCH = 'Fork Remote Branch to Local'
     PULL_BRANCH = 'Yank Remote Branch Changes to Local'
 
 class branch_remote_menu(Enum):
@@ -28,7 +28,7 @@ class branch_remote_menu(Enum):
     COMMIT_LOCAL_BRANCH = 'Commit to Local Branch'
     PUSH_BRANCH = 'Push Changes to Remote Branch'
     COMMIT_PUSH_BRANCH = 'Commit & Push in Branch'
-    CLONE_BRANCH = 'Join Remote Branch to Local'
+    CLONE_BRANCH = 'Fork Remote Branch to Local'
     PULL_BRANCH = 'Yank Remote Branch Changes to Local'
 
 class manage_branch_menu(Enum):
@@ -53,7 +53,7 @@ class main_remote_menu(Enum):
     LINK = 'Join Local to Remote'
     PUSH = 'Push Changes to Remote'
     COMMIT_AND_PUSH = 'Commit & Push'
-    CLONE = 'Join Remote to Local'
+    CLONE = 'Fork Remote to Local'
     PULL = 'Yank Changes from Remote'
 
 class start_menu(Enum):

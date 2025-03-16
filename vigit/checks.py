@@ -30,7 +30,7 @@ def print_git_repo():
     print(f"{YELLOW}The present working directory is already a git repository. No need to create one.{ENDC}")
 
 def print_not_git_repo():
-    print(f"{YELLOW}The present working directory is not a git repository, please create one to proceed.{ENDC}\nTo create one: Quick actions -> Add a local repo")
+    print(f"{YELLOW}The present working directory is not a git repository, please create one to proceed.{ENDC}\nTo create one: Local -> Add a local repo")
 
 def is_connected_to_remote():
     try:
@@ -43,7 +43,7 @@ def print_connected_to_remote():
     print(f"{YELLOW}The local repository is already connected to a remote repository.{ENDC}")
 
 def print_not_connected_to_remote():
-    print(f"{YELLOW}The local repository is not connected to a remote repository. Please connect it to proceed.{ENDC}\nTo connect: Work in main -> Link local repo with remote")
+    print(f"{YELLOW}The local repository is not connected to a remote repository. Please connect it to proceed.{ENDC}\nTo connect: Remote -> Join Local to Remote")
 
 def current_branch():
     try:

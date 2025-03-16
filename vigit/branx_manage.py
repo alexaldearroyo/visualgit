@@ -2,29 +2,186 @@ import subprocess
 from simple_term_menu import TerminalMenu
 from .utils import YELLOW, GREEN, ENDC
 from .constants import manage_branch_menu, branch_remote_menu, branch_local_menu
-from .checks import is_git_repo, print_not_git_repo, current_branch, is_current_branch_main
+from .checks import is_git_repo, print_not_git_repo, current_branch, is_current_branch_main, has_commits, print_not_commits, is_connected_to_remote, print_not_connected_to_remote
 from .branx_local import check_local_branches, go_to_branch, go_to_main, create_local_branch
 from .branx_remote import check_remote_branches, connect_local_branch_with_remote
 from .mainm import clear_screen
+
+def show_all_branches():
+    """Muestra tanto las ramas locales como remotas"""
+    print(f"\n{GREEN}Local Branches:{ENDC}")
+    check_local_branches()
+    print(f"\n{GREEN}Remote Branches:{ENDC}")
+    check_remote_branches()
+
+def add_branch_menu():
+    """Submenú para añadir una rama"""
+    while True:
+        print(f"\n{GREEN}Add Branch:{ENDC}")
+
+        menu_options = [
+            "[l] Local Branch",
+            "[r] Remote Branch",
+            "[x] Back to Branches menu"
+        ]
+
+        terminal_menu = TerminalMenu(menu_options, title="Select where to add the branch:")
+        menu_entry_index = terminal_menu.show()
+
+        if menu_entry_index == 0:
+            create_local_branch()
+            break
+        elif menu_entry_index == 1:
+            create_remote_branch()
+            break
+        elif menu_entry_index == 2:
+            break
+
+def create_remote_branch():
+    """Crea una rama en el repositorio remoto"""
+    if not is_git_repo():
+        print_not_git_repo()
+        return
+
+    if not is_connected_to_remote():
+        print_not_connected_to_remote()
+        return
+
+    if not has_commits():
+        print_not_commits()
+        return
+
+    branch_name = input("Enter the name for the new remote branch: ")
+    if not branch_name:
+        print("Operation cancelled: branch name not provided.")
+        return
+
+    try:
+        # Primero creamos la rama local
+        subprocess.run(["git", "branch", branch_name])
+        print(f"Local branch {branch_name} created successfully.")
+
+        # Luego cambiamos a esa rama
+        subprocess.run(["git", "checkout", branch_name])
+        print(f"Switched to branch '{branch_name}'")
+
+        # Finalmente hacemos push para crear la rama en remoto
+        push_result = subprocess.run(
+            ["git", "push", "-u", "origin", branch_name],
+            capture_output=True,
+            text=True
+        )
+
+        if push_result.returncode == 0:
+            print(f"{GREEN}Remote branch {branch_name} created and connected successfully.{ENDC}")
+        else:
+            print(f"{YELLOW}Could not create remote branch. Error: {push_result.stderr.strip()}{ENDC}")
+    except Exception as e:
+        print(f"Error creating remote branch: {e}")
+
+def delete_branch_menu():
+    """Submenú para eliminar una rama"""
+    while True:
+        print(f"\n{GREEN}Delete Branch:{ENDC}")
+
+        menu_options = [
+            "[l] Local Branch",
+            "[r] Remote Branch",
+            "[x] Back to Branches menu"
+        ]
+
+        terminal_menu = TerminalMenu(menu_options, title="Select where to delete the branch:")
+        menu_entry_index = terminal_menu.show()
+
+        if menu_entry_index == 0:
+            delete_local_branch()
+            break
+        elif menu_entry_index == 1:
+            delete_remote_branch()
+            break
+        elif menu_entry_index == 2:
+            break
+
+def import_remote_branch():
+    """Importa una rama remota al repositorio local"""
+    if not is_git_repo():
+        print_not_git_repo()
+        return
+
+    if not is_connected_to_remote():
+        print_not_connected_to_remote()
+        return
+
+    try:
+        # Obtenemos la lista de ramas remotas
+        subprocess.run(["git", "fetch"])
+        result = subprocess.run(
+            ["git", "--no-pager", "branch", "-r"],
+            capture_output=True,
+            text=True
+        )
+
+        if result.returncode != 0:
+            print(f"{YELLOW}Error listing remote branches: {result.stderr.strip()}{ENDC}")
+            return
+
+        remote_branches = result.stdout.strip().split('\n')
+        remote_branches = [branch.strip() for branch in remote_branches if branch.strip()]
+
+        if not remote_branches:
+            print(f"{YELLOW}No remote branches found.{ENDC}")
+            return
+
+        print("\nAvailable remote branches:")
+        for idx, branch in enumerate(remote_branches, 1):
+            print(f"{idx}. {branch}")
+
+        choice = input("\nSelect a branch to import (by number, or 0 to cancel): ")
+        try:
+            choice_idx = int(choice)
+            if choice_idx == 0:
+                print("Import operation cancelled.")
+                return
+
+            if 1 <= choice_idx <= len(remote_branches):
+                selected_branch = remote_branches[choice_idx - 1]
+                # Extraemos solo el nombre de la rama sin el "origin/"
+                branch_name = selected_branch.split('/', 1)[1] if '/' in selected_branch else selected_branch
+
+                # Creamos una rama local que hace tracking de la remota
+                checkout_result = subprocess.run(
+                    ["git", "checkout", "--track", selected_branch],
+                    capture_output=True,
+                    text=True
+                )
+
+                if checkout_result.returncode == 0:
+                    print(f"{GREEN}Remote branch '{branch_name}' successfully imported to local repository.{ENDC}")
+                else:
+                    print(f"{YELLOW}Could not import remote branch: {checkout_result.stderr.strip()}{ENDC}")
+            else:
+                print(f"{YELLOW}Invalid choice. Please select a number between 1 and {len(remote_branches)}.{ENDC}")
+        except ValueError:
+            print(f"{YELLOW}Please enter a valid number.{ENDC}")
+    except Exception as e:
+        print(f"Error importing remote branch: {e}")
 
 def manage_branches():
     while True:
         current = current_branch()
         if current:
-            print(f"\n{GREEN}Manage branches{ENDC} (Currently on: {current}):")
+            print(f"\n{GREEN}Branches{ENDC} (Currently on: {current}):")
         else:
-            print(f"\n{GREEN}Manage branches:{ENDC}")
+            print(f"\n{GREEN}Branches:{ENDC}")
 
         menu_options = [
-            f"[a] {manage_branch_menu.ADD_BRANCH.value}",
-            f"[j] {manage_branch_menu.LINK_BRANCH.value}",
-            f"[l] {branch_local_menu.CHECK_LOCAL_BRANCH.value}",
-            f"[r] {branch_remote_menu.CHECK_REMOTE_BRANCH.value}",
-            f"[f] {manage_branch_menu.MERGE.value}",
-            f"[g] {branch_local_menu.GOTO_BRANCH.value}",
-            f"[m] {branch_local_menu.GOTO_MAIN.value}",
-            f"[d] {manage_branch_menu.DELETE_LOCAL_BRANCH.value}",
-            f"[e] {manage_branch_menu.DELETE_REMOTE_BRANCH.value}",
+            f"[s] See Branches",
+            f"[a] Add Branch",
+            f"[g] Go to Branch",
+            f"[m] Merge Branch",
+            f"[j] Join Local Branch with Remote",
+            f"[y] Yank Remote Branch to Local",
+            f"[d] Delete Branch",
             "[x] Back to previous menu",
             "[q] Quit program"
         ]
@@ -33,27 +190,23 @@ def manage_branches():
         menu_entry_index = terminal_menu.show()
 
         if menu_entry_index == 0:
-            create_local_branch()
+            show_all_branches()
         elif menu_entry_index == 1:
-            connect_local_branch_with_remote()
+            add_branch_menu()
         elif menu_entry_index == 2:
-            check_local_branches()
-        elif menu_entry_index == 3:
-            check_remote_branches()
-        elif menu_entry_index == 4:
-            merge_branch_with_main()
-        elif menu_entry_index == 5:
             go_to_branch()
+        elif menu_entry_index == 3:
+            merge_branch_with_main()
+        elif menu_entry_index == 4:
+            connect_local_branch_with_remote()
+        elif menu_entry_index == 5:
+            import_remote_branch()
         elif menu_entry_index == 6:
-            go_to_main()
+            delete_branch_menu()
         elif menu_entry_index == 7:
-            delete_local_branch()
-        elif menu_entry_index == 8:
-            delete_remote_branch()
-        elif menu_entry_index == 9:
             clear_screen()
             break
-        elif menu_entry_index == 10:
+        elif menu_entry_index == 8:
             quit()
 
 def merge_branch_with_main():

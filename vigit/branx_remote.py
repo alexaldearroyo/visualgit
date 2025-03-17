@@ -76,26 +76,28 @@ def check_local_branches():
         print(f"Error checking local branches: {e}")
 
 def check_remote_branches():
-    branch = current_branch()
-
-    if not has_commits():
-        print_not_commits()
-        return
-    elif not is_local_branch_connected_to_remote(branch):
-        print(f"{YELLOW}The local branch {branch} is not connected to a remote branch. Please connect to remote branch to proceed{ENDC}\n To connect to remote branch: Work in branches -> Remote -> Join local branch to remote")
-        return
-
     try:
-        # Use --no-pager to prevent Git from using vi/less and capture the output to display it directly
-        result = subprocess.run(["git", "--no-pager", "branch", "-r"],
-                               capture_output=True,
-                               text=True)
+        # First, fetch to update remote branches
+        subprocess.run(["git", "fetch", "--all"], capture_output=True, text=True)
 
+        # Use --no-pager to prevent Git from using vi/less and capture the output to display it directly
+        result = subprocess.run(
+            ["git", "--no-pager", "branch", "-r"],
+            capture_output=True,
+            text=True
+        )
+
+        # Check if there are any remote branches
         branches = result.stdout.strip().split('\n')
+        if not branches or branches[0] == '':
+            print("  No remote branches found.")
+            return
+
+        # Display all remote branches
         for branch in branches:
-            print(f"  {branch}")
+            print(f"  {branch.strip()}")
     except Exception as e:
-        print(f"Error al mostrar las ramas remotas: {e}")
+        print(f"Error displaying remote branches: {e}")
 
 def connect_local_branch_with_remote():
     branch = current_branch()

@@ -377,10 +377,11 @@ def merge_branches():
                         if result.returncode == 0:
                             print(f"{GREEN}Branch {origin_branch} successfully merged into {target_branch}.{ENDC}")
 
-                            # Ask if they want to return to the original branch
+                            # Ask if they want to stay on destination branch
                             if target_branch != original_branch:
-                                back_to_original = input(f"\nReturn to original branch '{original_branch}'? (y/n): ").lower()
-                                if back_to_original == 'y' or back_to_original == 's':
+                                # We're already on the target_branch at this point
+                                stay_on_target = input(f"\Go to destination branch '{target_branch}'? (y/n): ").lower()
+                                if stay_on_target != 'y' and stay_on_target != 's':
                                     subprocess.run(["git", "checkout", original_branch])
                                     print(f"{GREEN}You have returned to branch {original_branch}.{ENDC}")
                         else:
@@ -407,10 +408,11 @@ def merge_branches():
                                 if ours_result.returncode == 0:
                                     print(f"{GREEN}Forced merge completed. Changes from {target_branch} have been prioritized.{ENDC}")
 
-                                    # Ask if they want to return to the original branch
+                                    # Ask if they want to stay on destination branch
                                     if target_branch != original_branch:
-                                        back_to_original = input(f"\nReturn to original branch '{original_branch}'? (y/n): ").lower()
-                                        if back_to_original == 'y' or back_to_original == 's':
+                                        # We're already on the target_branch at this point
+                                        stay_on_target = input(f"\Go to destination branch '{target_branch}'? (y/n): ").lower()
+                                        if stay_on_target != 'y' and stay_on_target != 's':
                                             subprocess.run(["git", "checkout", original_branch])
                                             print(f"{GREEN}You have returned to branch {original_branch}.{ENDC}")
                                 else:
@@ -431,10 +433,11 @@ def merge_branches():
                                 if theirs_result.returncode == 0:
                                     print(f"{GREEN}Forced merge completed. Changes from {origin_branch} have been prioritized.{ENDC}")
 
-                                    # Ask if they want to return to the original branch
+                                    # Ask if they want to stay on destination branch
                                     if target_branch != original_branch:
-                                        back_to_original = input(f"\nReturn to original branch '{original_branch}'? (y/n): ").lower()
-                                        if back_to_original == 'y' or back_to_original == 's':
+                                        # We're already on the target_branch at this point
+                                        stay_on_target = input(f"\Go to destination branch '{target_branch}'? (y/n): ").lower()
+                                        if stay_on_target != 'y' and stay_on_target != 's':
                                             subprocess.run(["git", "checkout", original_branch])
                                             print(f"{GREEN}You have returned to branch {original_branch}.{ENDC}")
                                 else:

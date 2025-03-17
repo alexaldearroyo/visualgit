@@ -60,8 +60,15 @@ def check_user_config():
     try:
         user_name = subprocess.getoutput("git config user.name")
         user_email = subprocess.getoutput("git config user.email")
+        github_token = subprocess.getoutput("git config --global github.token")
+
         print(f"User Name: {user_name}")
         print(f"User Email: {user_email}")
+
+        if github_token:
+            print(f"GitHub API: Configured")
+        else:
+            print(f"GitHub API: Not configured")
     except Exception as e:
         print(f"Error checking user configuration: {e}")
 

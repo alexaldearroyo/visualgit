@@ -60,7 +60,6 @@ def handle_args():
 
 
 # TITLE
-this_branch = get_current_branch()
 print("\nVISUAL GIT")
 print("-" * 30)
 
@@ -123,9 +122,9 @@ def main():
         print("Git is not installed. You need to install git to use VisualGit.")
         return
 
-    current = current_branch()
-
     while True:
+        current = current_branch()
+        this_branch = get_current_branch()
         if is_git_repo() and this_branch:
             branch_display = f"{BLACK_TEXT}{BG_PURPLE}{BOLD} Currently on: {this_branch} {ENDC}{BG_PURPLE}{BLACK_TEXT}▶{ENDC}"
             print(branch_display)

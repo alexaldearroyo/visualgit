@@ -4,6 +4,7 @@ import os
 from .checks import is_git_repo, print_not_git_repo, is_connected_to_remote, print_connected_to_remote, print_not_connected_to_remote, print_git_repo
 from .utils import YELLOW, GREEN, ENDC
 from .github_ops import create_github_repository
+from .constants import MENU_CURSOR, MENU_CURSOR_STYLE
 
 from enum import Enum
 from simple_term_menu import TerminalMenu
@@ -31,7 +32,12 @@ def work_in_main():
             "[q] Quit program"
         ]
 
-        terminal_menu = TerminalMenu(menu_options, title="Please select an option:")
+        terminal_menu = TerminalMenu(
+            menu_options,
+            title="Please select an option:",
+            menu_cursor=MENU_CURSOR,
+            menu_cursor_style=MENU_CURSOR_STYLE
+        )
         menu_entry_index = terminal_menu.show()
 
         if menu_entry_index == 0:
@@ -67,7 +73,12 @@ def main_local():
             "[q] Quit program"
         ]
 
-        terminal_menu = TerminalMenu(menu_options, title="Please select an option:")
+        terminal_menu = TerminalMenu(
+            menu_options,
+            title="Please select an option:",
+            menu_cursor=MENU_CURSOR,
+            menu_cursor_style=MENU_CURSOR_STYLE
+        )
         menu_entry_index = terminal_menu.show()
 
         if menu_entry_index == 0:
@@ -230,7 +241,12 @@ def main_remote():
             "[q] Quit program"
         ]
 
-        terminal_menu = TerminalMenu(menu_options, title="Please select an option:")
+        terminal_menu = TerminalMenu(
+            menu_options,
+            title="Please select an option:",
+            menu_cursor=MENU_CURSOR,
+            menu_cursor_style=MENU_CURSOR_STYLE
+        )
         menu_entry_index = terminal_menu.show()
 
         if menu_entry_index == 0:

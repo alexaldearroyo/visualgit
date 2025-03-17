@@ -2,6 +2,7 @@ import subprocess
 import os
 
 from .utils import YELLOW, GREEN, ENDC, global_menu
+from .constants import MENU_CURSOR, MENU_CURSOR_STYLE
 
 from enum import Enum
 from simple_term_menu import TerminalMenu
@@ -31,7 +32,12 @@ def configuration():
             f"[q] {global_menu.QUIT.value}"
         ]
 
-        terminal_menu = TerminalMenu(menu_options, title="Please select an option:")
+        terminal_menu = TerminalMenu(
+            menu_options,
+            title="Please select an option:",
+            menu_cursor=MENU_CURSOR,
+            menu_cursor_style=MENU_CURSOR_STYLE
+        )
         menu_entry_index = terminal_menu.show()
 
         if menu_entry_index == 0:

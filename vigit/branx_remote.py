@@ -1,7 +1,7 @@
 import subprocess
 from simple_term_menu import TerminalMenu
 from .utils import YELLOW, GREEN, ENDC, BOLD, BG_PURPLE, BLACK_TEXT
-from .constants import branch_remote_menu, branch_local_menu
+from .constants import branch_remote_menu, branch_local_menu, MENU_CURSOR, MENU_CURSOR_STYLE
 from .checks import is_git_repo, print_not_git_repo, current_branch, is_local_branch_connected_to_remote, has_commits, print_not_commits, is_current_branch_main
 from .mainm import commit_and_push
 
@@ -33,7 +33,12 @@ def branch_remote():
             "[q] Quit program"
         ]
 
-        terminal_menu = TerminalMenu(menu_options, title="Please select an option:")
+        terminal_menu = TerminalMenu(
+            menu_options,
+            title="Please select an option:",
+            menu_cursor=MENU_CURSOR,
+            menu_cursor_style=MENU_CURSOR_STYLE
+        )
         menu_entry_index = terminal_menu.show()
 
         if menu_entry_index == 0:

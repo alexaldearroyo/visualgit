@@ -3,6 +3,7 @@ import subprocess
 from simple_term_menu import TerminalMenu
 from .utils import YELLOW, GREEN, ENDC
 from .checks import is_git_repo, print_not_git_repo, current_branch
+from .constants import MENU_CURSOR, MENU_CURSOR_STYLE
 import os
 
 def clear_screen():
@@ -26,7 +27,12 @@ def advanced_operations():
             "Return to main menu"
         ]
 
-        terminal_menu = TerminalMenu(menu_options, title="Select an operation:")
+        terminal_menu = TerminalMenu(
+            menu_options,
+            title="Select an operation:",
+            menu_cursor=MENU_CURSOR,
+            menu_cursor_style=MENU_CURSOR_STYLE
+        )
         choice = terminal_menu.show()
 
         if choice == 0:

@@ -1,7 +1,7 @@
 import subprocess
 from simple_term_menu import TerminalMenu
 from .utils import YELLOW, GREEN, ENDC, BOLD, BG_PURPLE, BLACK_TEXT
-from .constants import manage_branch_menu, branch_remote_menu, branch_local_menu
+from .constants import manage_branch_menu, branch_remote_menu, branch_local_menu, MENU_CURSOR, MENU_CURSOR_STYLE
 from .checks import is_git_repo, print_not_git_repo, current_branch, is_current_branch_main, has_commits, print_not_commits, is_connected_to_remote, print_not_connected_to_remote
 from .branx_local import check_local_branches, go_to_branch, go_to_main, create_local_branch
 from .branx_remote import check_remote_branches, connect_local_branch_with_remote
@@ -25,7 +25,12 @@ def add_branch_menu():
             "[x] Back to Branches menu"
         ]
 
-        terminal_menu = TerminalMenu(menu_options, title="Select where to add the branch:")
+        terminal_menu = TerminalMenu(
+            menu_options,
+            title="Select where to add the branch:",
+            menu_cursor=MENU_CURSOR,
+            menu_cursor_style=MENU_CURSOR_STYLE
+        )
         menu_entry_index = terminal_menu.show()
 
         if menu_entry_index == 0:
@@ -90,7 +95,12 @@ def delete_branch_menu():
             "[x] Back to Branches menu"
         ]
 
-        terminal_menu = TerminalMenu(menu_options, title="Select where to delete the branch:")
+        terminal_menu = TerminalMenu(
+            menu_options,
+            title="Select where to delete the branch:",
+            menu_cursor=MENU_CURSOR,
+            menu_cursor_style=MENU_CURSOR_STYLE
+        )
         menu_entry_index = terminal_menu.show()
 
         if menu_entry_index == 0:
@@ -169,25 +179,26 @@ def import_remote_branch():
 def manage_branches():
     while True:
         current = current_branch()
-        if current:
-            branch_display = f"{BLACK_TEXT}{BG_PURPLE}{BOLD} Currently on: {current} {ENDC}"
-            print(f"\n{GREEN}Branches{ENDC} {branch_display}")
-        else:
-            print(f"\n{GREEN}Branches:{ENDC}")
+        branch_display = f"{BLACK_TEXT}{BG_PURPLE}{BOLD} Currently on: {current} {ENDC}"
+        print(f"\n{GREEN}Manage Branches{ENDC} {branch_display}")
 
         menu_options = [
-            f"[s] See Branches",
-            f"[a] Add Branch",
-            f"[g] Go to Branch",
-            f"[m] Merge Branch",
-            f"[j] Join Local Branch with Remote",
-            f"[y] Yank Remote Branch to Local",
+            f"[s] Show All Branches",
+            f"[a] {manage_branch_menu.ADD_BRANCH.value}",
+            f"[l] {manage_branch_menu.LINK_BRANCH.value}",
+            f"[m] {manage_branch_menu.MERGE.value}",
+            f"[y] {manage_branch_menu.PULL_BRANCH.value}",
             f"[d] Delete Branch",
             "[x] Back to previous menu",
             "[q] Quit program"
         ]
 
-        terminal_menu = TerminalMenu(menu_options, title="Please select an option:")
+        terminal_menu = TerminalMenu(
+            menu_options,
+            title="Please select an option:",
+            menu_cursor=MENU_CURSOR,
+            menu_cursor_style=MENU_CURSOR_STYLE
+        )
         menu_entry_index = terminal_menu.show()
 
         if menu_entry_index == 0:

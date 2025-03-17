@@ -70,3 +70,7 @@ class updated_start_menu(Enum):
     CONFIGURATION = "New Configuration"
     QUICK_ACTIONS = "Quick Actions"
     WATCH_STATUS = "See Status"
+
+# Menu cursor definition
+MENU_CURSOR = "▶ "
+MENU_CURSOR_STYLE = ("fg_yellow", "bold")

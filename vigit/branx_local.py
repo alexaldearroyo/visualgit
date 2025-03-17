@@ -2,7 +2,7 @@ import subprocess
 import os
 from simple_term_menu import TerminalMenu
 from .utils import YELLOW, GREEN, ENDC, BOLD, BG_PURPLE, BLACK_TEXT
-from .constants import branch_local_menu
+from .constants import branch_local_menu, MENU_CURSOR, MENU_CURSOR_STYLE
 from .checks import is_git_repo, print_not_git_repo, current_branch, has_commits, print_not_commits
 
 def clear_screen():
@@ -13,23 +13,24 @@ def clear_screen():
 def branch_local():
     while True:
         current = current_branch()
-        if current:
-            branch_display = f"{BLACK_TEXT}{BG_PURPLE}{BOLD} Currently on: {current} {ENDC}"
-            print(f"\n{GREEN}Branches -Local{ENDC} {branch_display}")
-        else:
-            print("\nBranches -Local:")
+        branch_display = f"{BLACK_TEXT}{BG_PURPLE}{BOLD} Currently on: {current} {ENDC}"
+        print(f"\n{GREEN}Local branches{ENDC} {branch_display}")
 
-        options = [
-            f"[s] See Local Branches",
-            f"[a] Add a Local Branch",
-            f"[c] Commit to Current Branch",
-            f"[g] Go to Branch",
-            f"[m] Go to Main",
+        menu_options = [
+            f"[s] {branch_local_menu.CHECK_LOCAL_BRANCH.value}",
+            f"[a] {branch_local_menu.ADD_LOCAL_BRANCH.value}",
+            f"[g] {branch_local_menu.GOTO_BRANCH.value}",
+            f"[m] {branch_local_menu.GOTO_MAIN.value}",
             "[x] Back to previous menu",
             "[q] Quit program"
         ]
 
-        terminal_menu = TerminalMenu(options, title="Please select an option:")
+        terminal_menu = TerminalMenu(
+            menu_options,
+            title="Please select an option:",
+            menu_cursor=MENU_CURSOR,
+            menu_cursor_style=MENU_CURSOR_STYLE
+        )
         menu_entry_index = terminal_menu.show()
 
         if menu_entry_index == 0:

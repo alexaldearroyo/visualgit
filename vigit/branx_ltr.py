@@ -3,7 +3,7 @@ from simple_term_menu import TerminalMenu
 from .utils import YELLOW, GREEN, ENDC
 from .constants import branch_lr_menu, branch_local_menu
 from .checks import is_git_repo, print_not_git_repo, current_branch, is_local_branch_connected_to_remote, has_commits, print_not_commits, is_current_branch_main
-from .mainm import commit_and_push
+from .menu import commit_and_push
 
 def branch_local_to_remote():
     if is_current_branch_main():

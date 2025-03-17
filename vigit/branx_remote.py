@@ -1,24 +1,26 @@
 import subprocess
+import os
+
 from simple_term_menu import TerminalMenu
-from .utils import YELLOW, GREEN, ENDC, BOLD, BG_PURPLE, BLACK_TEXT
+from .utils import YELLOW, GREEN, ENDC, BOLD, BG_PURPLE, BLACK_TEXT, WHITE_TEXT
 from .constants import branch_remote_menu, branch_local_menu, MENU_CURSOR, MENU_CURSOR_STYLE
 from .checks import is_git_repo, print_not_git_repo, current_branch, is_local_branch_connected_to_remote, has_commits, print_not_commits, is_current_branch_main
-from .mainm import commit_and_push
+from .menu import commit_and_push
 
 def clear_screen():
-    import os
     os.system('cls' if os.name == 'nt' else 'clear')
     print("\nVISUAL GIT")
     print("-" * 30)
 
 def branch_remote():
+    if not is_git_repo():
+        print_not_git_repo()
+        return
+
     while True:
         current = current_branch()
-        if current:
-            branch_display = f"{BLACK_TEXT}{BG_PURPLE}{BOLD} Currently on: {current} {ENDC}"
-            print(f"\n{GREEN}Branches -Remote{ENDC} {branch_display}")
-        else:
-            print(f"\n{GREEN}Branches -Remote:{ENDC}")
+        branch_display = f"{BLACK_TEXT}{BG_PURPLE}{BOLD} Currently on: {current} {ENDC}"
+        print(f"\n{GREEN}Branches -Remote{ENDC} {branch_display}")
 
         menu_options = [
             f"[r] {branch_remote_menu.CHECK_REMOTE_BRANCH.value}",

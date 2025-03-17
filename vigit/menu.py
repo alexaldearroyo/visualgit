@@ -63,7 +63,7 @@ class main_local_menu(Enum):
 def main_local():
     while True:
 
-        print(f"\n{GREEN}Main -Local:{ENDC}")
+        print(f"{GREEN}Local:{ENDC}")
 
         menu_options = [
             f"[a] {main_local_menu.ADD_LOCAL.value}",
@@ -130,6 +130,13 @@ def check_local_repos():
             text=True
         ).stdout.strip()
 
+        # Obtener todas las ramas remotas
+        remote_branches = subprocess.run(
+            ["git", "branch", "-r"],
+            capture_output=True,
+            text=True
+        ).stdout.strip()
+
         # Obtener un resumen del estado
         status = subprocess.run(
             ["git", "status", "--short"],
@@ -155,11 +162,11 @@ def check_local_repos():
         else:
             print("No remote repositories configured")
 
-        print(f"\n{GREEN}Repository Status:{ENDC}")
-        if status:
-            print(status)
+        print(f"\n{GREEN}Remote Branches:{ENDC}")
+        if remote_branches:
+            print(remote_branches)
         else:
-            print("The workspace is clean")
+            print("No remote branches available")
 
         # Also show the last commit
         last_commit = subprocess.run(
@@ -173,6 +180,8 @@ def check_local_repos():
             print(last_commit)
         else:
             print("No commits in this repository")
+
+        print()
 
     except Exception as e:
         print(f"Error getting repository information: {e}")
@@ -228,7 +237,7 @@ class main_remote_menu(Enum):
 
 def main_remote():
     while True:
-        print(f"\n{GREEN}Main -Remote:{ENDC}")
+        print(f"{GREEN}Remote:{ENDC}")
 
         menu_options = [
             f"[a] {main_remote_menu.ADD_REMOTE.value}",

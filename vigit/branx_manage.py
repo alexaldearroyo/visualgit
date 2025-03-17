@@ -1,11 +1,11 @@
 import subprocess
 from simple_term_menu import TerminalMenu
-from .utils import YELLOW, GREEN, ENDC, BOLD, BG_PURPLE, BLACK_TEXT
+from .utils import YELLOW, GREEN, ENDC, BOLD, BG_PURPLE, BLACK_TEXT, WHITE_TEXT
 from .constants import manage_branch_menu, branch_remote_menu, branch_local_menu, MENU_CURSOR, MENU_CURSOR_STYLE
 from .checks import is_git_repo, print_not_git_repo, current_branch, is_current_branch_main, has_commits, print_not_commits, is_connected_to_remote, print_not_connected_to_remote
 from .branx_local import check_local_branches, go_to_branch, go_to_main, create_local_branch
 from .branx_remote import check_remote_branches, connect_local_branch_with_remote
-from .mainm import clear_screen
+from .menu import clear_screen
 
 def show_all_branches():
     """Muestra tanto las ramas locales como remotas"""

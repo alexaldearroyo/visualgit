@@ -14,6 +14,7 @@ BG_GREEN = '\033[42m'
 BG_BLUE = '\033[44m'
 BG_PURPLE = '\033[45m'
 BLACK_TEXT = '\033[30m'
+WHITE_TEXT = '\033[97m'
 
 # GLOBAL MENU
 class global_menu(Enum):

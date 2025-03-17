@@ -69,7 +69,7 @@ class updated_start_menu(Enum):
     ADVANCED_OPERATIONS = "Operations"
     CONFIGURATION = "New Configuration"
     QUICK_ACTIONS = "Quick Actions"
-    WATCH_STATUS = "See Status"
+    WATCH_STATUS = "General View"
 
 # Menu cursor definition
 MENU_CURSOR = "▶ "

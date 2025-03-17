@@ -4,11 +4,11 @@ import os
 
 from simple_term_menu import TerminalMenu
 
-from .utils import YELLOW, GREEN, ENDC, BOLD, BG_PURPLE, BLACK_TEXT
+from .utils import YELLOW, GREEN, ENDC, BOLD, BG_PURPLE, BLACK_TEXT, WHITE_TEXT
 from .constants import branch_menu, MENU_CURSOR, MENU_CURSOR_STYLE
-from .mainm import commit_to_local_repo
+from .menu import commit_to_local_repo
 from .checks import is_git_repo, print_not_git_repo, current_branch, is_local_branch_connected_to_remote, has_commits, print_not_commits, is_current_branch_main
-from .branx_local import branch_local
+from .branx_local import branch_local, check_local_branches, create_local_branch, go_to_branch, go_to_main
 from .branx_remote import branch_remote
 from .branx_manage import manage_branches
 from .advanced import advanced_operations
@@ -19,6 +19,10 @@ def clear_screen():
     print("-" * 30)
 
 def work_in_branches():
+    if not is_git_repo():
+        print_not_git_repo()
+        return
+
     while True:
         current = current_branch()
         branch_display = f"{BLACK_TEXT}{BG_PURPLE}{BOLD} Currently on: {current} {ENDC}"

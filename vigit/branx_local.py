@@ -1,7 +1,7 @@
 import subprocess
 import os
 from simple_term_menu import TerminalMenu
-from .utils import YELLOW, GREEN, ENDC, BOLD, BG_PURPLE, BLACK_TEXT
+from .utils import YELLOW, GREEN, ENDC, BOLD, BG_PURPLE, BLACK_TEXT, WHITE_TEXT
 from .constants import branch_local_menu, MENU_CURSOR, MENU_CURSOR_STYLE
 from .checks import is_git_repo, print_not_git_repo, current_branch, has_commits, print_not_commits
 
@@ -11,6 +11,10 @@ def clear_screen():
     print("-" * 30)
 
 def branch_local():
+    if not is_git_repo():
+        print_not_git_repo()
+        return
+
     while True:
         current = current_branch()
         branch_display = f"{BLACK_TEXT}{BG_PURPLE}{BOLD} Currently on: {current} {ENDC}"

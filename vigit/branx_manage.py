@@ -13,6 +13,7 @@ def show_all_branches():
     check_local_branches()
     print(f"\n{GREEN}Remote Branches:{ENDC}")
     check_remote_branches()
+    print()
 
 def add_branch_menu():
     """Submenú para añadir una rama"""
@@ -209,7 +210,7 @@ def manage_branches():
         elif menu_entry_index == 2:
             go_to_branch()
         elif menu_entry_index == 3:
-            merge_branch_with_main()
+            merge_branches()
         elif menu_entry_index == 4:
             connect_local_branch_with_remote()
         elif menu_entry_index == 5:
@@ -222,82 +223,245 @@ def manage_branches():
         elif menu_entry_index == 8:
             quit()
 
-def merge_branch_with_main():
+def merge_branches():
     if not is_git_repo():
         print_not_git_repo()
         return
-    if is_current_branch_main():
-        print(f"{YELLOW}You are already on the main branch. Go to another branch to proceed.{ENDC}\nTo go to another branch: Quick actions -> Go to branch")
-        return
-
-    branch = current_branch()
-    if not branch or branch == "main":
-        print("You are on the main branch or the current branch could not be determined.")
-        return
 
     try:
-        # Go to the main branch
-        subprocess.run(["git", "checkout", "main"])
-
-        # Try to do a normal merge first
+        # Get all local branches
         result = subprocess.run(
-            ["git", "merge", branch, "--allow-unrelated-histories"],
+            ["git", "branch"],
             capture_output=True,
             text=True
         )
 
-        # If the normal merge is successful
-        if result.returncode == 0:
-            print(f"{GREEN}Branch {branch} successfully merged with main.{ENDC}")
-        else:
-            # If the merge fails, show the error and offer options
-            print(f"{YELLOW}Could not merge branch {branch} with main.{ENDC}")
-            print(f"Reason: {result.stderr.strip()}")
+        if result.returncode != 0:
+            print(f"{YELLOW}Error listing branches: {result.stderr.strip()}{ENDC}")
+            return
 
-            # Offer options to resolve
-            print("\nAvailable options:")
-            print("1. Force merge (ours strategy - prioritizes main changes)")
-            print("2. Force merge (theirs strategy - prioritizes branch changes)")
-            print("3. Cancel operation")
+        # Process the branch list
+        all_branches = []
+        current_branch_name = current_branch()
 
-            choice = input("\nSelect an option (1-3): ")
+        for branch in result.stdout.strip().split('\n'):
+            branch = branch.strip()
+            if branch.startswith('*'):
+                branch = branch[2:]  # Remove the * and space
 
-            if choice == "1":
-                print(f"{YELLOW}Executing forced merge (ours)...{ENDC}")
-                ours_result = subprocess.run(
-                    ["git", "merge", "-X", "ours", branch],
-                    capture_output=True,
-                    text=True
-                )
+            if branch:
+                all_branches.append(branch)
 
-                if ours_result.returncode == 0:
-                    print(f"{GREEN}Forced merge completed. Main changes have been prioritized.{ENDC}")
-                else:
-                    print(f"{YELLOW}Forced merge failed: {ours_result.stderr.strip()}{ENDC}")
+        if len(all_branches) < 2:
+            print(f"{YELLOW}At least two branches are needed to perform a merge.{ENDC}")
+            return
 
-            elif choice == "2":
-                print(f"{YELLOW}Executing forced merge (theirs)...{ENDC}")
-                theirs_result = subprocess.run(
-                    ["git", "merge", "-X", "theirs", branch],
-                    capture_output=True,
-                    text=True
-                )
+        # STEP 1: Select the source branch (the one that will be merged into the destination)
+        print(f"\n{GREEN}Current branch:{ENDC} {current_branch_name}")
+        print(f"\n{GREEN}Select the source branch (the one that will be merged into the destination):{ENDC}")
 
-                if theirs_result.returncode == 0:
-                    print(f"{GREEN}Forced merge completed. Changes from branch {branch} have been prioritized.{ENDC}")
-                else:
-                    print(f"{YELLOW}Forced merge failed: {theirs_result.stderr.strip()}{ENDC}")
-
+        for idx, branch in enumerate(all_branches, 1):
+            if branch == current_branch_name:
+                print(f"{idx}. {branch} (current branch)")
             else:
-                print("Merge operation cancelled.")
-                # Return to the original branch
-                subprocess.run(["git", "checkout", branch])
+                print(f"{idx}. {branch}")
 
+        # Ask the user to choose the source branch
+        origin_choice = input("\nSelect the source branch (number, or 0 to cancel): ")
+
+        try:
+            origin_idx = int(origin_choice)
+            if origin_idx == 0:
+                print("Merge operation canceled.")
+                return
+
+            if 1 <= origin_idx <= len(all_branches):
+                origin_branch = all_branches[origin_idx - 1]
+
+                # STEP 2: Select the destination branch (where changes will be merged)
+                print(f"\n{GREEN}Select the destination branch (where changes will be merged):{ENDC}")
+
+                # Filter out the source branch from options
+                destination_branches = [b for b in all_branches if b != origin_branch]
+
+                for idx, branch in enumerate(destination_branches, 1):
+                    if branch == current_branch_name:
+                        print(f"{idx}. {branch} (current branch)")
+                    else:
+                        print(f"{idx}. {branch}")
+
+                # Ask the user to choose the destination branch
+                dest_choice = input("\nSelect the destination branch (number, or 0 to cancel): ")
+
+                try:
+                    dest_idx = int(dest_choice)
+                    if dest_idx == 0:
+                        print("Merge operation canceled.")
+                        return
+
+                    if 1 <= dest_idx <= len(destination_branches):
+                        target_branch = destination_branches[dest_idx - 1]
+
+                        # Save the original branch to return to it later if needed
+                        original_branch = current_branch_name
+
+                        # Switch to destination branch
+                        checkout_result = subprocess.run(
+                            ["git", "checkout", target_branch],
+                            capture_output=True,
+                            text=True
+                        )
+
+                        if checkout_result.returncode != 0:
+                            print(f"{YELLOW}Could not switch to branch {target_branch}: {checkout_result.stderr.strip()}{ENDC}")
+
+                            # Check if the error is due to uncommitted local changes
+                            if "local changes" in checkout_result.stderr or "cambios locales" in checkout_result.stderr:
+                                commit_choice = input(f"\nDo you want to commit your changes before switching branches? (y/n): ").lower()
+
+                                if commit_choice == 'y' or commit_choice == 's':
+                                    # Commit the changes
+                                    commit_msg = input(f"\nCommit message: ")
+
+                                    # Add all changes
+                                    add_result = subprocess.run(
+                                        ["git", "add", "."],
+                                        capture_output=True,
+                                        text=True
+                                    )
+
+                                    if add_result.returncode != 0:
+                                        print(f"{YELLOW}Error adding changes: {add_result.stderr.strip()}{ENDC}")
+                                        return
+
+                                    # Commit
+                                    commit_result = subprocess.run(
+                                        ["git", "commit", "-m", commit_msg],
+                                        capture_output=True,
+                                        text=True
+                                    )
+
+                                    if commit_result.returncode != 0:
+                                        print(f"{YELLOW}Error committing changes: {commit_result.stderr.strip()}{ENDC}")
+                                        return
+
+                                    print(f"{GREEN}Commit successful.{ENDC}")
+
+                                    # Try to switch to the destination branch again
+                                    checkout_result = subprocess.run(
+                                        ["git", "checkout", target_branch],
+                                        capture_output=True,
+                                        text=True
+                                    )
+
+                                    if checkout_result.returncode != 0:
+                                        print(f"{YELLOW}Still unable to switch to branch {target_branch}: {checkout_result.stderr.strip()}{ENDC}")
+                                        return
+
+                                    print(f"{GREEN}Successfully switched to branch {target_branch}.{ENDC}")
+                                else:
+                                    print(f"{YELLOW}Operation canceled. You must commit or stash your changes before switching branches.{ENDC}")
+                                    return
+                            else:
+                                return
+
+                        # Try to do a normal merge
+                        print(f"\n{YELLOW}Attempting to merge {origin_branch} into {target_branch}...{ENDC}")
+                        result = subprocess.run(
+                            ["git", "merge", origin_branch, "--allow-unrelated-histories"],
+                            capture_output=True,
+                            text=True
+                        )
+
+                        # If merge is successful
+                        if result.returncode == 0:
+                            print(f"{GREEN}Branch {origin_branch} successfully merged into {target_branch}.{ENDC}")
+
+                            # Ask if they want to return to the original branch
+                            if target_branch != original_branch:
+                                back_to_original = input(f"\nReturn to original branch '{original_branch}'? (y/n): ").lower()
+                                if back_to_original == 'y' or back_to_original == 's':
+                                    subprocess.run(["git", "checkout", original_branch])
+                                    print(f"{GREEN}You have returned to branch {original_branch}.{ENDC}")
+                        else:
+                            # If merge fails, show error and offer options
+                            print(f"{YELLOW}Could not merge branch {origin_branch} into {target_branch}.{ENDC}")
+                            print(f"Reason: {result.stderr.strip()}")
+
+                            # Offer options to resolve
+                            print("\nAvailable options:")
+                            print(f"1. Force merge ('ours' strategy - prioritizes {target_branch} changes)")
+                            print(f"2. Force merge ('theirs' strategy - prioritizes {origin_branch} changes)")
+                            print("3. Cancel operation")
+
+                            choice = input("\nSelect an option (1-3): ")
+
+                            if choice == "1":
+                                print(f"{YELLOW}Executing forced merge (ours)...{ENDC}")
+                                ours_result = subprocess.run(
+                                    ["git", "merge", "-X", "ours", origin_branch],
+                                    capture_output=True,
+                                    text=True
+                                )
+
+                                if ours_result.returncode == 0:
+                                    print(f"{GREEN}Forced merge completed. Changes from {target_branch} have been prioritized.{ENDC}")
+
+                                    # Ask if they want to return to the original branch
+                                    if target_branch != original_branch:
+                                        back_to_original = input(f"\nReturn to original branch '{original_branch}'? (y/n): ").lower()
+                                        if back_to_original == 'y' or back_to_original == 's':
+                                            subprocess.run(["git", "checkout", original_branch])
+                                            print(f"{GREEN}You have returned to branch {original_branch}.{ENDC}")
+                                else:
+                                    print(f"{YELLOW}Forced merge failed: {ours_result.stderr.strip()}{ENDC}")
+                                    # Return to original branch
+                                    if target_branch != original_branch:
+                                        subprocess.run(["git", "checkout", original_branch])
+                                        print(f"{GREEN}You have returned to branch {original_branch}.{ENDC}")
+
+                            elif choice == "2":
+                                print(f"{YELLOW}Executing forced merge (theirs)...{ENDC}")
+                                theirs_result = subprocess.run(
+                                    ["git", "merge", "-X", "theirs", origin_branch],
+                                    capture_output=True,
+                                    text=True
+                                )
+
+                                if theirs_result.returncode == 0:
+                                    print(f"{GREEN}Forced merge completed. Changes from {origin_branch} have been prioritized.{ENDC}")
+
+                                    # Ask if they want to return to the original branch
+                                    if target_branch != original_branch:
+                                        back_to_original = input(f"\nReturn to original branch '{original_branch}'? (y/n): ").lower()
+                                        if back_to_original == 'y' or back_to_original == 's':
+                                            subprocess.run(["git", "checkout", original_branch])
+                                            print(f"{GREEN}You have returned to branch {original_branch}.{ENDC}")
+                                else:
+                                    print(f"{YELLOW}Forced merge failed: {theirs_result.stderr.strip()}{ENDC}")
+                                    # Return to original branch
+                                    if target_branch != original_branch:
+                                        subprocess.run(["git", "checkout", original_branch])
+                                        print(f"{GREEN}You have returned to branch {original_branch}.{ENDC}")
+                            else:
+                                print("Merge operation canceled.")
+                                # Return to original branch
+                                if target_branch != original_branch:
+                                    subprocess.run(["git", "checkout", original_branch])
+                                    print(f"{GREEN}You have returned to branch {original_branch}.{ENDC}")
+                    else:
+                        print(f"{YELLOW}Invalid option. Please select a number between 1 and {len(destination_branches)}.{ENDC}")
+                except ValueError:
+                    print(f"{YELLOW}Please enter a valid number.{ENDC}")
+            else:
+                print(f"{YELLOW}Invalid option. Please select a number between 1 and {len(all_branches)}.{ENDC}")
+        except ValueError:
+            print(f"{YELLOW}Please enter a valid number.{ENDC}")
     except Exception as e:
-        print(f"Error merging branch with main: {e}")
+        print(f"Error merging branches: {e}")
         # Try to return to the original branch in case of error
         try:
-            subprocess.run(["git", "checkout", branch])
+            subprocess.run(["git", "checkout", current_branch_name])
         except:
             pass
 

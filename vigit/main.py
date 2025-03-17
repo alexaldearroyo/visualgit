@@ -14,7 +14,7 @@ from .checks import is_git_installed, is_git_repo, print_not_git_repo, current_b
 from .menu import work_in_main, create_local_repo, commit_to_local_repo, commit_and_push, main_local, main_remote, check_local_repos
 from .branx_local import go_to_branch, go_to_main, create_local_branch
 from .branx_remote import commit_and_push_in_branch
-from .branx_manage import merge_branch_with_main, manage_branches
+from .branx_manage import merge_branches, manage_branches
 from .branx import work_in_branches
 from .advanced import advanced_operations
 from .config import configuration
@@ -86,7 +86,7 @@ def main():
             commit_and_push()
             return
         elif args.command == 'f':
-            merge_branch_with_main()
+            merge_branches()
             return
         elif args.command == 'n':
             configuration()
@@ -109,7 +109,7 @@ def main():
         commit_and_push()
         return
     if args.merge:
-        merge_branch_with_main()
+        merge_branches()
         return
     if args.new:
         configuration()
@@ -232,7 +232,7 @@ def quick_actions():
         elif menu_entry_index == 3:
             go_to_branch()
         elif menu_entry_index == 4:
-            merge_branch_with_main()
+            merge_branches()
 
         elif menu_entry_index == 5:
             clear_screen()

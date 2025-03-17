@@ -21,7 +21,7 @@ def clear_screen():
 def work_in_branches():
     while True:
         current = current_branch()
-        branch_display = f"{BLACK_TEXT}{BG_PURPLE}{BOLD} Currently on: {current} {ENDC}{BG_PURPLE}{BLACK_TEXT}▶{ENDC}"
+        branch_display = f"{BLACK_TEXT}{BG_PURPLE}{BOLD} Currently on: {current} {ENDC}"
         print(f"\n{GREEN}Work in branches{ENDC} {branch_display}")
 
         menu_options = [

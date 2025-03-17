@@ -126,10 +126,10 @@ def main():
         current = current_branch()
         this_branch = get_current_branch()
         if is_git_repo() and this_branch:
-            branch_display = f"{BLACK_TEXT}{BG_PURPLE}{BOLD} Currently on: {this_branch} {ENDC}{BG_PURPLE}{BLACK_TEXT}▶{ENDC}"
+            branch_display = f"{BLACK_TEXT}{BG_PURPLE}{BOLD} Currently on: {this_branch} {ENDC}"
             print(branch_display)
         elif is_git_repo():
-            branch_display = f"{BLACK_TEXT}{BG_PURPLE}{BOLD} Currently on: {current} {ENDC}{BG_PURPLE}{BLACK_TEXT}▶{ENDC}"
+            branch_display = f"{BLACK_TEXT}{BG_PURPLE}{BOLD} Currently on: {current} {ENDC}"
             print(branch_display)
 
         menu_options = [

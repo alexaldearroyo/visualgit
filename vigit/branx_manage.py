@@ -170,7 +170,7 @@ def manage_branches():
     while True:
         current = current_branch()
         if current:
-            branch_display = f"{BLACK_TEXT}{BG_PURPLE}{BOLD} Currently on: {current} {ENDC}{BG_PURPLE}{BLACK_TEXT}▶{ENDC}"
+            branch_display = f"{BLACK_TEXT}{BG_PURPLE}{BOLD} Currently on: {current} {ENDC}"
             print(f"\n{GREEN}Branches{ENDC} {branch_display}")
         else:
             print(f"\n{GREEN}Branches:{ENDC}")

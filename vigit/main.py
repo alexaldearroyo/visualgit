@@ -8,7 +8,7 @@ import os
 from enum import Enum
 from simple_term_menu import TerminalMenu
 
-from .utils import YELLOW, GREEN, ENDC
+from .utils import YELLOW, GREEN, ENDC, BOLD, BG_PURPLE, BLACK_TEXT
 from .constants import start_menu, main_menu, main_local_menu, main_remote_menu, branch_local_menu, branch_remote_menu, manage_branch_menu, updated_start_menu
 from .checks import is_git_installed, is_git_repo, print_not_git_repo, current_branch, get_current_branch, is_current_branch_main
 from .mainm import work_in_main, create_local_repo, commit_to_local_repo, commit_and_push, main_local, main_remote, check_local_repos
@@ -127,9 +127,11 @@ def main():
 
     while True:
         if is_git_repo() and this_branch:
-            print(f"{GREEN}Currently on: {this_branch}{ENDC}")
+            branch_display = f"{BLACK_TEXT}{BG_PURPLE}{BOLD} Currently on: {this_branch} {ENDC}{BG_PURPLE}{BLACK_TEXT}▶{ENDC}"
+            print(branch_display)
         elif is_git_repo():
-            print((f"{GREEN}Currently on: {current}{ENDC}"))
+            branch_display = f"{BLACK_TEXT}{BG_PURPLE}{BOLD} Currently on: {current} {ENDC}{BG_PURPLE}{BLACK_TEXT}▶{ENDC}"
+            print(branch_display)
 
         menu_options = [
             f"[s] {updated_start_menu.WATCH_STATUS.value}",

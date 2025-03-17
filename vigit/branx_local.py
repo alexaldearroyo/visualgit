@@ -1,7 +1,7 @@
 import subprocess
 import os
 from simple_term_menu import TerminalMenu
-from .utils import YELLOW, GREEN, ENDC
+from .utils import YELLOW, GREEN, ENDC, BOLD, BG_PURPLE, BLACK_TEXT
 from .constants import branch_local_menu
 from .checks import is_git_repo, print_not_git_repo, current_branch, has_commits, print_not_commits
 
@@ -14,7 +14,8 @@ def branch_local():
     while True:
         current = current_branch()
         if current:
-            print(f"\n{GREEN}Branches -Local{ENDC} (Currently on: {current}):")
+            branch_display = f"{BLACK_TEXT}{BG_PURPLE}{BOLD} Currently on: {current} {ENDC}"
+            print(f"\n{GREEN}Branches -Local{ENDC} {branch_display}")
         else:
             print("\nBranches -Local:")
 

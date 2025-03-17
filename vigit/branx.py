@@ -4,7 +4,7 @@ import os
 
 from simple_term_menu import TerminalMenu
 
-from .utils import YELLOW, GREEN, ENDC
+from .utils import YELLOW, GREEN, ENDC, BOLD, BG_PURPLE, BLACK_TEXT
 from .constants import branch_menu
 from .mainm import commit_to_local_repo
 from .checks import is_git_repo, print_not_git_repo, current_branch, is_local_branch_connected_to_remote, has_commits, print_not_commits, is_current_branch_main
@@ -21,7 +21,8 @@ def clear_screen():
 def work_in_branches():
     current = current_branch()
     while True:
-        print(f"\n{GREEN}Work in branches{ENDC} (Currently on: {current}):")
+        branch_display = f"{BLACK_TEXT}{BG_PURPLE}{BOLD} Currently on: {current} {ENDC}{BG_PURPLE}{BLACK_TEXT}▶{ENDC}"
+        print(f"\n{GREEN}Work in branches{ENDC} {branch_display}")
 
         menu_options = [
             f"[l] {branch_menu.BRANCH_LOCAL.value}",

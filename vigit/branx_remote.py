@@ -1,6 +1,6 @@
 import subprocess
 from simple_term_menu import TerminalMenu
-from .utils import YELLOW, GREEN, ENDC
+from .utils import YELLOW, GREEN, ENDC, BOLD, BG_PURPLE, BLACK_TEXT
 from .constants import branch_remote_menu, branch_local_menu
 from .checks import is_git_repo, print_not_git_repo, current_branch, is_local_branch_connected_to_remote, has_commits, print_not_commits, is_current_branch_main
 from .mainm import commit_and_push
@@ -15,7 +15,8 @@ def branch_remote():
     while True:
         current = current_branch()
         if current:
-            print(f"\n{GREEN}Branches -Remote{ENDC} (Currently on: {current}):")
+            branch_display = f"{BLACK_TEXT}{BG_PURPLE}{BOLD} Currently on: {current} {ENDC}{BG_PURPLE}{BLACK_TEXT}▶{ENDC}"
+            print(f"\n{GREEN}Branches -Remote{ENDC} {branch_display}")
         else:
             print(f"\n{GREEN}Branches -Remote:{ENDC}")
 

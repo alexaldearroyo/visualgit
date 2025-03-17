@@ -1,7 +1,7 @@
 import subprocess
 import os
 from simple_term_menu import TerminalMenu
-from .utils import YELLOW, GREEN, ENDC, BOLD, BG_PURPLE, BLACK_TEXT, WHITE_TEXT
+from .utils import BG_BLUE, YELLOW, GREEN, ENDC, BOLD, BG_PURPLE, BLACK_TEXT, WHITE_TEXT
 from .constants import branch_local_menu, MENU_CURSOR, MENU_CURSOR_STYLE
 from .checks import is_git_repo, print_not_git_repo, current_branch, has_commits, print_not_commits
 
@@ -162,7 +162,7 @@ def go_to_branch():
                             print(f"{GREEN}Successfully switched to branch {selected_branch}.{ENDC}")
 
                             # Show branch display with styling
-                            branch_display = f"{BLACK_TEXT}{BG_PURPLE}{BOLD} {selected_branch} {ENDC}"
+                            branch_display = f"{BLACK_TEXT}{BG_BLUE}{BOLD} {selected_branch} {ENDC}"
                             print(f"\n{GREEN}Now on branch:{ENDC} {branch_display}")
 
                             # Show additional branch information
@@ -197,7 +197,7 @@ def go_to_branch():
                     print(f"{GREEN}Successfully switched to branch {selected_branch}.{ENDC}")
 
                     # Show branch display with styling
-                    branch_display = f"{BLACK_TEXT}{BG_PURPLE}{BOLD} {selected_branch} {ENDC}"
+                    branch_display = f"{BLACK_TEXT}{BG_BLUE}{BOLD} {selected_branch} {ENDC}"
                     print(f"\n{GREEN}Now on branch:{ENDC} {branch_display}")
 
                     # Show additional branch information
@@ -299,7 +299,7 @@ def go_to_main():
                     print(f"{GREEN}Successfully switched to main branch.{ENDC}")
 
                     # Show branch display with styling
-                    branch_display = f"{BLACK_TEXT}{BG_PURPLE}{BOLD} main {ENDC}"
+                    branch_display = f"{BLACK_TEXT}{BG_BLUE}{BOLD} main {ENDC}"
                     print(f"\n{GREEN}Now on branch:{ENDC} {branch_display}")
 
                     # Show additional branch information

@@ -180,13 +180,14 @@ def manage_branches():
     while True:
         current = current_branch()
         branch_display = f"{BLACK_TEXT}{BG_PURPLE}{BOLD} Currently on: {current} {ENDC}"
-        print(f"\n{GREEN}Manage Branches{ENDC} {branch_display}")
+        print(f"{GREEN}Branches:{ENDC} {branch_display}")
 
         menu_options = [
             f"[s] Show All Branches",
             f"[a] {manage_branch_menu.ADD_BRANCH.value}",
-            f"[l] {manage_branch_menu.LINK_BRANCH.value}",
+            f"[g] {branch_local_menu.GOTO_BRANCH.value}",
             f"[m] {manage_branch_menu.MERGE.value}",
+            f"[j] {manage_branch_menu.LINK_BRANCH.value}",
             f"[y] {manage_branch_menu.PULL_BRANCH.value}",
             f"[d] Delete Branch",
             "[x] Back to previous menu",

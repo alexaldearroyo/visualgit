@@ -32,7 +32,7 @@ class branch_remote_menu(Enum):
     PULL_BRANCH = 'Yank Remote Branch Changes to Local'
 
 class manage_branch_menu(Enum):
-    ADD_BRANCH = 'Add a Local Branch'
+    ADD_BRANCH = 'Add a Branch'
     LINK_BRANCH = 'Join Local Branch with Remote'
     MERGE = 'Merge Branches'
     PULL_BRANCH = 'Yank Remote Branch Changes to Local'

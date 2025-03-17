@@ -60,7 +60,7 @@ def handle_args():
 
 
 # TITLE
-print("\nVISUAL GIT")
+print("VISUAL GIT")
 print("-" * 30)
 
 def clear_screen():

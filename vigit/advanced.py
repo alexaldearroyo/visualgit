@@ -3,6 +3,12 @@ import subprocess
 from simple_term_menu import TerminalMenu
 from .utils import YELLOW, GREEN, ENDC
 from .checks import is_git_repo, print_not_git_repo, current_branch
+import os
+
+def clear_screen():
+    os.system('cls' if os.name == 'nt' else 'clear')
+    print("\nVISUAL GIT")
+    print("-" * 30)
 
 def advanced_operations():
     while True:
@@ -16,6 +22,7 @@ def advanced_operations():
             "Stash (temporarily save changes)",
             "Cherry-pick (select specific commits)",
             "Interactive rebase (reorganize/edit commits)",
+            "See Log (view commit history)",
             "Return to main menu"
         ]
 
@@ -35,6 +42,8 @@ def advanced_operations():
         elif choice == 5:
             interactive_rebase()
         elif choice == 6:
+            check_log()
+        elif choice == 7:
             clear_screen()
             break
 
@@ -473,3 +482,28 @@ def interactive_rebase():
             print(f"{YELLOW}Interactive rebase did not complete successfully. There may be conflicts to resolve.{ENDC}")
     except Exception as e:
         print(f"Error during interactive rebase: {e}")
+
+def check_log():
+    if not is_git_repo():
+        print_not_git_repo()
+        return
+
+    print(f"\n{GREEN}See Log (view commit history){ENDC}")
+
+    # Show commit history
+    print("\nCommit history:")
+    try:
+        subprocess.run(["git", "--no-pager", "log", "--oneline", "-n", "20"])
+    except Exception as e:
+        print(f"Error showing commit history: {e}")
+
+    # Additional options
+    menu_options = [
+        "Return to previous menu"
+    ]
+
+    terminal_menu = TerminalMenu(menu_options, title="Select an option:")
+    choice = terminal_menu.show()
+
+    if choice == 0:  # Return to previous menu
+        return

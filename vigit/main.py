@@ -93,7 +93,7 @@ def main():
             configuration()
             return
         elif args.command == 's':
-            check_log()
+            # check_log()
             return
 
     # Handle traditional options with dashes (for compatibility)
@@ -116,7 +116,7 @@ def main():
         configuration()
         return
     if args.see:
-        check_log()
+        # check_log()
         return
 
     if not is_git_installed():
@@ -132,14 +132,13 @@ def main():
             print((f"{GREEN}Currently on: {current}{ENDC}"))
 
         menu_options = [
+            f"[s] {updated_start_menu.WATCH_STATUS.value}",
             f"[l] {updated_start_menu.LOCAL.value}",
             f"[r] {updated_start_menu.REMOTE.value}",
             f"[b] {updated_start_menu.MANAGE_BRANCHES.value}",
             f"[o] {updated_start_menu.ADVANCED_OPERATIONS.value}",
             f"[n] {updated_start_menu.CONFIGURATION.value}",
             f"[x] {updated_start_menu.QUICK_ACTIONS.value}",
-            f"[s] {updated_start_menu.CHECK_LOG.value}",
-            f"[w] {updated_start_menu.WATCH_STATUS.value}",
             "[q] Quit program"
         ]
 
@@ -147,42 +146,41 @@ def main():
         menu_entry_index = terminal_menu.show()
 
         if menu_entry_index == 0:
-            # Local
-            main_local()
+            # See Current Status
+            if is_git_repo():
+                check_local_repos()
+            else:
+                print_not_git_repo()
+
         elif menu_entry_index == 1:
+            # Local
+
+            main_local()
+        elif menu_entry_index == 2:
             # Remote
             if is_git_repo():
                 main_remote()
             else:
                 print_not_git_repo()
-        elif menu_entry_index == 2:
+        elif menu_entry_index == 3:
             # Manage Branches
             if is_git_repo():
                 manage_branches()
             else:
                 print_not_git_repo()
-        elif menu_entry_index == 3:
+        elif menu_entry_index == 4:
             # Advanced Operations
             if is_git_repo():
                 advanced_operations()
             else:
                 print_not_git_repo()
-        elif menu_entry_index == 4:
+        elif menu_entry_index == 5:
             # New Configuration
             configuration()
-        elif menu_entry_index == 5:
+        elif menu_entry_index == 6:
             # Quick Actions
             quick_actions()
-        elif menu_entry_index == 6:
-            # See Log
-            check_log()
         elif menu_entry_index == 7:
-            # Watch Current Status
-            if is_git_repo():
-                check_local_repos()
-            else:
-                print_not_git_repo()
-        elif menu_entry_index == 8:
             quit()
 
 
@@ -232,6 +230,11 @@ def quick_actions():
             break
         elif menu_entry_index == 7:
             quit()
+
+
+def invalid_opt():
+    print("Invalid option. Please try again.")
+
 
 if __name__ == "__main__":
     main()

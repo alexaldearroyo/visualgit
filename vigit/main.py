@@ -203,7 +203,7 @@ def check_log():
 
 def quick_actions():
     while True:
-        print(f"\n{GREEN}Quick Actions:{ENDC}")
+        print(f"{GREEN}Quick Actions:{ENDC}")
 
         menu_options = [
             f"[a] {main_local_menu.ADD_LOCAL.value}",

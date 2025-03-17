@@ -21,7 +21,7 @@ class config_menu(Enum):
 def configuration():
     while True:
 
-        print(f"\n{GREEN}Configuration:{ENDC}")
+        print(f"{GREEN}Configuration:{ENDC}")
 
         menu_options = [
             f"[s] {config_menu.CHECK.value}",

@@ -19,8 +19,8 @@ WHITE_TEXT = '\033[97m'
 # GLOBAL MENU
 class global_menu(Enum):
     CHECK_REMOTE = 'See Remote Repos'
-    BACK = 'Go Back'
-    QUIT = 'Quit'
+    BACK = 'Back to previous menu'
+    QUIT = 'Quit program'
 
 # REPEATING CHOICES
 def quit():

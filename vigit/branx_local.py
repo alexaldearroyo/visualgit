@@ -158,11 +158,73 @@ def go_to_branch():
                                 print(f"{YELLOW}Still unable to switch to branch {selected_branch}: {checkout_result.stderr.strip()}{ENDC}")
                                 return
 
+                            # Show information about the branch after checkout
                             print(f"{GREEN}Successfully switched to branch {selected_branch}.{ENDC}")
+
+                            # Show branch display with styling
+                            branch_display = f"{BLACK_TEXT}{BG_PURPLE}{BOLD} {selected_branch} {ENDC}"
+                            print(f"\n{GREEN}Now on branch:{ENDC} {branch_display}")
+
+                            # Show additional branch information
+                            try:
+                                # Last commit on this branch
+                                last_commit = subprocess.run(
+                                    ["git", "log", "-1", "--oneline"],
+                                    capture_output=True,
+                                    text=True
+                                ).stdout.strip()
+
+                                # Branch tracking info
+                                tracking_info = subprocess.run(
+                                    ["git", "for-each-ref", "--format='%(upstream:short)'", f"refs/heads/{selected_branch}"],
+                                    capture_output=True,
+                                    text=True
+                                ).stdout.strip().replace("'", "")
+
+                                print(f"{GREEN}Last commit:{ENDC} {last_commit if last_commit else 'No commits yet'}")
+
+                                if tracking_info:
+                                    print(f"{GREEN}Tracking:{ENDC} {tracking_info}")
+                                else:
+                                    print(f"{YELLOW}Not tracking any remote branch{ENDC}")
+                            except Exception as e:
+                                # If we can't get additional info, just continue
+                                pass
                         else:
                             print(f"{YELLOW}Operation canceled. You must commit or stash your changes before switching branches.{ENDC}")
                 else:
+                    # Show information about the branch after checkout
                     print(f"{GREEN}Successfully switched to branch {selected_branch}.{ENDC}")
+
+                    # Show branch display with styling
+                    branch_display = f"{BLACK_TEXT}{BG_PURPLE}{BOLD} {selected_branch} {ENDC}"
+                    print(f"\n{GREEN}Now on branch:{ENDC} {branch_display}")
+
+                    # Show additional branch information
+                    try:
+                        # Last commit on this branch
+                        last_commit = subprocess.run(
+                            ["git", "log", "-1", "--oneline"],
+                            capture_output=True,
+                            text=True
+                        ).stdout.strip()
+
+                        # Branch tracking info
+                        tracking_info = subprocess.run(
+                            ["git", "for-each-ref", "--format='%(upstream:short)'", f"refs/heads/{selected_branch}"],
+                            capture_output=True,
+                            text=True
+                        ).stdout.strip().replace("'", "")
+
+                        print(f"{GREEN}Last commit:{ENDC} {last_commit if last_commit else 'No commits yet'}")
+
+                        if tracking_info:
+                            print(f"{GREEN}Tracking:{ENDC} {tracking_info}")
+                        else:
+                            print(f"{YELLOW}Not tracking any remote branch{ENDC}")
+                    except Exception as e:
+                        # If we can't get additional info, just continue
+                        pass
             else:
                 print("Invalid choice.")
         else:
@@ -233,11 +295,73 @@ def go_to_main():
                         print(f"{YELLOW}Still unable to switch to main branch: {checkout_result.stderr.strip()}{ENDC}")
                         return
 
+                    # Show information about the branch after checkout
                     print(f"{GREEN}Successfully switched to main branch.{ENDC}")
+
+                    # Show branch display with styling
+                    branch_display = f"{BLACK_TEXT}{BG_PURPLE}{BOLD} main {ENDC}"
+                    print(f"\n{GREEN}Now on branch:{ENDC} {branch_display}")
+
+                    # Show additional branch information
+                    try:
+                        # Last commit on this branch
+                        last_commit = subprocess.run(
+                            ["git", "log", "-1", "--oneline"],
+                            capture_output=True,
+                            text=True
+                        ).stdout.strip()
+
+                        # Branch tracking info
+                        tracking_info = subprocess.run(
+                            ["git", "for-each-ref", "--format='%(upstream:short)'", "refs/heads/main"],
+                            capture_output=True,
+                            text=True
+                        ).stdout.strip().replace("'", "")
+
+                        print(f"{GREEN}Last commit:{ENDC} {last_commit if last_commit else 'No commits yet'}")
+
+                        if tracking_info:
+                            print(f"{GREEN}Tracking:{ENDC} {tracking_info}")
+                        else:
+                            print(f"{YELLOW}Not tracking any remote branch{ENDC}")
+                    except Exception as e:
+                        # If we can't get additional info, just continue
+                        pass
                 else:
                     print(f"{YELLOW}Operation canceled. You must commit or stash your changes before switching branches.{ENDC}")
         else:
+            # Show information about the branch after checkout
             print(f"{GREEN}Successfully switched to main branch.{ENDC}")
+
+            # Show branch display with styling
+            branch_display = f"{BLACK_TEXT}{BG_PURPLE}{BOLD} main {ENDC}"
+            print(f"\n{GREEN}Now on branch:{ENDC} {branch_display}")
+
+            # Show additional branch information
+            try:
+                # Last commit on this branch
+                last_commit = subprocess.run(
+                    ["git", "log", "-1", "--oneline"],
+                    capture_output=True,
+                    text=True
+                ).stdout.strip()
+
+                # Branch tracking info
+                tracking_info = subprocess.run(
+                    ["git", "for-each-ref", "--format='%(upstream:short)'", "refs/heads/main"],
+                    capture_output=True,
+                    text=True
+                ).stdout.strip().replace("'", "")
+
+                print(f"{GREEN}Last commit:{ENDC} {last_commit if last_commit else 'No commits yet'}")
+
+                if tracking_info:
+                    print(f"{GREEN}Tracking:{ENDC} {tracking_info}")
+                else:
+                    print(f"{YELLOW}Not tracking any remote branch{ENDC}")
+            except Exception as e:
+                # If we can't get additional info, just continue
+                pass
     except Exception as e:
         print(f"Error switching to main branch: {e}")
 

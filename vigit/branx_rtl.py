@@ -8,7 +8,7 @@ from .checks import is_git_repo, print_not_git_repo, current_branch
 # BRANCHES REMOTE_TO_LOCAL
 class branch_rl_menu(Enum):
     CLONE_BRANCH = 'Fork Remote Branch to Local'
-    PULL_BRANCH = 'Yank Remote Branch Changes to Local'
+    PULL_BRANCH = 'Yank Remote Branch to Local'
 
 def branch_remote_to_local():
     while True:

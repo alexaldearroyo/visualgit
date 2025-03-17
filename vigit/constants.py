@@ -34,7 +34,7 @@ class branch_remote_menu(Enum):
 class manage_branch_menu(Enum):
     ADD_BRANCH = 'Add a Local Branch'
     LINK_BRANCH = 'Join Local Branch with Remote'
-    MERGE = 'Fusion Branch with Main'
+    MERGE = 'Merge Branches'
     PULL_BRANCH = 'Yank Remote Branch Changes to Local'
     DELETE_LOCAL_BRANCH = 'Delete Local Branch'
     DELETE_REMOTE_BRANCH = 'Delete Remote Branch'

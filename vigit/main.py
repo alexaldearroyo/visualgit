@@ -204,9 +204,8 @@ def quick_actions():
             f"[a] {main_local_menu.ADD_LOCAL.value}",
             f"[c] {main_local_menu.COMMIT_LOCAL.value}",
             f"[p] {main_remote_menu.COMMIT_AND_PUSH.value}",
-            f"[f] {manage_branch_menu.MERGE.value}",
             f"[g] {branch_local_menu.GOTO_BRANCH.value}",
-            f"[m] {branch_local_menu.GOTO_MAIN.value}",
+            f"[m] {manage_branch_menu.MERGE.value}",
             "[x] Back to previous menu",
             "[q] Quit program"
         ]
@@ -221,15 +220,14 @@ def quick_actions():
         elif menu_entry_index == 2:
             commit_and_push()
         elif menu_entry_index == 3:
-            merge_branch_with_main()
-        elif menu_entry_index == 4:
             go_to_branch()
+        elif menu_entry_index == 4:
+            merge_branch_with_main()
+
         elif menu_entry_index == 5:
-            go_to_main()
-        elif menu_entry_index == 6:
             clear_screen()
             break
-        elif menu_entry_index == 7:
+        elif menu_entry_index == 6:
             quit()
 
 

@@ -102,11 +102,73 @@ def go_to_branch():
             choice = int(input("Select a branch to switch to (by number): "))
             if 1 <= choice <= len(branches):
                 selected_branch = branches[choice - 1].replace('*', '').strip()  # Remove the '*' which indicates the current branch
-                subprocess.run(["git", "checkout", selected_branch])
+
+                # Try to checkout the branch
+                checkout_result = subprocess.run(
+                    ["git", "checkout", selected_branch],
+                    capture_output=True,
+                    text=True
+                )
+
+                # Check if checkout was successful
+                if checkout_result.returncode != 0:
+                    print(f"{YELLOW}Could not switch to branch {selected_branch}: {checkout_result.stderr.strip()}{ENDC}")
+
+                    # Check if the error is due to uncommitted local changes
+                    if "local changes" in checkout_result.stderr or "cambios locales" in checkout_result.stderr:
+                        # Handle uncommitted changes
+                        commit_choice = input(f"\nDo you want to commit your changes before switching branches? (y/n): ").lower()
+
+                        if commit_choice == 'y' or commit_choice == 's':
+                            # Commit the changes
+                            commit_msg = input(f"\nCommit message: ")
+
+                            # Add all changes
+                            add_result = subprocess.run(
+                                ["git", "add", "."],
+                                capture_output=True,
+                                text=True
+                            )
+
+                            if add_result.returncode != 0:
+                                print(f"{YELLOW}Error adding changes: {add_result.stderr.strip()}{ENDC}")
+                                return
+
+                            # Commit
+                            commit_result = subprocess.run(
+                                ["git", "commit", "-m", commit_msg],
+                                capture_output=True,
+                                text=True
+                            )
+
+                            if commit_result.returncode != 0:
+                                print(f"{YELLOW}Error committing changes: {commit_result.stderr.strip()}{ENDC}")
+                                return
+
+                            print(f"{GREEN}Commit successful.{ENDC}")
+
+                            # Try to switch to the branch again
+                            checkout_result = subprocess.run(
+                                ["git", "checkout", selected_branch],
+                                capture_output=True,
+                                text=True
+                            )
+
+                            if checkout_result.returncode != 0:
+                                print(f"{YELLOW}Still unable to switch to branch {selected_branch}: {checkout_result.stderr.strip()}{ENDC}")
+                                return
+
+                            print(f"{GREEN}Successfully switched to branch {selected_branch}.{ENDC}")
+                        else:
+                            print(f"{YELLOW}Operation canceled. You must commit or stash your changes before switching branches.{ENDC}")
+                else:
+                    print(f"{GREEN}Successfully switched to branch {selected_branch}.{ENDC}")
             else:
                 print("Invalid choice.")
         else:
             print("No local branches found. Create one to proceed.")
+    except ValueError:
+        print("Please enter a valid number.")
     except Exception as e:
         print(f"Error switching branches: {e}")
 
@@ -116,7 +178,66 @@ def go_to_main():
         return
 
     try:
-        subprocess.run(["git", "checkout", "main"])
+        # Try to checkout main branch
+        checkout_result = subprocess.run(
+            ["git", "checkout", "main"],
+            capture_output=True,
+            text=True
+        )
+
+        # Check if checkout was successful
+        if checkout_result.returncode != 0:
+            print(f"{YELLOW}Could not switch to main branch: {checkout_result.stderr.strip()}{ENDC}")
+
+            # Check if the error is due to uncommitted local changes
+            if "local changes" in checkout_result.stderr or "cambios locales" in checkout_result.stderr:
+                # Handle uncommitted changes
+                commit_choice = input(f"\nDo you want to commit your changes before switching branches? (y/n): ").lower()
+
+                if commit_choice == 'y' or commit_choice == 's':
+                    # Commit the changes
+                    commit_msg = input(f"\nCommit message: ")
+
+                    # Add all changes
+                    add_result = subprocess.run(
+                        ["git", "add", "."],
+                        capture_output=True,
+                        text=True
+                    )
+
+                    if add_result.returncode != 0:
+                        print(f"{YELLOW}Error adding changes: {add_result.stderr.strip()}{ENDC}")
+                        return
+
+                    # Commit
+                    commit_result = subprocess.run(
+                        ["git", "commit", "-m", commit_msg],
+                        capture_output=True,
+                        text=True
+                    )
+
+                    if commit_result.returncode != 0:
+                        print(f"{YELLOW}Error committing changes: {commit_result.stderr.strip()}{ENDC}")
+                        return
+
+                    print(f"{GREEN}Commit successful.{ENDC}")
+
+                    # Try to switch to the branch again
+                    checkout_result = subprocess.run(
+                        ["git", "checkout", "main"],
+                        capture_output=True,
+                        text=True
+                    )
+
+                    if checkout_result.returncode != 0:
+                        print(f"{YELLOW}Still unable to switch to main branch: {checkout_result.stderr.strip()}{ENDC}")
+                        return
+
+                    print(f"{GREEN}Successfully switched to main branch.{ENDC}")
+                else:
+                    print(f"{YELLOW}Operation canceled. You must commit or stash your changes before switching branches.{ENDC}")
+        else:
+            print(f"{GREEN}Successfully switched to main branch.{ENDC}")
     except Exception as e:
         print(f"Error switching to main branch: {e}")
 

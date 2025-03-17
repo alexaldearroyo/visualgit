@@ -1,6 +1,6 @@
 import subprocess
 from simple_term_menu import TerminalMenu
-from .utils import YELLOW, GREEN, ENDC, BOLD, BG_PURPLE, BLACK_TEXT, WHITE_TEXT
+from .utils import YELLOW, GREEN, ENDC, BOLD, BG_PURPLE, BLACK_TEXT, WHITE_TEXT, BG_BLUE
 from .constants import manage_branch_menu, branch_remote_menu, branch_local_menu, MENU_CURSOR, MENU_CURSOR_STYLE
 from .checks import is_git_repo, print_not_git_repo, current_branch, is_current_branch_main, has_commits, print_not_commits, is_connected_to_remote, print_not_connected_to_remote
 from .branx_local import check_local_branches, go_to_branch, go_to_main, create_local_branch
@@ -179,7 +179,7 @@ def import_remote_branch():
 def manage_branches():
     while True:
         current = current_branch()
-        branch_display = f"{BLACK_TEXT}{BG_PURPLE}{BOLD} Currently on: {current} {ENDC}"
+        branch_display = f"{WHITE_TEXT}{BG_BLUE}{BOLD} {current} {ENDC}"
         print(f"{GREEN}Branches:{ENDC} {branch_display}")
 
         menu_options = [

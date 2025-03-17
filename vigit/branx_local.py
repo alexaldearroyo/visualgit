@@ -161,10 +161,6 @@ def go_to_branch():
                             # Show information about the branch after checkout
                             print(f"{GREEN}Successfully switched to branch {selected_branch}.{ENDC}")
 
-                            # Show branch display with styling
-                            branch_display = f"{WHITE_TEXT}{BG_BLUE}{BOLD} {selected_branch} {ENDC}"
-                            print(f"\n{GREEN}Now on branch:{ENDC} {branch_display}")
-
                             # Show additional branch information
                             try:
                                 # Last commit on this branch
@@ -195,10 +191,6 @@ def go_to_branch():
                 else:
                     # Show information about the branch after checkout
                     print(f"{GREEN}Successfully switched to branch {selected_branch}.{ENDC}")
-
-                    # Show branch display with styling
-                    branch_display = f"{WHITE_TEXT}{BG_BLUE}{BOLD} {selected_branch} {ENDC}"
-                    print(f"\n{GREEN}Now on branch:{ENDC} {branch_display}")
 
                     # Show additional branch information
                     try:
@@ -298,10 +290,6 @@ def go_to_main():
                     # Show information about the branch after checkout
                     print(f"{GREEN}Successfully switched to main branch.{ENDC}")
 
-                    # Show branch display with styling
-                    branch_display = f"{WHITE_TEXT}{BG_BLUE}{BOLD} main {ENDC}"
-                    print(f"\n{GREEN}Now on branch:{ENDC} {branch_display}")
-
                     # Show additional branch information
                     try:
                         # Last commit on this branch
@@ -332,10 +320,6 @@ def go_to_main():
         else:
             # Show information about the branch after checkout
             print(f"{GREEN}Successfully switched to main branch.{ENDC}")
-
-            # Show branch display with styling
-            branch_display = f"{WHITE_TEXT}{BG_BLUE}{BOLD} main {ENDC}"
-            print(f"\n{GREEN}Now on branch:{ENDC} {branch_display}")
 
             # Show additional branch information
             try:

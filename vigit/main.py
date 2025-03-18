@@ -41,6 +41,9 @@ def handle_args():
     # Command: vg f (merge/fusion)
     f_parser = subparsers.add_parser('f', help='Quick action: Merge branch with main')
 
+    # Command: vg g (goto branch)
+    g_parser = subparsers.add_parser('g', help='Quick action: Go to a different branch')
+
     # Command: vg n (new configuration)
     n_parser = subparsers.add_parser('n', help='Quick action: New Configuration')
 
@@ -78,6 +81,9 @@ def main():
             return
         elif args.command == 'f':
             merge_branches()
+            return
+        elif args.command == 'g':
+            go_to_branch()
             return
         elif args.command == 'n':
             configuration()

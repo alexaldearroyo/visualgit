@@ -11,10 +11,10 @@ from simple_term_menu import TerminalMenu
 from .utils import BG_BLUE, YELLOW, GREEN, ENDC, BOLD, BG_PURPLE, BLACK_TEXT, WHITE_TEXT
 from .constants import start_menu, main_menu, main_local_menu, main_remote_menu, branch_local_menu, branch_remote_menu, manage_branch_menu, updated_start_menu, MENU_CURSOR, MENU_CURSOR_STYLE
 from .checks import is_git_installed, is_git_repo, print_not_git_repo, current_branch, get_current_branch, is_current_branch_main
-from .menu import work_in_main, create_local_repo, commit_to_local_repo, commit_and_push, main_local, main_remote, check_local_repos
+from .menu import work_in_main, create_local_repo, commit_to_local_repo, commit_and_push, main_local, main_remote, check_local_repos, create_remote_repo
 from .branx_local import go_to_branch, go_to_main, create_local_branch
-from .branx_remote import commit_and_push_in_branch
-from .branx_manage import merge_branches, manage_branches
+from .branx_remote import commit_and_push_in_branch, push_changes_to_remote_branch, create_remote_branch
+from .branx_manage import merge_branches, manage_branches, merge_with_main, merge_with_selected_branch
 from .branx import work_in_branches
 from .advanced import advanced_operations
 from .config import configuration
@@ -29,8 +29,14 @@ def handle_args():
     # Command: vg a (add repo)
     add_parser = subparsers.add_parser('a', help='Quick action: Add a local repo')
 
+    # Command: vg ar (add remote repo)
+    ar_parser = subparsers.add_parser('ar', help='Quick action: Add repo to remote')
+
     # Command: vg b (add-branch)
     b_parser = subparsers.add_parser('b', help='Quick action: Add a local branch')
+
+    # Command: vg br (branch to remote)
+    br_parser = subparsers.add_parser('br', help='Quick action: Create a branch directly on remote')
 
     # Command: vg c (commit)
     c_parser = subparsers.add_parser('c', help='Quick action: Commit to local repo')
@@ -45,6 +51,15 @@ def handle_args():
 
     # Command: vg g (goto branch)
     g_parser = subparsers.add_parser('g', help='Quick action: Go to a different branch')
+
+    # Command: vg m (merge with main)
+    m_parser = subparsers.add_parser('m', help='Quick action: Merge current branch with main')
+
+    # Command: vg mo (merge with main - alternative)
+    mo_parser = subparsers.add_parser('mo', help='Quick action: Merge current branch with main')
+
+    # Command: vg mb (merge with branch)
+    mb_parser = subparsers.add_parser('mb', help='Quick action: Merge current branch with selected branch')
 
     # Command: vg n (new configuration)
     n_parser = subparsers.add_parser('n', help='Quick action: New Configuration')
@@ -72,8 +87,14 @@ def main():
         if args.command == 'a':
             create_local_repo()
             return
+        elif args.command == 'ar':
+            create_remote_repo()
+            return
         elif args.command == 'b':
             create_local_branch()
+            return
+        elif args.command == 'br':
+            create_remote_branch()
             return
         elif args.command == 'c':
             commit_to_local_repo(args.message if hasattr(args, 'message') and args.message else None)
@@ -86,6 +107,15 @@ def main():
             return
         elif args.command == 'g':
             go_to_branch()
+            return
+        elif args.command == 'm':
+            merge_with_main()
+            return
+        elif args.command == 'mo':
+            merge_with_main()
+            return
+        elif args.command == 'mb':
+            merge_with_selected_branch()
             return
         elif args.command == 'n':
             configuration()

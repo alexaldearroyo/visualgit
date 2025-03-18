@@ -160,7 +160,7 @@ def check_local_repos():
         if remotes:
             print(remotes)
         else:
-            print("No remote repositories configured")
+            print("No remote repositories joined to local repository")
 
         print(f"\n{GREEN}Remote Branches:{ENDC}")
         if remote_branches:

@@ -1,5 +1,5 @@
 #!/bin/sh
-'''exec' "/Users/alexadler/Documents/Documents - MacBook Air (6)/VisualGit/Local/venv/bin/python3.13" "$0" "$@"
+'''exec' "/Users/alexadler/Documents/Documents - MacBook Air (6)/VisualGit/Local/venv/bin/python3" "$0" "$@"
 ' '''
 # -*- coding: utf-8 -*-
 import re

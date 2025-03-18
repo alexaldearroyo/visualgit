@@ -73,7 +73,7 @@ def main():
 
     # Handle subcommands
     if hasattr(args, 'command') and args.command:
-        if args.command == 'add':
+        if args.command == 'a':
             create_local_repo()
             return
         elif args.command == 'b':

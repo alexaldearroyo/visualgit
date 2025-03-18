@@ -4,6 +4,10 @@ import subprocess
 import sys
 import argparse
 import os
+import warnings
+
+# Filtrar advertencias de urllib3 relacionadas con SSL
+warnings.filterwarnings("ignore", category=Warning, module="urllib3")
 
 from enum import Enum
 from simple_term_menu import TerminalMenu
@@ -73,7 +77,7 @@ def main():
 
     # Handle subcommands
     if hasattr(args, 'command') and args.command:
-        if args.command == 'add':
+        if args.command == 'a':
             create_local_repo()
             return
         elif args.command == 'b':

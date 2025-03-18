@@ -71,6 +71,9 @@ def handle_args():
     # Command: vg s (see log)
     s_parser = subparsers.add_parser('s', help='Quick action: See log')
 
+    # Command: vg v (general view)
+    v_parser = subparsers.add_parser('v', help='Quick action: General View')
+
     return parser.parse_args()
 
 
@@ -126,6 +129,9 @@ def main():
             return
         elif args.command == 's':
             check_log()
+            return
+        elif args.command == 'v':
+            check_local_repos()
             return
 
     if not is_git_installed():

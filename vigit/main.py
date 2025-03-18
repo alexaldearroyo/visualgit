@@ -47,15 +47,6 @@ def handle_args():
     # Command: vg s (see log)
     s_parser = subparsers.add_parser('s', help='Quick action: See log')
 
-    # Maintain compatibility with previous options
-    parser.add_argument("-a", "--add", action="store_true", help="Quick action: Add a local repo")
-    parser.add_argument("-b", "--add-branch", action="store_true", help="Quick action: Add a local branch")
-    parser.add_argument("-c", "--commit", action="store_true", help="Quick action: Commit to local repo")
-    parser.add_argument("-p", "--commit-push-main", action="store_true", help="Quick action: Commit & Push in main")
-    parser.add_argument("-f", "--merge", "--fusion", action="store_true", help="Quick action: Merge branch with main")
-    parser.add_argument("-n", "--new", action="store_true", help="Quick action: New Configuration")
-    parser.add_argument("-s", "--see", action="store_true", help="Quick action: See log")
-
     return parser.parse_args()
 
 
@@ -92,31 +83,8 @@ def main():
             configuration()
             return
         elif args.command == 's':
-            # check_log()
+            check_log()
             return
-
-    # Handle traditional options with dashes (for compatibility)
-    if args.add:
-        create_local_repo()
-        return
-    if args.add_branch:
-        create_local_branch()
-        return
-    if args.commit:
-        commit_to_local_repo()
-        return
-    if args.commit_push_main:
-        commit_and_push()
-        return
-    if args.merge:
-        merge_branches()
-        return
-    if args.new:
-        configuration()
-        return
-    if args.see:
-        # check_log()
-        return
 
     if not is_git_installed():
         print("Git is not installed. You need to install git to use VisualGit.")

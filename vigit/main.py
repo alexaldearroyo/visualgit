@@ -34,9 +34,11 @@ def handle_args():
 
     # Command: vg c (commit)
     c_parser = subparsers.add_parser('c', help='Quick action: Commit to local repo')
+    c_parser.add_argument('message', nargs='?', help='Commit message')
 
     # Command: vg p (commit-push-main)
-    p_parser = subparsers.add_parser('p', help='Quick action: Commit & Push in main')
+    p_parser = subparsers.add_parser('p', help='Quick action: Commit & Push in current branch')
+    p_parser.add_argument('message', nargs='?', help='Commit message')
 
     # Command: vg f (merge/fusion)
     f_parser = subparsers.add_parser('f', help='Quick action: Merge branch with main')
@@ -74,10 +76,10 @@ def main():
             create_local_branch()
             return
         elif args.command == 'c':
-            commit_to_local_repo()
+            commit_to_local_repo(args.message if hasattr(args, 'message') and args.message else None)
             return
         elif args.command == 'p':
-            commit_and_push()
+            commit_and_push(args.message if hasattr(args, 'message') and args.message else None)
             return
         elif args.command == 'f':
             merge_branches()

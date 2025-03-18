@@ -13,7 +13,7 @@ vigit/config.py
 vigit/constants.py
 vigit/github_ops.py
 vigit/main.py
-vigit/mainm.py
+vigit/menu.py
 vigit/utils.py
 vigit.egg-info/PKG-INFO
 vigit.egg-info/SOURCES.txt

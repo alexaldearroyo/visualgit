@@ -197,15 +197,24 @@ def create_local_repo():
     except Exception as e:
         print(f"Error while creating the repository: {e}")
 
-def commit_to_local_repo():
+def commit_to_local_repo(commit_message=None):
     if not is_git_repo():
         print_not_git_repo()
         return
 
     try:
         subprocess.run(["git", "add", "."])
-        message = input("Enter commit message: ")
+
+        # Si se proporciona un mensaje de commit, lo usamos directamente
+        # Si no, pedimos al usuario que lo introduzca
+        if commit_message is None:
+            message = input("Enter commit message: ")
+        else:
+            message = commit_message
+            print(f"Using provided commit message: {message}")
+
         subprocess.run(["git", "commit", "-m", message])
+        print(f"{GREEN}Changes committed successfully!{ENDC}")
 
     except Exception as e:
         print(f"Error making commit: {e}")
@@ -331,7 +340,7 @@ def connect_local_with_remote():
     except Exception as e:
         print(f"Error connecting with remote: {e}")
 
-def commit_and_push():
+def commit_and_push(commit_message=None):
     if not is_git_repo():
         print_not_git_repo()
         return
@@ -347,7 +356,15 @@ def commit_and_push():
 
         # First we try to commit
         subprocess.run(["git", "add", "."])
-        message = input("Enter commit message: ")
+
+        # Si se proporciona un mensaje de commit, lo usamos directamente
+        # Si no, pedimos al usuario que lo introduzca
+        if commit_message is None:
+            message = input("Enter commit message: ")
+        else:
+            message = commit_message
+            print(f"Using provided commit message: {message}")
+
         commit_result = subprocess.run(["git", "commit", "-m", message])
 
         # We try to push

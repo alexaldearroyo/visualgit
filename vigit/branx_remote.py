@@ -4,7 +4,7 @@ import os
 from simple_term_menu import TerminalMenu
 from .utils import YELLOW, GREEN, ENDC, BOLD, BG_PURPLE, BLACK_TEXT, WHITE_TEXT
 from .constants import branch_remote_menu, branch_local_menu, MENU_CURSOR, MENU_CURSOR_STYLE
-from .checks import is_git_repo, print_not_git_repo, current_branch, is_local_branch_connected_to_remote, has_commits, print_not_commits, is_current_branch_main
+from .checks import is_git_repo, print_not_git_repo, current_branch, is_local_branch_connected_to_remote, has_commits, print_not_commits, is_current_branch_main, is_connected_to_remote, print_not_connected_to_remote
 from .menu import commit_and_push
 
 def clear_screen():
@@ -209,6 +209,66 @@ def push_changes_to_remote_branch():
 def commit_and_push_in_branch():
     # Call the main commit_and_push function which now works with the current branch
     commit_and_push()
+
+def create_remote_branch():
+    """Create a new branch directly on the remote repository."""
+    if not is_git_repo():
+        print_not_git_repo()
+        return
+
+    if not is_connected_to_remote():
+        print_not_connected_to_remote()
+        return
+
+    try:
+        # Get the current branch as base reference
+        base_branch = input("Enter the name of the base branch (default: main): ") or "main"
+
+        # Get the name for the new remote branch
+        new_branch_name = input("Enter the name for the new remote branch: ")
+        if not new_branch_name:
+            print("Branch name cannot be empty. Operation cancelled.")
+            return
+
+        # First, fetch to make sure we have the latest reference of the base branch
+        fetch_result = subprocess.run(
+            ["git", "fetch", "origin", base_branch],
+            capture_output=True,
+            text=True
+        )
+
+        if fetch_result.returncode != 0:
+            print(f"{YELLOW}Error fetching the base branch: {fetch_result.stderr.strip()}{ENDC}")
+            return
+
+        # Create a remote branch based on the specified base branch
+        create_result = subprocess.run(
+            ["git", "push", "origin", f"origin/{base_branch}:refs/heads/{new_branch_name}"],
+            capture_output=True,
+            text=True
+        )
+
+        if create_result.returncode == 0:
+            print(f"{GREEN}Remote branch '{new_branch_name}' created successfully!{ENDC}")
+
+            # Ask if user wants to check out the new branch locally
+            checkout_local = input(f"Do you want to check out this branch locally? (y/n): ").lower()
+            if checkout_local == 'y':
+                checkout_result = subprocess.run(
+                    ["git", "checkout", "-b", new_branch_name, f"origin/{new_branch_name}"],
+                    capture_output=True,
+                    text=True
+                )
+
+                if checkout_result.returncode == 0:
+                    print(f"{GREEN}Switched to a new branch '{new_branch_name}' tracking the remote branch.{ENDC}")
+                else:
+                    print(f"{YELLOW}Error checking out the branch locally: {checkout_result.stderr.strip()}{ENDC}")
+        else:
+            print(f"{YELLOW}Error creating remote branch: {create_result.stderr.strip()}{ENDC}")
+
+    except Exception as e:
+        print(f"Error creating remote branch: {e}")
 
 def clone_remote_branch_to_local():
     remote_branch = input("Enter the name of the remote branch you want to clone: ")

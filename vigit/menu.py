@@ -550,6 +550,8 @@ def show_status_long():
     except Exception as e:
         print(f"Error getting status: {e}")
 
+    # Do not show Overall Status or Last Commit after displaying git status
+
 def show_menu_options():
     from .constants import show_menu
 
@@ -599,7 +601,7 @@ def show_menu_options():
 
         terminal_menu = TerminalMenu(
             menu_options,
-            title="Please select an option:",
+            title=f"Please select an option:",
             menu_cursor=MENU_CURSOR,
             menu_cursor_style=MENU_CURSOR_STYLE
         )
@@ -607,6 +609,10 @@ def show_menu_options():
 
         if menu_entry_index == 0:
             show_status_long()
+            # Prevents returning to the "Show" menu which would display the "Overall Status" again
+            input(f"\n{GREEN}Press Enter to return to the menu...{ENDC}")
+            clear_screen()
+            continue
         elif menu_entry_index == 1:
             clear_screen()
             break

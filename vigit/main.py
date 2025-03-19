@@ -149,7 +149,6 @@ def main():
             print(branch_display)
 
         menu_options = [
-            f"[v] {updated_start_menu.WATCH_STATUS.value}",
             f"[l] {updated_start_menu.LOCAL.value}",
             f"[r] {updated_start_menu.REMOTE.value}",
             f"[b] {updated_start_menu.MANAGE_BRANCHES.value}",
@@ -169,44 +168,36 @@ def main():
         menu_entry_index = terminal_menu.show()
 
         if menu_entry_index == 0:
-            # See Current Status
-            if is_git_repo():
-                check_local_repos()
-            else:
-                print_not_git_repo()
-
-        elif menu_entry_index == 1:
             # Local
-
             main_local()
-        elif menu_entry_index == 2:
+        elif menu_entry_index == 1:
             # Remote
             if is_git_repo():
                 main_remote()
             else:
                 print_not_git_repo()
-        elif menu_entry_index == 3:
+        elif menu_entry_index == 2:
             # Manage Branches
             if is_git_repo():
                 manage_branches()
             else:
                 print_not_git_repo()
-        elif menu_entry_index == 4:
+        elif menu_entry_index == 3:
             # Advanced Operations
             if is_git_repo():
                 advanced_operations()
             else:
                 print_not_git_repo()
-        elif menu_entry_index == 5:
+        elif menu_entry_index == 4:
             # New Configuration
             configuration()
-        elif menu_entry_index == 6:
+        elif menu_entry_index == 5:
             # Quick Actions
             quick_actions()
-        elif menu_entry_index == 7:
+        elif menu_entry_index == 6:
             # Show
             show_menu_options()
-        elif menu_entry_index == 8:
+        elif menu_entry_index == 7:
             quit()
 
 

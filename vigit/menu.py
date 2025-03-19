@@ -99,52 +99,52 @@ def check_local_repos():
         return
 
     try:
-        # Obtener la ruta absoluta del repositorio
+        # Get the absolute path of the repository
         repo_path = subprocess.run(
             ["git", "rev-parse", "--show-toplevel"],
             capture_output=True,
             text=True
         ).stdout.strip()
 
-        # Obtener el nombre del repositorio (último elemento de la ruta)
+        # Get the repository name (last element of the path)
         repo_name = repo_path.split('/')[-1]
 
-        # Obtener la rama actual
+        # Get the current branch
         current = subprocess.run(
             ["git", "rev-parse", "--abbrev-ref", "HEAD"],
             capture_output=True,
             text=True
         ).stdout.strip()
 
-        # Obtener todas las ramas locales
+        # Get all local branches
         branches = subprocess.run(
             ["git", "branch"],
             capture_output=True,
             text=True
         ).stdout.strip()
 
-        # Obtener remotos configurados
+        # Get configured remotes
         remotes = subprocess.run(
             ["git", "remote", "-v"],
             capture_output=True,
             text=True
         ).stdout.strip()
 
-        # Obtener todas las ramas remotas
+        # Get all remote branches
         remote_branches = subprocess.run(
             ["git", "branch", "-r"],
             capture_output=True,
             text=True
         ).stdout.strip()
 
-        # Obtener un resumen del estado
+        # Get a status summary
         status = subprocess.run(
             ["git", "status", "--short"],
             capture_output=True,
             text=True
         ).stdout.strip()
 
-        # Mostrar la información recopilada
+        # Display the collected information
         print(f"\n{GREEN}Local Repository:{ENDC}")
         print(f"Name: {GREEN}{repo_name}{ENDC}")
         print(f"Path: {repo_path}")
@@ -594,6 +594,7 @@ def show_menu_options():
 
         print()
         menu_options = [
+            f"[v] {show_menu.GENERAL_VIEW.value}",
             f"[s] {show_menu.SHOW_STATUS.value}",
             "[x] Back to previous menu",
             "[q] Quit program"
@@ -608,15 +609,21 @@ def show_menu_options():
         menu_entry_index = terminal_menu.show()
 
         if menu_entry_index == 0:
-            show_status_long()
+            check_local_repos()
             # Prevents returning to the "Show" menu which would display the "Overall Status" again
             input(f"\n{GREEN}Press Enter to return to the menu...{ENDC}")
             clear_screen()
             continue
         elif menu_entry_index == 1:
+            show_status_long()
+            # Prevents returning to the "Show" menu which would display the "Overall Status" again
+            input(f"\n{GREEN}Press Enter to return to the menu...{ENDC}")
+            clear_screen()
+            continue
+        elif menu_entry_index == 2:
             clear_screen()
             break
-        elif menu_entry_index == 2:
+        elif menu_entry_index == 3:
             quit()
         else:
             print("Invalid option. Please try again.")

@@ -73,6 +73,7 @@ class updated_start_menu(Enum):
 
 class show_menu(Enum):
     SHOW = 'Show'
+    GENERAL_VIEW = 'Show General View'
     SHOW_STATUS = 'Show Detailed Status'
 
 # Menu cursor definition

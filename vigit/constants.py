@@ -71,6 +71,10 @@ class updated_start_menu(Enum):
     QUICK_ACTIONS = "Quick Actions"
     WATCH_STATUS = "General View"
 
+class show_menu(Enum):
+    SHOW = 'Show'
+    SHOW_STATUS = 'Show status'
+
 # Menu cursor definition
 MENU_CURSOR = "▶ "
 MENU_CURSOR_STYLE = ("fg_yellow", "bold")

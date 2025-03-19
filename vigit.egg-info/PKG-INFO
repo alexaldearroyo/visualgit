@@ -1,10 +1,5 @@
-Metadata-Version: 2.1
+Metadata-Version: 2.2
 Name: vigit
 Version: 0.1
-Summary: UNKNOWN
-Home-page: UNKNOWN
-License: UNKNOWN
-Platform: UNKNOWN
-
-UNKNOWN
-
+Requires-Dist: simple_term_menu
+Dynamic: requires-dist

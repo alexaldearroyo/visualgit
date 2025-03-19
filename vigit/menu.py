@@ -525,3 +525,82 @@ def delete_remote_repo():
         print(f"{YELLOW}Error getting remote repository information: {e}{ENDC}")
         print("\nAlternatively, you can delete the repository through the web interface of your Git hosting provider (e.g., GitHub, GitLab).")
         print("This action cannot be performed directly through the git command line for security reasons.")
+
+def show_status_short():
+    if not is_git_repo():
+        print_not_git_repo()
+        return
+
+    try:
+        # Capturar la salida del comando git status -s
+        result = subprocess.run(
+            ["git", "status", "-s"],
+            capture_output=True,
+            text=True,
+            check=True
+        )
+        status = result.stdout.strip()
+
+        # print(f"\n{GREEN}Status (short format):{ENDC}")
+        if status:
+            # Usar el comando directamente para preservar colores
+            subprocess.run(["git", "status", "-s"], check=True)
+        else:
+            print("Working tree clean")
+        print()
+    except Exception as e:
+        print(f"Error getting status: {e}")
+
+def show_menu_options():
+    from .constants import show_menu
+
+    while True:
+        print(f"\n{GREEN}Show:{ENDC}")
+
+        # Mostrar automáticamente el status antes de mostrar las opciones del menú
+        if is_git_repo():
+            try:
+                # Capturar la salida para verificar si hay cambios
+                result = subprocess.run(
+                    ["git", "status", "-s"],
+                    capture_output=True,
+                    text=True,
+                    check=True
+                )
+                status = result.stdout.strip()
+
+                # print(f"\n{GREEN}Status (short format):{ENDC}")
+                if status:
+                    # Ejecutar directamente para preservar colores
+                    subprocess.run(["git", "status", "-s"], check=True)
+                else:
+                    print("Working tree clean")
+                print()
+            except Exception as e:
+                print(f"Error getting status: {e}")
+        else:
+            print_not_git_repo()
+
+        menu_options = [
+            f"[s] {show_menu.SHOW_STATUS.value}",
+            "[x] Back to previous menu",
+            "[q] Quit program"
+        ]
+
+        terminal_menu = TerminalMenu(
+            menu_options,
+            title="Please select an option:",
+            menu_cursor=MENU_CURSOR,
+            menu_cursor_style=MENU_CURSOR_STYLE
+        )
+        menu_entry_index = terminal_menu.show()
+
+        if menu_entry_index == 0:
+            show_status_short()
+        elif menu_entry_index == 1:
+            clear_screen()
+            break
+        elif menu_entry_index == 2:
+            quit()
+        else:
+            print("Invalid option. Please try again.")

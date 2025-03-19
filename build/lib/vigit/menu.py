@@ -93,7 +93,7 @@ def main_local():
         elif menu_entry_index == 4:
             quit()
 
-def check_local_repos():
+def general_view():
     if not is_git_repo():
         print_not_git_repo()
         return

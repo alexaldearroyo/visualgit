@@ -6,6 +6,7 @@ from enum import Enum
 YELLOW = '\033[93m'
 GREEN = '\033[92m'
 BLUE = '\033[95m'
+DARK_BLUE = '\033[34m'
 RED = '\033[91m'
 WHITE = '\033[97m'
 ENDC = '\033[0m'

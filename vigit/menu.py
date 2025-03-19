@@ -2,7 +2,7 @@ import subprocess
 import os
 
 from .checks import is_git_repo, print_not_git_repo, is_connected_to_remote, print_connected_to_remote, print_not_connected_to_remote, print_git_repo
-from .utils import BLUE, YELLOW, GREEN, ENDC
+from .utils import BLUE, DARK_BLUE, YELLOW, GREEN, ENDC
 from .github_ops import create_github_repository, get_github_token, delete_github_repository, get_github_username
 from .constants import MENU_CURSOR, MENU_CURSOR_STYLE
 
@@ -93,7 +93,7 @@ def main_local():
         elif menu_entry_index == 4:
             quit()
 
-def check_local_repos():
+def general_view():
     if not is_git_repo():
         print_not_git_repo()
         return
@@ -109,16 +109,10 @@ def check_local_repos():
         # Get the repository name (last element of the path)
         repo_name = repo_path.split('/')[-1]
 
-        # Get the current branch
-        current = subprocess.run(
-            ["git", "rev-parse", "--abbrev-ref", "HEAD"],
-            capture_output=True,
-            text=True
-        ).stdout.strip()
 
         # Get all local branches
         branches = subprocess.run(
-            ["git", "branch"],
+            ["git", "branch", "--color=always"],
             capture_output=True,
             text=True
         ).stdout.strip()
@@ -132,7 +126,7 @@ def check_local_repos():
 
         # Get all remote branches
         remote_branches = subprocess.run(
-            ["git", "branch", "-r"],
+            ["git", "branch", "-r", "--color=always"],
             capture_output=True,
             text=True
         ).stdout.strip()
@@ -145,41 +139,27 @@ def check_local_repos():
         ).stdout.strip()
 
         # Display the collected information
-        print(f"{GREEN}Local Repository:{ENDC}")
-        print(f"Name: {GREEN}{repo_name}{ENDC}")
-        print(f"Path: {repo_path}")
-        print(f"Current branch: {GREEN}{current}{ENDC}")
+        print(f"{BLUE}Local Repository:{ENDC}")
+        print(f"{YELLOW}Name:{ENDC} {repo_name}")
+        print(f"{YELLOW}Path:{ENDC} {repo_path}")
 
-        print(f"\n{GREEN}Local Branches:{ENDC}")
+        print(f"\n{BLUE}Local Branches:{ENDC}")
         if branches:
             print(branches)
         else:
             print("No local branches")
 
-        print(f"\n{GREEN}Remote Repositories:{ENDC}")
+        print(f"\n{BLUE}Remote Repository:{ENDC}")
         if remotes:
             print(remotes)
         else:
             print("No remote repositories joined to local repository")
 
-        print(f"\n{GREEN}Remote Branches:{ENDC}")
+        print(f"\n{BLUE}Remote Branches:{ENDC}")
         if remote_branches:
             print(remote_branches)
         else:
             print("No remote branches available")
-
-        # Also show the last commit
-        last_commit = subprocess.run(
-            ["git", "log", "-1", "--oneline"],
-            capture_output=True,
-            text=True
-        ).stdout.strip()
-
-        print(f"\n{GREEN}Last Commit:{ENDC}")
-        if last_commit:
-            print(last_commit)
-        else:
-            print("No commits in this repository")
 
         print()
 
@@ -609,7 +589,7 @@ def show_menu_options():
         menu_entry_index = terminal_menu.show()
 
         if menu_entry_index == 0:
-            check_local_repos()
+            general_view()
             # Prevents returning to the "Show" menu which would display the "Overall Status" again
             input(f"{GREEN}Press Enter to return to the menu...{ENDC}")
             clear_screen()

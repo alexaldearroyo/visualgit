@@ -73,7 +73,7 @@ class updated_start_menu(Enum):
 
 class show_menu(Enum):
     SHOW = 'Show'
-    SHOW_STATUS = 'Show Detaiiled Status'
+    SHOW_STATUS = 'Show Detailed Status'
 
 # Menu cursor definition
 MENU_CURSOR = "▶ "

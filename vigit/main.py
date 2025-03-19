@@ -15,7 +15,7 @@ from simple_term_menu import TerminalMenu
 from .utils import BG_BLUE, YELLOW, GREEN, ENDC, BOLD, BG_PURPLE, BLACK_TEXT, WHITE_TEXT
 from .constants import start_menu, main_menu, main_local_menu, main_remote_menu, branch_local_menu, branch_remote_menu, manage_branch_menu, updated_start_menu, MENU_CURSOR, MENU_CURSOR_STYLE, show_menu
 from .checks import is_git_installed, is_git_repo, print_not_git_repo, current_branch, get_current_branch, is_current_branch_main
-from .menu import work_in_main, create_local_repo, commit_to_local_repo, commit_and_push, main_local, main_remote, check_local_repos, create_remote_repo, show_menu_options, show_status_short
+from .menu import work_in_main, create_local_repo, commit_to_local_repo, commit_and_push, main_local, main_remote, check_local_repos, create_remote_repo, show_menu_options, show_status_long
 from .branx_local import go_to_branch, go_to_main, create_local_branch
 from .branx_remote import commit_and_push_in_branch, push_changes_to_remote_branch, create_remote_branch
 from .branx_manage import merge_branches, manage_branches, merge_with_main, merge_with_selected_branch

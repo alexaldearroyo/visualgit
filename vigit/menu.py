@@ -526,25 +526,24 @@ def delete_remote_repo():
         print("\nAlternatively, you can delete the repository through the web interface of your Git hosting provider (e.g., GitHub, GitLab).")
         print("This action cannot be performed directly through the git command line for security reasons.")
 
-def show_status_short():
+def show_status_long():
     if not is_git_repo():
         print_not_git_repo()
         return
 
     try:
-        # Capturar la salida del comando git status -s
+        # Capturar la salida del comando git status
         result = subprocess.run(
-            ["git", "status", "-s"],
+            ["git", "status"],
             capture_output=True,
             text=True,
             check=True
         )
         status = result.stdout.strip()
 
-        # print(f"\n{GREEN}Status (short format):{ENDC}")
         if status:
             # Usar el comando directamente para preservar colores
-            subprocess.run(["git", "status", "-s"], check=True)
+            subprocess.run(["git", "status"], check=True)
         else:
             print("Working tree clean")
         print()
@@ -555,7 +554,7 @@ def show_menu_options():
     from .constants import show_menu
 
     while True:
-        print(f"{GREEN}Show{ENDC}")
+        print(f"{GREEN}SHOW{ENDC}")
         print(f"\n{BLUE}Overall Status:{ENDC}")
         # Mostrar automáticamente el status antes de mostrar las opciones del menú
         if is_git_repo():
@@ -607,7 +606,7 @@ def show_menu_options():
         menu_entry_index = terminal_menu.show()
 
         if menu_entry_index == 0:
-            show_status_short()
+            show_status_long()
         elif menu_entry_index == 1:
             clear_screen()
             break

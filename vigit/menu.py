@@ -145,7 +145,7 @@ def check_local_repos():
         ).stdout.strip()
 
         # Display the collected information
-        print(f"\n{GREEN}Local Repository:{ENDC}")
+        print(f"{GREEN}Local Repository:{ENDC}")
         print(f"Name: {GREEN}{repo_name}{ENDC}")
         print(f"Path: {repo_path}")
         print(f"Current branch: {GREEN}{current}{ENDC}")
@@ -611,13 +611,13 @@ def show_menu_options():
         if menu_entry_index == 0:
             check_local_repos()
             # Prevents returning to the "Show" menu which would display the "Overall Status" again
-            input(f"\n{GREEN}Press Enter to return to the menu...{ENDC}")
+            input(f"{GREEN}Press Enter to return to the menu...{ENDC}")
             clear_screen()
             continue
         elif menu_entry_index == 1:
             show_status_long()
             # Prevents returning to the "Show" menu which would display the "Overall Status" again
-            input(f"\n{GREEN}Press Enter to return to the menu...{ENDC}")
+            input(f"{GREEN}Press Enter to return to the menu...{ENDC}")
             clear_screen()
             continue
         elif menu_entry_index == 2:

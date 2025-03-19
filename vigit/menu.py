@@ -2,7 +2,7 @@ import subprocess
 import os
 
 from .checks import is_git_repo, print_not_git_repo, is_connected_to_remote, print_connected_to_remote, print_not_connected_to_remote, print_git_repo
-from .utils import YELLOW, GREEN, ENDC
+from .utils import BLUE, YELLOW, GREEN, ENDC
 from .github_ops import create_github_repository, get_github_token, delete_github_repository, get_github_username
 from .constants import MENU_CURSOR, MENU_CURSOR_STYLE
 
@@ -555,8 +555,8 @@ def show_menu_options():
     from .constants import show_menu
 
     while True:
-        print(f"\n{GREEN}Show:{ENDC}")
-
+        print(f"{GREEN}Show{ENDC}")
+        print(f"\n{BLUE}Overall Status:{ENDC}")
         # Mostrar automáticamente el status antes de mostrar las opciones del menú
         if is_git_repo():
             try:
@@ -581,6 +581,17 @@ def show_menu_options():
         else:
             print_not_git_repo()
 
+        last_commit = subprocess.run(
+            ["git", "log", "-1", "--pretty=format:%C(yellow)● %h %C(blue)► %C(white)%s %C(magenta)(%cr)", "--color=always"],
+            capture_output=True,
+            text=True
+        ).stdout.strip()
+
+        print(f"{BLUE}Last Commit:{ENDC}")
+        if last_commit:
+            print(last_commit)
+
+        print()
         menu_options = [
             f"[s] {show_menu.SHOW_STATUS.value}",
             "[x] Back to previous menu",

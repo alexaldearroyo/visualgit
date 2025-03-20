@@ -438,7 +438,7 @@ def show_local_repo(ask_for_enter=True):
         return
 
     try:
-        print(f"\n{BLUE}Local Repository Information:{ENDC}")
+        print(f"\n{BLUE}Local Repository Information:{ENDC}\n")
 
         # Obtener la ruta absoluta del repositorio
         repo_path = subprocess.run(
@@ -457,10 +457,24 @@ def show_local_repo(ask_for_enter=True):
             text=True
         ).stdout.strip()
 
-        # Mostrar solo la información básica
+        # Obtener todas las ramas locales
+        all_branches = subprocess.run(
+            ["git", "branch", "--color=always"],
+            capture_output=True,
+            text=True
+        ).stdout.strip()
+
+        # Mostrar información básica
         print(f"{YELLOW}Repository Name:{ENDC} {repo_name}")
         print(f"{YELLOW}Repository Path:{ENDC} {repo_path}")
         print(f"{YELLOW}Current Branch:{ENDC} {current_branch}")
+
+        # Mostrar todas las ramas locales
+        print(f"\n{YELLOW}Local Branches:{ENDC}")
+        if all_branches:
+            print(all_branches)
+        else:
+            print("No local branches found.")
 
         print()
         if ask_for_enter:

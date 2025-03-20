@@ -2,9 +2,10 @@ import subprocess
 import sys
 import termios
 import tty
+import re
 
 from simple_term_menu import TerminalMenu
-from .utils import GREEN, ENDC, BLUE, YELLOW
+from .utils import DARK_BLUE, GREEN, ENDC, BLUE, ORANGE, RED, WHITE, YELLOW
 from .constants import show_menu, MENU_CURSOR, MENU_CURSOR_STYLE, history_menu, differences_menu
 from .checks import is_git_repo, print_not_git_repo
 
@@ -554,17 +555,47 @@ def show_branches(ask_for_enter=True):
 
         # Mostrar todas las ramas locales
         print(f"\n{YELLOW}Local Branches:{ENDC}")
-        subprocess.run(
+        result = subprocess.Popen(
             ["git", "--no-pager", "branch", "--color=always", "-v"],
-            check=True
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True
         )
+
+        # Procesa la salida en tiempo real
+        for line in result.stdout:
+            # Resalta los commit_hash en naranja, agrega un círculo a la izquierda y el símbolo ► en azul
+            colored_line = re.sub(
+                r'([a-f0-9]{7,40})\s(.*)',  # Captura el commit_hash y el mensaje de commit
+                f'{ORANGE}● \\1{DARK_BLUE} ► {ENDC}\\2',  # Aplica colores y formatea la salida
+                line
+            )
+            print(colored_line, end='')
+
+        # Espera a que el proceso termine
+        result.wait()
 
         # Mostrar todas las ramas remotas
         print(f"\n{YELLOW}Remote Branches:{ENDC}")
-        subprocess.run(
+        result = subprocess.Popen(
             ["git", "--no-pager", "branch", "-r", "--color=always", "-v"],
-            check=True
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True
         )
+
+        # Procesa la salida en tiempo real
+        for line in result.stdout:
+            # Resalta los commit_hash en naranja, agrega un círculo a la izquierda y el símbolo ► en azul oscuro
+            colored_line = re.sub(
+                r'([a-f0-9]{7,40})\s(.*)',  # Captura el commit_hash y el mensaje de commit
+                f'{ORANGE}● \\1{DARK_BLUE} ► {ENDC}\\2',  # Aplica colores y formatea la salida
+                line
+            )
+            print(colored_line, end='')
+
+        # Espera a que el proceso termine
+        result.wait()
 
         # Mostrar ramas fusionadas
         print(f"\n{YELLOW}Merged Branches:{ENDC}")

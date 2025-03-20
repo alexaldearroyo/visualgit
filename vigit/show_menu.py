@@ -264,7 +264,6 @@ def show_menu_options():
             f"[v] {show_menu.GENERAL_VIEW.value}",
             f"[s] {show_menu.SHOW_STATUS.value}",
             f"[h] {show_menu.SHOW_HISTORY.value}",
-            f"[c] View Commit History",
             "[k] Back to previous menu",
             "[q] Quit program"
         ]
@@ -295,15 +294,9 @@ def show_menu_options():
             clear_screen()
             continue
         elif menu_entry_index == 3:
-            # Acceso directo a Show History of Commits
-            show_detailed_history()
-            input(f"{GREEN}Press Enter to return to the menu...{ENDC}")
-            clear_screen()
-            continue
-        elif menu_entry_index == 4:
             clear_screen()
             break
-        elif menu_entry_index == 5:
+        elif menu_entry_index == 4:
             quit()
         else:
             print("Invalid option. Please try again.")

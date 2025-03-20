@@ -78,7 +78,7 @@ class show_menu(Enum):
     SHOW_HISTORY = 'Show History'
 
 class history_menu(Enum):
-    DETAILED_HISTORY = 'Show History of Commits'
+    DETAILED_HISTORY = 'Show Commit History'
     EXPANDED_HISTORY = 'Show Expanded History'
     TRACKING_HISTORY = 'Show Tracking History'
 

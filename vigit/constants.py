@@ -75,7 +75,7 @@ class show_menu(Enum):
     SHOW = 'Show'
     GENERAL_VIEW = 'Show General View'
     SHOW_STATUS = 'Show Detailed Status'
-    SHOW_DIFFERENCES = 'Show Differences'
+    SHOW_DIFFERENCES = 'Show Differences ►'
     SHOW_HISTORY = 'Show History ►'
     SHOW_LOCAL_REPO = 'Show Local Repo'
     SHOW_REMOTE_REPO = 'Show Remote Repo'

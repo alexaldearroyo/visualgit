@@ -1,7 +1,7 @@
 import subprocess
 from simple_term_menu import TerminalMenu
 from .utils import GREEN, ENDC, BLUE, YELLOW
-from .constants import show_menu, MENU_CURSOR, MENU_CURSOR_STYLE
+from .constants import show_menu, MENU_CURSOR, MENU_CURSOR_STYLE, history_menu
 from .checks import is_git_repo, print_not_git_repo
 
 def clear_screen():
@@ -113,19 +113,83 @@ def show_history():
         print_not_git_repo()
         return
 
+    while True:
+        print(f"{GREEN}SHOW | HISTORY{ENDC}")
+
+        menu_options = [
+            f"[h] {history_menu.DETAILED_HISTORY.value}",
+            f"[x] {history_menu.EXPANDED_HISTORY.value}",
+            "[k] Back to previous menu",
+            "[q] Quit program"
+        ]
+
+        terminal_menu = TerminalMenu(
+            menu_options,
+            title=f"Please select an option:",
+            menu_cursor=MENU_CURSOR,
+            menu_cursor_style=MENU_CURSOR_STYLE
+        )
+        menu_entry_index = terminal_menu.show()
+
+        if menu_entry_index == 0:
+            show_detailed_history()
+            input(f"{GREEN}Press Enter to return to the menu...{ENDC}")
+            clear_screen()
+            continue
+        elif menu_entry_index == 1:
+            show_expanded_history()
+            # No pedimos presionar Enter después de mostrar el historial expandido
+            clear_screen()
+            continue
+        elif menu_entry_index == 2:
+            # Volver directamente al menú anterior sin pedir presionar Enter
+            clear_screen()
+            return  # Usamos return en lugar de break para salir directamente
+        elif menu_entry_index == 3:
+            quit()
+        else:
+            print("Invalid option. Please try again.")
+
+def show_expanded_history(ask_for_enter=True):
+    """Muestra un historial gráfico expandido de commits"""
+    if not is_git_repo():
+        print_not_git_repo()
+        return
+
     try:
-        print(f"\n{BLUE}Commit History:{ENDC}\n")
-        # Mostrar el historial de commits con formato más detallado
+        print(f"\n{BLUE}Expanded Commit History:{ENDC}\n")
+        # Mostrar el historial de commits con formato gráfico expandido
         subprocess.run([
             "git", "log",
-            "--pretty=format:%C(yellow)%h %C(blue)%ad%C(auto)%d %C(reset)%s %C(cyan)[%an]",
-            "--date=short",
             "--graph",
-            "--all"
+            "--pretty=format:%C(yellow)%h%Creset%C(auto)%d%Creset %C(blue)|%Creset %C(cyan)%an%Creset %C(blue)| %Creset%C(magenta)%ar%Creset%n%C(blue)► %C(white)%s%Creset%n",
+            "--decorate=short",
+            "--date=relative"
         ], check=True)
         print()
     except Exception as e:
-        print(f"Error retrieving commit history: {e}")
+        print(f"Error retrieving expanded commit history: {e}")
+
+def show_detailed_history(ask_for_enter=True):
+    """Muestra un historial detallado de commits en orden cronológico"""
+    if not is_git_repo():
+        print_not_git_repo()
+        return
+
+    try:
+        print(f"\n{BLUE}Detailed Commit History:{ENDC}\n")
+        # Mostrar el historial de commits con el formato específico
+        subprocess.run([
+            "git", "--no-pager", "log",
+            "--reverse",
+            "--pretty=format:%C(yellow)● %h%Creset%C(auto)%d%Creset%C(blue) ► %C(white)%s%Creset %C(blue)| %C(cyan)%an%Creset %C(blue)| %C(magenta)%ad%Creset",
+            "--decorate=short",
+            "--date=format:%Y-%m-%d %H:%M",
+            "--date=relative"
+        ], check=True)
+        print("\n")
+    except Exception as e:
+        print(f"Error retrieving detailed commit history: {e}")
 
 def show_menu_options():
     from .constants import show_menu
@@ -172,7 +236,8 @@ def show_menu_options():
             f"[v] {show_menu.GENERAL_VIEW.value}",
             f"[s] {show_menu.SHOW_STATUS.value}",
             f"[h] {show_menu.SHOW_HISTORY.value}",
-            "[x] Back to previous menu",
+            f"[c] View Commit History",
+            "[k] Back to previous menu",
             "[q] Quit program"
         ]
 
@@ -198,14 +263,19 @@ def show_menu_options():
             continue
         elif menu_entry_index == 2:
             show_history()
-            # Prevents returning to the "Show" menu which would display the "Overall Status" again
-            input(f"{GREEN}Press Enter to return to the menu...{ENDC}")
+            # Ya no pedimos presionar Enter después de volver del sub-menú History
             clear_screen()
             continue
         elif menu_entry_index == 3:
+            # Acceso directo a Show History of Commits
+            show_detailed_history()
+            input(f"{GREEN}Press Enter to return to the menu...{ENDC}")
+            clear_screen()
+            continue
+        elif menu_entry_index == 4:
             clear_screen()
             break
-        elif menu_entry_index == 4:
+        elif menu_entry_index == 5:
             quit()
         else:
             print("Invalid option. Please try again.")

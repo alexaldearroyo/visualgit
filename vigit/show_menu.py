@@ -5,7 +5,7 @@ import tty
 
 from simple_term_menu import TerminalMenu
 from .utils import GREEN, ENDC, BLUE, YELLOW
-from .constants import show_menu, MENU_CURSOR, MENU_CURSOR_STYLE, history_menu
+from .constants import show_menu, MENU_CURSOR, MENU_CURSOR_STYLE, history_menu, differences_menu
 from .checks import is_git_repo, print_not_git_repo
 
 def get_single_keypress():
@@ -254,6 +254,123 @@ def show_differences_history(ask_for_enter=True):
     except Exception as e:
         print(f"Error retrieving differences commit history: {e}")
 
+def show_differences_non_staged(ask_for_enter=True):
+    """Muestra las diferencias de los archivos no staged"""
+    if not is_git_repo():
+        print_not_git_repo()
+        return
+
+    try:
+        print(f"\n{BLUE}Differences of non staged files:{ENDC}\n")
+        # Ejecutar el comando git diff con diff-so-fancy
+        subprocess.run(
+            "git diff | diff-so-fancy",
+            shell=True,
+            check=True
+        )
+        print()
+        if ask_for_enter:
+            print(f"{GREEN}Press any key to return to the menu...{ENDC}")
+            get_single_keypress()
+    except Exception as e:
+        print(f"Error retrieving differences: {e}")
+        if ask_for_enter:
+            print(f"{GREEN}Press any key to return to the menu...{ENDC}")
+            get_single_keypress()
+
+def show_differences_staged(ask_for_enter=True):
+    """Muestra las diferencias de los archivos staged (añadidos)"""
+    if not is_git_repo():
+        print_not_git_repo()
+        return
+
+    try:
+        print(f"\n{BLUE}Differences of Added files:{ENDC}\n")
+        # Ejecutar el comando git diff --staged con diff-so-fancy
+        subprocess.run(
+            "git diff --staged | diff-so-fancy",
+            shell=True,
+            check=True
+        )
+        print()
+        if ask_for_enter:
+            print(f"{GREEN}Press any key to return to the menu...{ENDC}")
+            get_single_keypress()
+    except Exception as e:
+        print(f"Error retrieving staged differences: {e}")
+        if ask_for_enter:
+            print(f"{GREEN}Press any key to return to the menu...{ENDC}")
+            get_single_keypress()
+
+def show_differences_committed(ask_for_enter=True):
+    """Muestra las diferencias del directorio de trabajo respecto al último commit"""
+    if not is_git_repo():
+        print_not_git_repo()
+        return
+
+    try:
+        print(f"\n{BLUE}Differences of Commited Files:{ENDC}\n")
+        # Ejecutar el comando git diff HEAD con diff-so-fancy
+        subprocess.run(
+            "git diff HEAD | diff-so-fancy",
+            shell=True,
+            check=True
+        )
+        print()
+        if ask_for_enter:
+            print(f"{GREEN}Press any key to return to the menu...{ENDC}")
+            get_single_keypress()
+    except Exception as e:
+        print(f"Error retrieving committed differences: {e}")
+        if ask_for_enter:
+            print(f"{GREEN}Press any key to return to the menu...{ENDC}")
+            get_single_keypress()
+
+def show_differences():
+    """Muestra el submenú de diferencias"""
+    if not is_git_repo():
+        print_not_git_repo()
+        return
+
+    while True:
+        print(f"{GREEN}SHOW | DIFFERENCES{ENDC}")
+
+        menu_options = [
+            f"[d] {differences_menu.NON_STAGED_DIFFERENCES.value}",
+            f"[a] {differences_menu.STAGED_DIFFERENCES.value}",
+            f"[c] {differences_menu.COMMITTED_DIFFERENCES.value}",
+            "[k] Back to previous menu",
+            "[q] Quit program"
+        ]
+
+        terminal_menu = TerminalMenu(
+            menu_options,
+            title=f"Please select an option:",
+            menu_cursor=MENU_CURSOR,
+            menu_cursor_style=MENU_CURSOR_STYLE
+        )
+        menu_entry_index = terminal_menu.show()
+
+        if menu_entry_index == 0:
+            show_differences_non_staged()
+            clear_screen()
+            continue
+        elif menu_entry_index == 1:
+            show_differences_staged()
+            clear_screen()
+            continue
+        elif menu_entry_index == 2:
+            show_differences_committed()
+            clear_screen()
+            continue
+        elif menu_entry_index == 3:
+            clear_screen()
+            return
+        elif menu_entry_index == 4:
+            quit()
+        else:
+            print("Invalid option. Please try again.")
+
 def show_menu_options():
     from .constants import show_menu
 
@@ -300,6 +417,7 @@ def show_menu_options():
         menu_options = [
             f"[v] {show_menu.GENERAL_VIEW.value}",
             f"[s] {show_menu.SHOW_STATUS.value}",
+            f"[d] {show_menu.SHOW_DIFFERENCES.value}",
             f"[h] {show_menu.SHOW_HISTORY.value}",
             "[k] Back to previous menu",
             "[q] Quit program"
@@ -310,7 +428,7 @@ def show_menu_options():
             title=f"Please select an option:",
             menu_cursor=MENU_CURSOR,
             menu_cursor_style=MENU_CURSOR_STYLE,
-            accept_keys=("enter", "h", "g", "s", "k", "q", "H")
+            accept_keys=("enter", "h", "g", "s", "d", "k", "q", "H")
         )
         menu_entry_index = terminal_menu.show()
 
@@ -329,14 +447,19 @@ def show_menu_options():
             clear_screen()
             continue
         elif menu_entry_index == 2:
-            show_history()
+            show_differences()
             # Ya no pedimos presionar Enter después de volver del sub-menú History
             clear_screen()
             continue
         elif menu_entry_index == 3:
+            show_history()
+            # Ya no pedimos presionar Enter después de volver del sub-menú History
+            clear_screen()
+            continue
+        elif menu_entry_index == 4:
             clear_screen()
             break
-        elif menu_entry_index == 4:
+        elif menu_entry_index == 5:
             quit()
         else:
             print("Invalid option. Please try again.")

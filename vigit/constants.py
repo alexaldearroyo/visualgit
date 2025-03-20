@@ -75,6 +75,7 @@ class show_menu(Enum):
     SHOW = 'Show'
     GENERAL_VIEW = 'Show General View'
     SHOW_STATUS = 'Show Detailed Status'
+    SHOW_DIFFERENCES = 'Show Differences ►'
     SHOW_HISTORY = 'Show History ►'
 
 class history_menu(Enum):
@@ -82,6 +83,11 @@ class history_menu(Enum):
     EXPANDED_HISTORY = 'Show Expanded History'
     TRACKING_HISTORY = 'Show Tracking History'
     DIFFERENCES_HISTORY = 'Show Differences History'
+
+class differences_menu(Enum):
+    NON_STAGED_DIFFERENCES = 'Show Differences of non staged files'
+    STAGED_DIFFERENCES = 'Show Differences of Added files'
+    COMMITTED_DIFFERENCES = 'Show Differences of Commited Files'
 
 # Menu cursor definition
 MENU_CURSOR = "▶ "

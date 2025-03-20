@@ -189,7 +189,8 @@ def show_expanded_history(ask_for_enter=True):
         subprocess.run([
             "git", "log",
             "--graph",
-            "--pretty=format:%C(yellow)%h%Creset%C(auto)%d%Creset %C(blue)|%Creset %C(cyan)%an%Creset %C(blue)| %Creset%C(magenta)%ar%Creset%n%C(blue)► %C(white)%s%Creset%n",
+            "--all",
+            "--pretty=format:%C(yellow)%h%Creset%C(auto)%d%Creset %C(cyan)%an%Creset %C(magenta)%ar%Creset%n  %C(white)%s%Creset",
             "--decorate=short",
             "--date=relative"
         ], check=True)

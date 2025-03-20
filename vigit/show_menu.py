@@ -1,8 +1,22 @@
 import subprocess
+import sys
+import termios
+import tty
+
 from simple_term_menu import TerminalMenu
 from .utils import GREEN, ENDC, BLUE, YELLOW
 from .constants import show_menu, MENU_CURSOR, MENU_CURSOR_STYLE, history_menu
 from .checks import is_git_repo, print_not_git_repo
+
+def get_single_keypress():
+    """Captura un solo carácter del usuario sin necesidad de presionar Enter."""
+    fd = sys.stdin.fileno()
+    old_settings = termios.tcgetattr(fd)
+    try:
+        tty.setraw(fd)
+        return sys.stdin.read(1)  # Lee un solo carácter
+    finally:
+        termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
 
 def clear_screen():
     """Clear the terminal screen"""
@@ -155,23 +169,21 @@ def show_history():
 
         if menu_entry_index == 0:
             show_detailed_history()
-            input(f"{GREEN}Press Enter to return to the menu...{ENDC}")
+            print(f"{GREEN}Press any key to return to the menu...{ENDC}")
+            get_single_keypress()
             clear_screen()
             continue
         elif menu_entry_index == 1:
             show_expanded_history()
-            # No pedimos presionar Enter después de mostrar el historial expandido
             clear_screen()
             continue
         elif menu_entry_index == 2:
             show_tracking_history()
-            # No pedimos presionar Enter después de mostrar el historial de tracking
             clear_screen()
             continue
         elif menu_entry_index == 3:
-            # Volver directamente al menú anterior sin pedir presionar Enter
             clear_screen()
-            return  # Usamos return en lugar de break para salir directamente
+            return
         elif menu_entry_index == 4:
             quit()
         else:
@@ -260,8 +272,10 @@ def show_menu_options():
             print(last_commit)
 
         print()
+
+
         menu_options = [
-            f"[v] {show_menu.GENERAL_VIEW.value}",
+            f"[g] {show_menu.GENERAL_VIEW.value}",
             f"[s] {show_menu.SHOW_STATUS.value}",
             f"[h] {show_menu.SHOW_HISTORY.value}",
             "[k] Back to previous menu",
@@ -272,20 +286,23 @@ def show_menu_options():
             menu_options,
             title=f"Please select an option:",
             menu_cursor=MENU_CURSOR,
-            menu_cursor_style=MENU_CURSOR_STYLE
+            menu_cursor_style=MENU_CURSOR_STYLE,
+            accept_keys=("enter", "h", "g", "s", "k", "q", "H")
         )
         menu_entry_index = terminal_menu.show()
 
         if menu_entry_index == 0:
             general_view()
             # Prevents returning to the "Show" menu which would display the "Overall Status" again
-            input(f"{GREEN}Press Enter to return to the menu...{ENDC}")
+            print(f"{GREEN}Press any key to return to the menu...{ENDC}")
+            get_single_keypress()
             clear_screen()
             continue
         elif menu_entry_index == 1:
             show_status_long()
             # Prevents returning to the "Show" menu which would display the "Overall Status" again
-            input(f"{GREEN}Press Enter to return to the menu...{ENDC}")
+            print(f"{GREEN}Press any key to return to the menu...{ENDC}")
+            get_single_keypress()
             clear_screen()
             continue
         elif menu_entry_index == 2:

@@ -93,79 +93,6 @@ def main_local():
         elif menu_entry_index == 4:
             quit()
 
-def general_view():
-    if not is_git_repo():
-        print_not_git_repo()
-        return
-
-    try:
-        # Get the absolute path of the repository
-        repo_path = subprocess.run(
-            ["git", "rev-parse", "--show-toplevel"],
-            capture_output=True,
-            text=True
-        ).stdout.strip()
-
-        # Get the repository name (last element of the path)
-        repo_name = repo_path.split('/')[-1]
-
-
-        # Get all local branches
-        branches = subprocess.run(
-            ["git", "branch", "--color=always"],
-            capture_output=True,
-            text=True
-        ).stdout.strip()
-
-        # Get configured remotes
-        remotes = subprocess.run(
-            ["git", "remote", "-v"],
-            capture_output=True,
-            text=True
-        ).stdout.strip()
-
-        # Get all remote branches
-        remote_branches = subprocess.run(
-            ["git", "branch", "-r", "--color=always"],
-            capture_output=True,
-            text=True
-        ).stdout.strip()
-
-        # Get a status summary
-        status = subprocess.run(
-            ["git", "status", "--short"],
-            capture_output=True,
-            text=True
-        ).stdout.strip()
-
-        # Display the collected information
-        print(f"{BLUE}Local Repository:{ENDC}")
-        print(f"{YELLOW}Name:{ENDC} {repo_name}")
-        print(f"{YELLOW}Path:{ENDC} {repo_path}")
-
-        print(f"\n{BLUE}Local Branches:{ENDC}")
-        if branches:
-            print(branches)
-        else:
-            print("No local branches")
-
-        print(f"\n{BLUE}Remote Repository:{ENDC}")
-        if remotes:
-            print(remotes)
-        else:
-            print("No remote repositories joined to local repository")
-
-        print(f"\n{BLUE}Remote Branches:{ENDC}")
-        if remote_branches:
-            print(remote_branches)
-        else:
-            print("No remote branches available")
-
-        print()
-
-    except Exception as e:
-        print(f"Error getting repository information: {e}")
-
 def create_local_repo():
     if is_git_repo():
         print_git_repo()
@@ -425,185 +352,39 @@ def delete_remote_repo():
         print_not_git_repo()
         return
 
-    if not is_connected_to_remote():
-        print_not_connected_to_remote()
-        return
-
-    # Verificar si existe un token de GitHub configurado
-    token = get_github_token()
-    if not token:
-        print(f"{YELLOW}GitHub token not found. You need to configure it to delete a remote repository.{ENDC}")
-        print("Go to: Configuration > GitHub API Configuration")
-        print("\nAlternatively, you can delete the repository through the web interface of your Git hosting provider (e.g., GitHub, GitLab).")
-        return
-
-    # Obtener el nombre de usuario de GitHub
-    username = get_github_username()
-    if not username:
-        print(f"{YELLOW}Could not retrieve GitHub username. Check your token configuration.{ENDC}")
-        return
-
-    # Obtener información sobre el repositorio remoto
     try:
-        remote_url = subprocess.run(
-            ["git", "remote", "get-url", "origin"],
+        # Obtener información sobre los remotos configurados
+        remotes = subprocess.run(
+            ["git", "remote", "-v"],
             capture_output=True,
             text=True
         ).stdout.strip()
 
-        # Extraer el nombre del repositorio de la URL
-        # Formatos posibles:
-        # - https://github.com/username/repo.git
-        # - git@github.com:username/repo.git
-        repo_name = None
-
-        if "github.com" in remote_url:
-            if remote_url.startswith("https://"):
-                # Formato HTTPS
-                parts = remote_url.split("/")
-                repo_name = parts[-1]
-                if repo_name.endswith(".git"):
-                    repo_name = repo_name[:-4]  # Eliminar .git
-            elif remote_url.startswith("git@"):
-                # Formato SSH
-                parts = remote_url.split(":")
-                if len(parts) > 1:
-                    repo_parts = parts[1].split("/")
-                    repo_name = repo_parts[-1]
-                    if repo_name.endswith(".git"):
-                        repo_name = repo_name[:-4]  # Eliminar .git
-
-        if not repo_name:
-            print(f"{YELLOW}Could not determine repository name from remote URL: {remote_url}{ENDC}")
+        # Si no hay remotos, mostrar un mensaje y salir
+        if not remotes:
+            print("No hay repositorios remotos configurados.")
             return
 
-        # Confirmar la eliminación
-        print(f"\n{YELLOW}WARNING: You are about to delete the remote repository {username}/{repo_name}{ENDC}")
-        print(f"This action CANNOT be undone and will permanently delete the repository from GitHub.")
-        confirm = input("\nType the repository name to confirm deletion: ")
+        # Convertir el resultado en líneas y extraer los nombres de remotos únicos
+        remote_lines = remotes.split('\n')
+        unique_remotes = set()
+        for line in remote_lines:
+            if line.strip():
+                remote_name = line.split()[0]
+                unique_remotes.add(remote_name)
 
-        if confirm != repo_name:
-            print("\nRepository deletion cancelled. Names did not match.")
-            return
-
-        # Eliminar el repositorio
-        success = delete_github_repository(username, repo_name)
-
-        if success:
-            print("\nRemote repository has been deleted.")
-            print("Note: Your local repository still exists. The remote reference has been removed.")
-
-            # Remover el remoto local
-            try:
-                subprocess.run(["git", "remote", "remove", "origin"])
-                print("Remote 'origin' has been removed from your local repository.")
-            except:
-                print("Could not remove the 'origin' reference from your local repository.")
-                print("You may want to do this manually with: git remote remove origin")
+        if 'origin' in unique_remotes:
+            user_choice = input("Do you want to delete the reference to the remote repository 'origin'? (y/n): ")
+            if user_choice.lower() == 'y':
+                try:
+                    subprocess.run(["git", "remote", "remove", "origin"])
+                    print("The 'origin' reference has been removed from your local repository.")
+                    print("Note: This doesn't delete the remote repository itself, just the reference in your local config.")
+                except:
+                    print("Could not remove the 'origin' reference from your local repository.")
+                    print("You may want to do this manually with: git remote remove origin")
 
     except Exception as e:
         print(f"{YELLOW}Error getting remote repository information: {e}{ENDC}")
         print("\nAlternatively, you can delete the repository through the web interface of your Git hosting provider (e.g., GitHub, GitLab).")
         print("This action cannot be performed directly through the git command line for security reasons.")
-
-def show_status_long():
-    if not is_git_repo():
-        print_not_git_repo()
-        return
-
-    try:
-        # Capturar la salida del comando git status
-        result = subprocess.run(
-            ["git", "status"],
-            capture_output=True,
-            text=True,
-            check=True
-        )
-        status = result.stdout.strip()
-
-        if status:
-            # Usar el comando directamente para preservar colores
-            subprocess.run(["git", "status"], check=True)
-        else:
-            print("Working tree clean")
-        print()
-    except Exception as e:
-        print(f"Error getting status: {e}")
-
-    # Do not show Overall Status or Last Commit after displaying git status
-
-def show_menu_options():
-    from .constants import show_menu
-
-    while True:
-        print(f"{GREEN}SHOW{ENDC}")
-        print(f"\n{BLUE}Overall Status:{ENDC}")
-        # Mostrar automáticamente el status antes de mostrar las opciones del menú
-        if is_git_repo():
-            try:
-                # Capturar la salida para verificar si hay cambios
-                result = subprocess.run(
-                    ["git", "status", "-s"],
-                    capture_output=True,
-                    text=True,
-                    check=True
-                )
-                status = result.stdout.strip()
-
-                # print(f"\n{GREEN}Status (short format):{ENDC}")
-                if status:
-                    # Ejecutar directamente para preservar colores
-                    subprocess.run(["git", "status", "-s"], check=True)
-                else:
-                    print("Working tree clean")
-                print()
-            except Exception as e:
-                print(f"Error getting status: {e}")
-        else:
-            print_not_git_repo()
-
-        last_commit = subprocess.run(
-            ["git", "log", "-1", "--pretty=format:%C(yellow)● %h %C(blue)► %C(white)%s %C(magenta)(%cr)", "--color=always"],
-            capture_output=True,
-            text=True
-        ).stdout.strip()
-
-        print(f"{BLUE}Last Commit:{ENDC}")
-        if last_commit:
-            print(last_commit)
-
-        print()
-        menu_options = [
-            f"[v] {show_menu.GENERAL_VIEW.value}",
-            f"[s] {show_menu.SHOW_STATUS.value}",
-            "[x] Back to previous menu",
-            "[q] Quit program"
-        ]
-
-        terminal_menu = TerminalMenu(
-            menu_options,
-            title=f"Please select an option:",
-            menu_cursor=MENU_CURSOR,
-            menu_cursor_style=MENU_CURSOR_STYLE
-        )
-        menu_entry_index = terminal_menu.show()
-
-        if menu_entry_index == 0:
-            general_view()
-            # Prevents returning to the "Show" menu which would display the "Overall Status" again
-            input(f"{GREEN}Press Enter to return to the menu...{ENDC}")
-            clear_screen()
-            continue
-        elif menu_entry_index == 1:
-            show_status_long()
-            # Prevents returning to the "Show" menu which would display the "Overall Status" again
-            input(f"{GREEN}Press Enter to return to the menu...{ENDC}")
-            clear_screen()
-            continue
-        elif menu_entry_index == 2:
-            clear_screen()
-            break
-        elif menu_entry_index == 3:
-            quit()
-        else:
-            print("Invalid option. Please try again.")

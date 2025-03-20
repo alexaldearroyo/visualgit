@@ -155,6 +155,7 @@ def show_history():
             f"[h] {history_menu.DETAILED_HISTORY.value}",
             f"[x] {history_menu.EXPANDED_HISTORY.value}",
             f"[t] {history_menu.TRACKING_HISTORY.value}",
+            f"[d] {history_menu.DIFFERENCES_HISTORY.value}",
             "[k] Back to previous menu",
             "[q] Quit program"
         ]
@@ -182,9 +183,13 @@ def show_history():
             clear_screen()
             continue
         elif menu_entry_index == 3:
+            show_differences_history()
+            clear_screen()
+            continue
+        elif menu_entry_index == 4:
             clear_screen()
             return
-        elif menu_entry_index == 4:
+        elif menu_entry_index == 5:
             quit()
         else:
             print("Invalid option. Please try again.")
@@ -231,6 +236,24 @@ def show_detailed_history(ask_for_enter=True):
     except Exception as e:
         print(f"Error retrieving detailed commit history: {e}")
 
+def show_differences_history(ask_for_enter=True):
+    """Muestra un historial detallado de commits con diferencias y estadísticas"""
+    if not is_git_repo():
+        print_not_git_repo()
+        return
+
+    try:
+        print(f"\n{BLUE}Differences Commit History:{ENDC}\n")
+        # Comando completo usando subprocess.run con shell=True para mantener el pipeline
+        subprocess.run(
+            "git log --color=always --stat -p --pretty=format:\"%C(white)$(printf '%.0s-' {1..30})%Creset%n%C(yellow)● %h%Creset%C(auto)%d%Creset%n%C(blue)► %C(white)%s%Creset %C(blue)| %C(cyan)%an%Creset %C(blue)| %C(magenta)%ad%Creset\" --date=format:'%Y-%m-%d %H:%M%n' | diff-so-fancy | less -R",
+            shell=True,
+            check=True
+        )
+        print("\n")
+    except Exception as e:
+        print(f"Error retrieving differences commit history: {e}")
+
 def show_menu_options():
     from .constants import show_menu
 
@@ -275,13 +298,13 @@ def show_menu_options():
 
 
         menu_options = [
-            f"[g] {show_menu.GENERAL_VIEW.value}",
+            f"[v] {show_menu.GENERAL_VIEW.value}",
             f"[s] {show_menu.SHOW_STATUS.value}",
             f"[h] {show_menu.SHOW_HISTORY.value}",
             "[k] Back to previous menu",
             "[q] Quit program"
         ]
-
+        # test comment 2
         terminal_menu = TerminalMenu(
             menu_options,
             title=f"Please select an option:",

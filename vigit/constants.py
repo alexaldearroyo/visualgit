@@ -75,12 +75,13 @@ class show_menu(Enum):
     SHOW = 'Show'
     GENERAL_VIEW = 'Show General View'
     SHOW_STATUS = 'Show Detailed Status'
-    SHOW_HISTORY = 'Show History'
+    SHOW_HISTORY = 'Show History ►'
 
 class history_menu(Enum):
     DETAILED_HISTORY = 'Show Commit History'
     EXPANDED_HISTORY = 'Show Expanded History'
     TRACKING_HISTORY = 'Show Tracking History'
+    DIFFERENCES_HISTORY = 'Show Differences History'
 
 # Menu cursor definition
 MENU_CURSOR = "▶ "

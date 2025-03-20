@@ -77,6 +77,7 @@ class show_menu(Enum):
     SHOW_STATUS = 'Show Detailed Status'
     SHOW_DIFFERENCES = 'Show Differences ►'
     SHOW_HISTORY = 'Show History ►'
+    SHOW_LOCAL_REPO = 'Show Local Repo'
 
 class history_menu(Enum):
     DETAILED_HISTORY = 'Show Commit History'
@@ -87,7 +88,8 @@ class history_menu(Enum):
 class differences_menu(Enum):
     NON_STAGED_DIFFERENCES = 'Show Differences of non staged files'
     STAGED_DIFFERENCES = 'Show Differences of Added files'
-    COMMITTED_DIFFERENCES = 'Show Differences of Commited Files'
+    COMMIT_TO_COMMIT_DIFFERENCES = 'Show Differences Between Commits'
+    BRANCH_TO_BRANCH_DIFFERENCES = 'Show Differences Between Branches'
 
 # Menu cursor definition
 MENU_CURSOR = "▶ "

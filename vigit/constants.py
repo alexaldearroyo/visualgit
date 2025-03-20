@@ -79,6 +79,7 @@ class show_menu(Enum):
     SHOW_HISTORY = 'Show History ►'
     SHOW_LOCAL_REPO = 'Show Local Repo'
     SHOW_REMOTE_REPO = 'Show Remote Repo'
+    SHOW_BRANCHES = 'Show Branches'
 
 class history_menu(Enum):
     DETAILED_HISTORY = 'Show Commit History'

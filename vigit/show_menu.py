@@ -108,6 +108,27 @@ def show_status_long():
 
     # Do not show Overall Status or Last Commit after displaying git status
 
+def show_tracking_history(ask_for_enter=True):
+    """Muestra un historial de commits con estadísticas de archivos modificados"""
+    if not is_git_repo():
+        print_not_git_repo()
+        return
+
+    try:
+        print(f"\n{BLUE}Tracking History with Statistics:{ENDC}\n")
+        # Mostrar el historial de commits con estadísticas de archivos modificados
+        subprocess.run([
+            "git", "log",
+            "--graph",
+            "--stat",
+            "--pretty=format:%C(yellow)%h%Creset%C(auto)%d%Creset %C(blue)|%Creset %C(cyan)%an%Creset %C(blue)| %Creset%C(magenta)%ar%Creset%n%n%C(blue)► %C(white)%s%Creset%n",
+            "--decorate=short",
+            "--date=relative"
+        ], check=True)
+        print()
+    except Exception as e:
+        print(f"Error retrieving tracking history: {e}")
+
 def show_history():
     if not is_git_repo():
         print_not_git_repo()
@@ -119,6 +140,7 @@ def show_history():
         menu_options = [
             f"[h] {history_menu.DETAILED_HISTORY.value}",
             f"[x] {history_menu.EXPANDED_HISTORY.value}",
+            f"[t] {history_menu.TRACKING_HISTORY.value}",
             "[k] Back to previous menu",
             "[q] Quit program"
         ]
@@ -142,10 +164,15 @@ def show_history():
             clear_screen()
             continue
         elif menu_entry_index == 2:
+            show_tracking_history()
+            # No pedimos presionar Enter después de mostrar el historial de tracking
+            clear_screen()
+            continue
+        elif menu_entry_index == 3:
             # Volver directamente al menú anterior sin pedir presionar Enter
             clear_screen()
             return  # Usamos return en lugar de break para salir directamente
-        elif menu_entry_index == 3:
+        elif menu_entry_index == 4:
             quit()
         else:
             print("Invalid option. Please try again.")

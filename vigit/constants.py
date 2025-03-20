@@ -80,6 +80,7 @@ class show_menu(Enum):
 class history_menu(Enum):
     DETAILED_HISTORY = 'Show History of Commits'
     EXPANDED_HISTORY = 'Show Expanded History'
+    TRACKING_HISTORY = 'Show Tracking History'
 
 # Menu cursor definition
 MENU_CURSOR = "▶ "

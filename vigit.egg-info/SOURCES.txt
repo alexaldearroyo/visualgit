@@ -14,6 +14,7 @@ vigit/constants.py
 vigit/github_ops.py
 vigit/main.py
 vigit/menu.py
+vigit/menu_show.py
 vigit/utils.py
 vigit.egg-info/PKG-INFO
 vigit.egg-info/SOURCES.txt

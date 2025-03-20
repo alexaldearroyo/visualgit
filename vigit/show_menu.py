@@ -108,6 +108,25 @@ def show_status_long():
 
     # Do not show Overall Status or Last Commit after displaying git status
 
+def show_history():
+    if not is_git_repo():
+        print_not_git_repo()
+        return
+
+    try:
+        print(f"\n{BLUE}Commit History:{ENDC}\n")
+        # Mostrar el historial de commits con formato más detallado
+        subprocess.run([
+            "git", "log",
+            "--pretty=format:%C(yellow)%h %C(blue)%ad%C(auto)%d %C(reset)%s %C(cyan)[%an]",
+            "--date=short",
+            "--graph",
+            "--all"
+        ], check=True)
+        print()
+    except Exception as e:
+        print(f"Error retrieving commit history: {e}")
+
 def show_menu_options():
     from .constants import show_menu
 
@@ -152,6 +171,7 @@ def show_menu_options():
         menu_options = [
             f"[v] {show_menu.GENERAL_VIEW.value}",
             f"[s] {show_menu.SHOW_STATUS.value}",
+            f"[h] {show_menu.SHOW_HISTORY.value}",
             "[x] Back to previous menu",
             "[q] Quit program"
         ]
@@ -177,9 +197,15 @@ def show_menu_options():
             clear_screen()
             continue
         elif menu_entry_index == 2:
+            show_history()
+            # Prevents returning to the "Show" menu which would display the "Overall Status" again
+            input(f"{GREEN}Press Enter to return to the menu...{ENDC}")
+            clear_screen()
+            continue
+        elif menu_entry_index == 3:
             clear_screen()
             break
-        elif menu_entry_index == 3:
+        elif menu_entry_index == 4:
             quit()
         else:
             print("Invalid option. Please try again.")

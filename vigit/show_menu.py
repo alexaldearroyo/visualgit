@@ -472,6 +472,53 @@ def show_local_repo(ask_for_enter=True):
             print(f"{GREEN}Press any key to return to the menu...{ENDC}")
             get_single_keypress()
 
+def show_remote_repo(ask_for_enter=True):
+    """Muestra información sobre los repositorios remotos"""
+    if not is_git_repo():
+        print_not_git_repo()
+        return
+
+    try:
+        print(f"\n{BLUE}Remote Repository Information:{ENDC}")
+
+        # Obtener información detallada del remoto
+        remote_info = subprocess.run(
+            ["git", "remote", "-v"],
+            capture_output=True,
+            text=True
+        ).stdout.strip()
+
+        # Obtener todas las ramas remotas
+        remote_branches = subprocess.run(
+            ["git", "branch", "-r", "--color=always"],
+            capture_output=True,
+            text=True
+        ).stdout.strip()
+
+        # Mostrar información del remoto
+        print(f"\n{YELLOW}Remote URLs:{ENDC}")
+        if remote_info:
+            print(remote_info)
+        else:
+            print("No remote repositories configured")
+
+        # Mostrar ramas remotas
+        print(f"\n{YELLOW}Remote Branches:{ENDC}")
+        if remote_branches:
+            print(remote_branches)
+        else:
+            print("No remote branches available")
+
+        print()
+        if ask_for_enter:
+            print(f"{GREEN}Press any key to return to the menu...{ENDC}")
+            get_single_keypress()
+    except Exception as e:
+        print(f"Error retrieving remote repository information: {e}")
+        if ask_for_enter:
+            print(f"{GREEN}Press any key to return to the menu...{ENDC}")
+            get_single_keypress()
+
 def show_differences():
     """Muestra el submenú de diferencias"""
     if not is_git_repo():
@@ -572,6 +619,7 @@ def show_menu_options():
             f"[d] {show_menu.SHOW_DIFFERENCES.value}",
             f"[h] {show_menu.SHOW_HISTORY.value}",
             f"[l] {show_menu.SHOW_LOCAL_REPO.value}",
+            f"[r] {show_menu.SHOW_REMOTE_REPO.value}",
             "[k] Back to previous menu",
             "[q] Quit program"
         ]
@@ -581,7 +629,7 @@ def show_menu_options():
             title=f"Please select an option:",
             menu_cursor=MENU_CURSOR,
             menu_cursor_style=MENU_CURSOR_STYLE,
-            accept_keys=("enter", "h", "g", "s", "d", "l", "k", "q", "H")
+            accept_keys=("enter", "h", "g", "s", "d", "l", "r", "k", "q", "H")
         )
         menu_entry_index = terminal_menu.show()
 
@@ -614,9 +662,13 @@ def show_menu_options():
             clear_screen()
             continue
         elif menu_entry_index == 5:
+            show_remote_repo()
+            clear_screen()
+            continue
+        elif menu_entry_index == 6:
             clear_screen()
             return
-        elif menu_entry_index == 6:
+        elif menu_entry_index == 7:
             quit()
         else:
             print("Invalid option. Please try again.")

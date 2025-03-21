@@ -350,20 +350,17 @@ def show_differences_history(ask_for_enter=True):
                 get_single_keypress()
             return
 
-        # Mostrar el historial de commits con diferencias y estadísticas usando --no-pager
+        # Comando completo usando subprocess.run con shell=True para mantener el pipeline
         subprocess.run([
-            "git", "--no-pager", "log",
+            "git", "log",
             "--color=always",
             "--stat",
             "-p",
             "--pretty=format:%C(white)$(printf '%.0s-' {1..30})%Creset%n%C(yellow)● %h%Creset%C(auto)%d%Creset%n%C(blue)► %C(white)%s%Creset %C(blue)| %C(cyan)%an%Creset %C(blue)| %C(magenta)%ad%Creset",
-            "--date=format:%Y-%m-%d %H:%M%n"
-        ], check=True)
+            "--date=format:%Y-%m-%d %H:%M%n | diff-so-fancy | less -R"
+        ], shell=True, check=True)
         print("\n")
 
-        if ask_for_enter:
-            print(f"\n{GREEN}Press any key to return to the menu...{ENDC}")
-            get_single_keypress()
     except Exception as e:
         print(f"{YELLOW}No differences history available.{ENDC}")
         if ask_for_enter:
@@ -392,9 +389,12 @@ def show_differences_non_staged(ask_for_enter=True):
                 get_single_keypress()
             return
 
-        # Usar la nueva función run_git_diff
-        run_git_diff()
-
+        # Ejecutar el comando git diff con diff-so-fancy
+        subprocess.run(
+            "git diff | diff-so-fancy",
+            shell=True,
+            check=True
+        )
         print()
         if ask_for_enter:
             print(f"{GREEN}Press any key to return to the menu...{ENDC}")
@@ -427,9 +427,12 @@ def show_differences_staged(ask_for_enter=True):
                 get_single_keypress()
             return
 
-        # Usar la nueva función run_git_diff con argumento --staged
-        run_git_diff(["--staged"])
-
+        # Ejecutar el comando git diff --staged con diff-so-fancy
+        subprocess.run(
+            "git diff --staged | diff-so-fancy",
+            shell=True,
+            check=True
+        )
         print()
         if ask_for_enter:
             print(f"{GREEN}Press any key to return to the menu...{ENDC}")
@@ -476,9 +479,12 @@ def show_differences_committed(ask_for_enter=True):
                 get_single_keypress()
             return
 
-        # Usar la nueva función run_git_diff con argumento HEAD
-        run_git_diff(["HEAD"])
-
+        # Ejecutar el comando git diff HEAD con diff-so-fancy
+        subprocess.run(
+            "git diff HEAD | diff-so-fancy",
+            shell=True,
+            check=True
+        )
         print()
         if ask_for_enter:
             print(f"{GREEN}Press any key to return to the menu...{ENDC}")
@@ -533,9 +539,12 @@ def show_differences_between_commits(ask_for_enter=True):
 
         print(f"\n{BLUE}Differences between commits {base_commit} and {compare_commit}:{ENDC}\n")
 
-        # Usar la nueva función run_git_diff con los commits seleccionados
-        run_git_diff([f"{base_commit}..{compare_commit}"])
-
+        # Ejecutar el comando para mostrar las diferencias entre los dos commits
+        subprocess.run(
+            f"git diff {base_commit}..{compare_commit} | diff-so-fancy",
+            shell=True,
+            check=True
+        )
         print()
         if ask_for_enter:
             print(f"{GREEN}Press any key to return to the menu...{ENDC}")
@@ -603,9 +612,12 @@ def show_differences_between_branches(ask_for_enter=True):
 
         print(f"\n{BLUE}Differences between branches {first_branch} and {second_branch}:{ENDC}\n")
 
-        # Usar la nueva función run_git_diff para comparar ramas
-        run_git_diff([f"{first_branch}..{second_branch}"])
-
+        # Ejecutar el comando para mostrar las diferencias entre las dos ramas
+        subprocess.run(
+            f"git diff {first_branch}..{second_branch} | diff-so-fancy",
+            shell=True,
+            check=True
+        )
         print()
         if ask_for_enter:
             print(f"{GREEN}Press any key to return to the menu...{ENDC}")

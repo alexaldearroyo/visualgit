@@ -504,9 +504,9 @@ def show_differences_between_commits(ask_for_enter=True):
     try:
         print(f"\n{BLUE}Select commits to compare differences:{ENDC}\n")
 
-        # Obtener lista de commits
+        # Obtener commits en color (últimos 10)
         result = subprocess.run(
-            ["git", "log", "--oneline"],
+            ["git", "--no-pager", "log", "--oneline", "--color", "--max-count=10"],
             capture_output=True,
             text=True
         )
@@ -518,41 +518,42 @@ def show_differences_between_commits(ask_for_enter=True):
                 get_single_keypress()
             return
 
-        # Mostrar lista de commits
         commits = result.stdout.strip().split("\n")
         commit_hashes = [commit.split()[0] for commit in commits]
 
-        print("Select base commit (older):")
+        print(f"{YELLOW}Recent commits:{ENDC}")
         for idx, commit in enumerate(commits):
             print(f"{idx + 1}. {commit}")
 
-        base_idx = int(input("\nEnter number: ")) - 1
+        print(f"\n{YELLOW}Select base commit (older):{ENDC}")
+        base_idx = int(input("Enter number: ")) - 1
         base_commit = commit_hashes[base_idx]
 
-        print("\nSelect compare commit (newer):")
+        print(f"\n{YELLOW}Select compare commit (newer):{ENDC}")
         for idx, commit in enumerate(commits):
             if idx != base_idx:
                 print(f"{idx + 1}. {commit}")
 
-        compare_idx = int(input("\nEnter number: ")) - 1
+        compare_idx = int(input("Enter number: ")) - 1
         compare_commit = commit_hashes[compare_idx]
 
         print(f"\n{BLUE}Differences between commits {base_commit} and {compare_commit}:{ENDC}\n")
 
-        # Ejecutar el comando para mostrar las diferencias entre los dos commits
         subprocess.run(
             f"git diff {base_commit}..{compare_commit} | diff-so-fancy",
             shell=True,
             check=True
         )
+
         print()
         if ask_for_enter:
             print(f"{GREEN}Press any key to return to the menu...{ENDC}")
             get_single_keypress()
+
     except Exception as e:
-        print(f"Error comparing commits: {e}")
+        print(f"{YELLOW}Error comparing commits: {e}{ENDC}")
         if ask_for_enter:
-            print(f"{GREEN}Press any key to return to the menu...{ENDC}")
+            print(f"\n{GREEN}Press any key to return to the menu...{ENDC}")
             get_single_keypress()
 
 def show_differences_between_branches(ask_for_enter=True):

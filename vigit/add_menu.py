@@ -115,7 +115,7 @@ def add_tracked_files(ask_for_enter=True):
             get_single_keypress()
 
 def add_expanded_files(ask_for_enter=True):
-    """Añade todos los archivos, incluidos los no rastreados, al índice de Git (git add --all)"""
+    """Muestra una lista expandida de archivos para seleccionarlos y añadirlos al índice"""
     if not is_git_repo():
         print_not_git_repo()
         return
@@ -123,16 +123,108 @@ def add_expanded_files(ask_for_enter=True):
     try:
         print(f"\n{BLUE}Add Expanded Files:{ENDC}")
 
-        # Ejecutar git add --all
-        print(f"\n{YELLOW}Adding all files, including untracked files...{ENDC}")
-        subprocess.run(["git", "add", "--all"], check=True)
-        print(f"\n{GREEN}All files have been added successfully.{ENDC}")
+        # Obtener archivos no rastreados
+        untracked_files = subprocess.run(
+            ["git", "ls-files", "--others", "--exclude-standard"],
+            capture_output=True,
+            text=True,
+            check=True
+        ).stdout.strip().split('\n')
 
-        # Mostrar qué archivos se han añadido
-        print(f"\n{BLUE}Added files:{ENDC}")
-        subprocess.run(["git", "status", "-s"], check=True)
+        # Obtener archivos modificados
+        modified_files = subprocess.run(
+            ["git", "ls-files", "--modified"],
+            capture_output=True,
+            text=True,
+            check=True
+        ).stdout.strip().split('\n')
 
-        # Solo mostrar mensaje y esperar tecla si se solicita explícitamente
+        # Obtener archivos eliminados
+        deleted_files = subprocess.run(
+            ["git", "ls-files", "--deleted"],
+            capture_output=True,
+            text=True,
+            check=True
+        ).stdout.strip().split('\n')
+
+        # Combinar y filtrar archivos vacíos con prefijos para indicar el estado
+        files_to_add = []
+        for f in modified_files:
+            if f:
+                files_to_add.append(f"[M] {f}")
+
+        for f in untracked_files:
+            if f:
+                files_to_add.append(f"[?] {f}")
+
+        for f in deleted_files:
+            if f:
+                files_to_add.append(f"[D] {f}")
+
+        if not files_to_add:
+            print(f"\n{YELLOW}No files to add. Working tree clean.{ENDC}")
+            if ask_for_enter:
+                print(f"\n{GREEN}Press any key to return to the menu...{ENDC}")
+                get_single_keypress()
+            return
+
+        # Mostrar lista de archivos para añadir
+        print(f"\n{YELLOW}Select files to add (space to select, enter to confirm):{ENDC}")
+        print(f"{BLUE}[M]{ENDC} - Modified, {BLUE}[?]{ENDC} - Untracked, {BLUE}[D]{ENDC} - Deleted\n")
+
+        # Preparar opciones de menú con archivos y opciones adicionales
+        menu_options = files_to_add + ["[Add all files]", "[Cancel]"]
+
+        terminal_menu = TerminalMenu(
+            menu_options,
+            title="",
+            menu_cursor=MENU_CURSOR,
+            menu_cursor_style=MENU_CURSOR_STYLE,
+            multi_select=True,
+            show_multi_select_hint=True,
+            clear_screen=False
+        )
+
+        selected_indices = terminal_menu.show()
+
+        # Si no se seleccionó nada o se seleccionó Cancelar
+        if not selected_indices or (len(selected_indices) == 1 and selected_indices[0] == len(menu_options) - 1):
+            print(f"\n{YELLOW}Operation cancelled. No files were added.{ENDC}")
+            if ask_for_enter:
+                print(f"\n{GREEN}Press any key to return to the menu...{ENDC}")
+                get_single_keypress()
+            return
+
+        # Si se seleccionó "Add all files"
+        if len(selected_indices) == 1 and selected_indices[0] == len(menu_options) - 2:
+            print(f"\n{YELLOW}Adding all files...{ENDC}")
+            subprocess.run(["git", "add", "."], check=True)
+            print(f"\n{GREEN}All files have been added successfully.{ENDC}")
+            if ask_for_enter:
+                print(f"\n{GREEN}Press any key to return to the menu...{ENDC}")
+                get_single_keypress()
+            return
+
+        # Procesar los archivos seleccionados (quita los prefijos [M]/[?]/[D])
+        selected_files = []
+        for idx in selected_indices:
+            if idx < len(files_to_add):
+                file_path = menu_options[idx][4:]  # Quitar los 4 primeros caracteres ([M] o [?] o [D] + espacio)
+                selected_files.append(file_path)
+
+        if selected_files:
+            print(f"\n{YELLOW}Adding selected files...{ENDC}")
+            for file_path in selected_files:
+                try:
+                    subprocess.run(["git", "add", file_path], check=True)
+                    print(f"{GREEN}Added: {file_path}{ENDC}")
+                except Exception as e:
+                    print(f"{RED}Error adding {file_path}: {e}{ENDC}")
+
+            print(f"\n{GREEN}Selected files have been added successfully.{ENDC}")
+        else:
+            print(f"\n{YELLOW}No files were selected to add.{ENDC}")
+
         if ask_for_enter:
             print(f"\n{GREEN}Press any key to return to the menu...{ENDC}")
             get_single_keypress()
@@ -420,33 +512,30 @@ def add_all_files(ask_for_enter=True):
         print(f"\n{BLUE}Add All Files:{ENDC}")
 
         # Verificar si hay archivos para añadir
-        untracked = subprocess.run(
-            ["git", "ls-files", "--others", "--exclude-standard"],
+        status = subprocess.run(
+            ["git", "status", "-s"],
             capture_output=True,
             text=True,
             check=True
         ).stdout.strip()
 
-        modified = subprocess.run(
-            ["git", "ls-files", "--modified"],
-            capture_output=True,
-            text=True,
-            check=True
-        ).stdout.strip()
-
-        if not untracked and not modified:
+        if not status:
             print(f"\n{YELLOW}No files to add. Working tree clean.{ENDC}")
             if ask_for_enter:
                 print(f"\n{GREEN}Press any key to return to the menu...{ENDC}")
                 get_single_keypress()
             return
 
-        # Añadir todos los archivos sin preguntar
+        # Mostrar archivos que se van a añadir
+        print(f"\n{BLUE}Files that will be added:{ENDC}")
+        subprocess.run(["git", "status", "-s"], check=True)
+
+        # Añadir todos los archivos
         print(f"\n{YELLOW}Adding all files...{ENDC}")
         subprocess.run(["git", "add", "."], check=True)
         print(f"\n{GREEN}All files have been added successfully.{ENDC}")
 
-        # Solo mostrar mensaje y esperar tecla si se solicita explícitamente
+        # Mostrar mensaje final y esperar que el usuario presione una tecla
         if ask_for_enter:
             print(f"\n{GREEN}Press any key to return to the menu...{ENDC}")
             get_single_keypress()

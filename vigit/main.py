@@ -17,13 +17,13 @@ from .constants import start_menu, main_menu, main_local_menu, main_remote_menu,
 from .checks import is_git_installed, is_git_repo, print_not_git_repo, current_branch, get_current_branch, is_current_branch_main
 from .menu import work_in_main, create_local_repo, commit_to_local_repo, commit_and_push, main_local, main_remote, create_remote_repo
 from .show_menu import show_menu_options, show_status_long, general_view, show_detailed_history, show_expanded_history, show_tracking_history, show_differences_history, show_local_repo, show_remote_repo, show_branches, show_differences_non_staged, show_differences_staged, show_differences_between_commits, show_differences_between_branches
-from .branx_local import go_to_branch, go_to_main, create_local_branch
+from .branx_local import go_to_branch, go_to_main, create_local_branch, create_branch_with_name, create_branch_and_switch
 from .branx_remote import commit_and_push_in_branch, push_changes_to_remote_branch, create_remote_branch
 from .branx_manage import merge_branches, manage_branches, merge_with_main, merge_with_selected_branch
 from .branx import work_in_branches
 from .advanced import advanced_operations
 from .config import configuration
-from .add_menu import add_menu_options, add_tracked_files, add_all_files
+from .add_menu import add_menu_options, add_tracked_files, add_all_files, add_expanded_files, add_local_repo, add_remote_repo, add_empty_repo
 from .local_menu import local_menu_options
 
 
@@ -33,14 +33,48 @@ def handle_args():
     # Create subparsers for different commands
     subparsers = parser.add_subparsers(dest='command', help='Available commands')
 
-    # Command: vg a (add repo)
-    add_parser = subparsers.add_parser('a', help='Quick action: Add a local repo')
+    # Command: vg a (add repo) - Ahora modificado para ser igual que aa
+    add_parser = subparsers.add_parser('a', help='Quick action: Add all files')
+
+    # Command: vg aa (add all files)
+    aa_parser = subparsers.add_parser('aa', help='Quick action: Add all files')
+
+    # Command: vg at (add tracked files)
+    at_parser = subparsers.add_parser('at', help='Quick action: Add tracked files')
+
+    # Command: vg t (igual que at)
+    t_parser = subparsers.add_parser('t', help='Quick action: Add tracked files (alias of at)')
+
+    # Command: vg ax (add expanded files)
+    ax_parser = subparsers.add_parser('ax', help='Quick action: Add expanded files')
 
     # Command: vg ar (add remote repo)
     ar_parser = subparsers.add_parser('ar', help='Quick action: Add repo to remote')
 
+    # Command: vg al (add local repo)
+    al_parser = subparsers.add_parser('al', help='Quick action: Add a local repo')
+
+    # Command: vg l (igual que al)
+    l_parser = subparsers.add_parser('l', help='Quick action: Add a local repo (alias of al)')
+
+    # Command: vg a0 (add empty repo)
+    a0_parser = subparsers.add_parser('a0', help='Quick action: Add empty repo')
+
     # Command: vg b (add-branch)
     b_parser = subparsers.add_parser('b', help='Quick action: Add a local branch')
+    b_parser.add_argument('branch_name', nargs='?', help='Name for the new branch')
+
+    # Command: vg ab (igual que b)
+    ab_parser = subparsers.add_parser('ab', help='Quick action: Add a local branch (alias of b)')
+    ab_parser.add_argument('branch_name', nargs='?', help='Name for the new branch')
+
+    # Command: vg bg (branch y go)
+    bg_parser = subparsers.add_parser('bg', help='Quick action: Create and switch to a new branch')
+    bg_parser.add_argument('branch_name', nargs='?', help='Name for the new branch')
+
+    # Command: vg abg (igual que bg)
+    abg_parser = subparsers.add_parser('abg', help='Quick action: Create and switch to a new branch (alias of bg)')
+    abg_parser.add_argument('branch_name', nargs='?', help='Name for the new branch')
 
     # Command: vg br (branch to remote)
     br_parser = subparsers.add_parser('br', help='Quick action: Create a branch directly on remote')
@@ -137,23 +171,14 @@ def handle_args():
     # Command: vg sl (local repo)
     sl_parser = subparsers.add_parser('sl', help='Quick action: Show local repo')
 
-    # Command: vg l (same as sl)
-    l_parser = subparsers.add_parser('l', help='Quick action: Show local repo (alias of sl)')
+    # Command: vg r (same as sr)
+    r_parser = subparsers.add_parser('r', help='Quick action: Show remote repo (alias of sr)')
 
     # Command: vg sr (remote repo)
     sr_parser = subparsers.add_parser('sr', help='Quick action: Show remote repo')
 
-    # Command: vg r (same as sr)
-    r_parser = subparsers.add_parser('r', help='Quick action: Show remote repo (alias of sr)')
-
     # Command: vg sb (branches)
     sb_parser = subparsers.add_parser('sb', help='Quick action: Show branches')
-
-    # Command: vg at (add tracked files)
-    at_parser = subparsers.add_parser('at', help='Quick action: Add tracked files')
-
-    # Command: vg aa (add all files)
-    aa_parser = subparsers.add_parser('aa', help='Quick action: Add all files')
 
     return parser.parse_args()
 
@@ -173,13 +198,41 @@ def main():
     # Handle subcommands
     if hasattr(args, 'command') and args.command:
         if args.command == 'a':
-            create_local_repo()
+            add_all_files(ask_for_enter=False)
             return
-        elif args.command == 'ar':
-            create_remote_repo()
+        elif args.command == 'aa':
+            add_all_files(ask_for_enter=False)
+            return
+        elif args.command == 'at':
+            add_tracked_files(ask_for_enter=False)
+            return
+        elif args.command == 't':
+            add_tracked_files(ask_for_enter=False)
+            return
+        elif args.command == 'ax':
+            add_expanded_files(ask_for_enter=False)
+            return
+        elif args.command == 'ab':
+            branch_name = getattr(args, 'branch_name', None)
+            if branch_name:
+                create_branch_with_name(branch_name)
+            else:
+                create_local_branch()
             return
         elif args.command == 'b':
-            create_local_branch()
+            branch_name = getattr(args, 'branch_name', None)
+            if branch_name:
+                create_branch_with_name(branch_name)
+            else:
+                create_local_branch()
+            return
+        elif args.command == 'bg':
+            branch_name = getattr(args, 'branch_name', None)
+            create_branch_and_switch(branch_name)
+            return
+        elif args.command == 'abg':
+            branch_name = getattr(args, 'branch_name', None)
+            create_branch_and_switch(branch_name)
             return
         elif args.command == 'br':
             create_remote_branch()
@@ -207,6 +260,18 @@ def main():
             return
         elif args.command == 'n':
             configuration()
+            return
+        elif args.command == 'al':
+            add_local_repo(ask_for_enter=False)
+            return
+        elif args.command == 'l':
+            add_local_repo(ask_for_enter=False)
+            return
+        elif args.command == 'ar':
+            add_remote_repo(ask_for_enter=False)
+            return
+        elif args.command == 'a0':
+            add_empty_repo(ask_for_enter=False)
             return
         elif args.command == 's' or args.command == 'ss':
             show_status_long()
@@ -238,7 +303,7 @@ def main():
         elif args.command == 'shd' or args.command == 'hd':
             show_differences_history(ask_for_enter=False)
             return
-        elif args.command == 'sl' or args.command == 'l':
+        elif args.command == 'sl':
             show_local_repo(ask_for_enter=False)
             return
         elif args.command == 'sr' or args.command == 'r':
@@ -246,12 +311,6 @@ def main():
             return
         elif args.command == 'sb':
             show_branches(ask_for_enter=False)
-            return
-        elif args.command == 'at':
-            add_tracked_files(ask_for_enter=False)
-            return
-        elif args.command == 'aa':
-            add_all_files(ask_for_enter=False)
             return
 
     if not is_git_installed():

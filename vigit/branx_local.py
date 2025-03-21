@@ -1,9 +1,10 @@
 import subprocess
 import os
 from simple_term_menu import TerminalMenu
-from .utils import BG_BLUE, YELLOW, GREEN, ENDC, BOLD, BG_PURPLE, BLACK_TEXT, WHITE_TEXT
+from .utils import BLUE, GREEN, ENDC, YELLOW, RED, WHITE, BG_BLUE, BOLD, BG_PURPLE, BLACK_TEXT
 from .constants import branch_local_menu, MENU_CURSOR, MENU_CURSOR_STYLE
-from .checks import is_git_repo, print_not_git_repo, current_branch, has_commits, print_not_commits
+from .checks import is_git_repo, print_not_git_repo, has_commits, print_not_commits, current_branch
+from .show_menu import get_single_keypress
 
 def clear_screen():
     os.system('cls' if os.name == 'nt' else 'clear')
@@ -73,19 +74,134 @@ def check_local_branches():
         print(f"Error displaying local branches: {e}")
 
 def create_local_branch():
+    """Crea una nueva rama local y opcionalmente se mueve a ella"""
     if not is_git_repo():
         print_not_git_repo()
         return
-    elif not has_commits():
-        print_not_commits()
+
+    try:
+        print(f"\n{BLUE}Add Local Branch:{ENDC}")
+
+        # Obtener las ramas actuales para mostrarlas como referencia
+        current_branch = subprocess.run(
+            ["git", "--no-pager","branch", "--show-current"],
+            capture_output=True,
+            text=True,
+            check=True
+        ).stdout.strip()
+
+        print(f"\n{YELLOW}Current branch: {current_branch}{ENDC}")
+
+        print(f"\n{BLUE}Existing branches:{ENDC}")
+        subprocess.run(["git", "--no-pager", "branch", "--color=always"], check=True)
+
+        # Solicitar el nombre de la nueva rama
+        print(f"\n{YELLOW}Enter the name for the new branch (leave empty to cancel):{ENDC}")
+        branch_name = input("> ").strip()
+
+        if not branch_name:
+            print(f"\n{YELLOW}Operation cancelled.{ENDC}")
+            return
+
+        return create_branch_with_name(branch_name)
+
+    except Exception as e:
+        print(f"Error creating branch: {e}")
+
+def create_branch_with_name(branch_name, switch_to_branch=False):
+    """Crea una nueva rama local con el nombre especificado y opcionalmente se mueve a ella"""
+    if not is_git_repo():
+        print_not_git_repo()
+        return False
+
+    try:
+        # Verificar si la rama ya existe
+        existing_branches = subprocess.run(
+            ["git", "branch"],
+            capture_output=True,
+            text=True,
+            check=True
+        ).stdout
+
+        branch_exists = any(line.strip().replace("*", "").strip() == branch_name for line in existing_branches.split('\n') if line)
+
+        if branch_exists:
+            print(f"\n{RED}A branch with the name '{branch_name}' already exists.{ENDC}")
+            return False
+
+        # Obtener la rama actual para informar
+        current_branch = subprocess.run(
+            ["git", "--no-pager","branch", "--show-current"],
+            capture_output=True,
+            text=True,
+            check=True
+        ).stdout.strip()
+
+        # Crear la nueva rama
+        print(f"\n{YELLOW}Creating new branch: {branch_name}...{ENDC}")
+        subprocess.run(["git", "branch", branch_name], check=True)
+        print(f"\n{GREEN}Branch '{branch_name}' created successfully.{ENDC}")
+
+        # Cambiar automáticamente a la rama o preguntar según el parámetro
+        if switch_to_branch:
+            print(f"\n{YELLOW}Switching to branch: {branch_name}...{ENDC}")
+            subprocess.run(["git", "checkout", branch_name], check=True)
+            print(f"\n{GREEN}Switched to branch '{branch_name}' successfully.{ENDC}")
+            return True
+        else:
+            # Preguntar si quiere moverse a la nueva rama
+            print(f"\n{YELLOW}Do you want to switch to the new branch '{branch_name}'? (y/n):{ENDC}")
+            switch_choice = get_single_keypress().lower()
+
+            if switch_choice == 'y':
+                print(f"\n{YELLOW}Switching to branch: {branch_name}...{ENDC}")
+                subprocess.run(["git", "checkout", branch_name], check=True)
+                print(f"\n{GREEN}Switched to branch '{branch_name}' successfully.{ENDC}")
+                return True
+            else:
+                print(f"\n{YELLOW}Staying on current branch: {current_branch}{ENDC}")
+                return True
+
+    except Exception as e:
+        print(f"Error creating branch: {e}")
+        return False
+
+def create_branch_and_switch(branch_name=None):
+    """Crea una nueva rama local y cambia automáticamente a ella"""
+    if not is_git_repo():
+        print_not_git_repo()
         return
 
-    branch_name = input("Enter the name of the new branch: ")
     try:
-        subprocess.run(["git", "branch", branch_name])
-        print(f"Branch {branch_name} created successfully.")
+        if not branch_name:
+            print(f"\n{BLUE}Create Branch and Switch:{ENDC}")
+
+            # Obtener las ramas actuales para mostrarlas como referencia
+            current_branch = subprocess.run(
+                ["git", "--no-pager","branch", "--show-current"],
+                capture_output=True,
+                text=True,
+                check=True
+            ).stdout.strip()
+
+            print(f"\n{YELLOW}Current branch: {current_branch}{ENDC}")
+
+            print(f"\n{BLUE}Existing branches:{ENDC}")
+            subprocess.run(["git", "--no-pager", "branch", "--color=always"], check=True)
+
+            # Solicitar el nombre de la nueva rama
+            print(f"\n{YELLOW}Enter the name for the new branch (leave empty to cancel):{ENDC}")
+            branch_name = input("> ").strip()
+
+            if not branch_name:
+                print(f"\n{YELLOW}Operation cancelled.{ENDC}")
+                return
+
+        return create_branch_with_name(branch_name, switch_to_branch=True)
+
     except Exception as e:
-        print(f"Error creating branch {branch_name}: {e}")
+        print(f"Error creating and switching to branch: {e}")
+        return False
 
 def go_to_branch():
     if not is_git_repo():

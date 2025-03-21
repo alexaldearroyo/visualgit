@@ -131,6 +131,21 @@ def show_tracking_history(ask_for_enter=True):
 
     try:
         print(f"\n{BLUE}Tracking History of modified files:{ENDC}\n")
+
+        # Verificar si hay commits antes de intentar mostrar el historial
+        has_commits = subprocess.run(
+            ["git", "rev-parse", "--verify", "HEAD"],
+            capture_output=True,
+            text=True
+        ).returncode == 0
+
+        if not has_commits:
+            print(f"{YELLOW}No commits yet in this repository.{ENDC}")
+            if ask_for_enter:
+                print(f"\n{GREEN}Press any key to return to the menu...{ENDC}")
+                get_single_keypress()
+            return
+
         # Mostrar el historial de commits con estadísticas de archivos modificados
         subprocess.run([
             "git", "log",
@@ -142,7 +157,10 @@ def show_tracking_history(ask_for_enter=True):
         ], check=True)
         print()
     except Exception as e:
-        print(f"Error retrieving tracking history: {e}")
+        print(f"{YELLOW}No tracking history available.{ENDC}")
+        if ask_for_enter:
+            print(f"\n{GREEN}Press any key to return to the menu...{ENDC}")
+            get_single_keypress()
 
 def show_history():
     if not is_git_repo():
@@ -212,6 +230,21 @@ def show_expanded_history(ask_for_enter=True):
 
     try:
         print(f"\n{BLUE}Expanded Commit History:{ENDC}\n")
+
+        # Verificar si hay commits antes de intentar mostrar el historial
+        has_commits = subprocess.run(
+            ["git", "rev-parse", "--verify", "HEAD"],
+            capture_output=True,
+            text=True
+        ).returncode == 0
+
+        if not has_commits:
+            print(f"{YELLOW}No commits yet in this repository.{ENDC}")
+            if ask_for_enter:
+                print(f"\n{GREEN}Press any key to return to the menu...{ENDC}")
+                get_single_keypress()
+            return
+
         # Mostrar el historial de commits con formato gráfico expandido
         subprocess.run([
             "git", "log",
@@ -223,7 +256,10 @@ def show_expanded_history(ask_for_enter=True):
         ], check=True)
         print()
     except Exception as e:
-        print(f"Error retrieving expanded commit history: {e}")
+        print(f"{YELLOW}No expanded commit history available.{ENDC}")
+        if ask_for_enter:
+            print(f"\n{GREEN}Press any key to return to the menu...{ENDC}")
+            get_single_keypress()
 
 def show_detailed_history(ask_for_enter=True):
     """Muestra un historial detallado de commits en orden cronológico"""
@@ -233,6 +269,21 @@ def show_detailed_history(ask_for_enter=True):
 
     try:
         print(f"\n{BLUE}Detailed Commit History:{ENDC}\n")
+
+        # Verificar si hay commits antes de intentar mostrar el historial
+        has_commits = subprocess.run(
+            ["git", "rev-parse", "--verify", "HEAD"],
+            capture_output=True,
+            text=True
+        ).returncode == 0
+
+        if not has_commits:
+            print(f"{YELLOW}No commits yet in this repository.{ENDC}")
+            if ask_for_enter:
+                print(f"\n{GREEN}Press any key to return to the menu...{ENDC}")
+                get_single_keypress()
+            return
+
         # Mostrar el historial de commits con el formato específico
         subprocess.run([
             "git", "--no-pager", "log",
@@ -244,7 +295,10 @@ def show_detailed_history(ask_for_enter=True):
         ], check=True)
         print("\n")
     except Exception as e:
-        print(f"Error retrieving detailed commit history: {e}")
+        print(f"{YELLOW}No commit history available.{ENDC}")
+        if ask_for_enter:
+            print(f"\n{GREEN}Press any key to return to the menu...{ENDC}")
+            get_single_keypress()
 
 def show_differences_history(ask_for_enter=True):
     """Muestra un historial detallado de commits con diferencias y estadísticas"""
@@ -254,6 +308,21 @@ def show_differences_history(ask_for_enter=True):
 
     try:
         print(f"\n{BLUE}Differences History of Commits:{ENDC}\n")
+
+        # Verificar si hay commits antes de intentar mostrar el historial
+        has_commits = subprocess.run(
+            ["git", "rev-parse", "--verify", "HEAD"],
+            capture_output=True,
+            text=True
+        ).returncode == 0
+
+        if not has_commits:
+            print(f"{YELLOW}No commits yet in this repository.{ENDC}")
+            if ask_for_enter:
+                print(f"\n{GREEN}Press any key to return to the menu...{ENDC}")
+                get_single_keypress()
+            return
+
         # Comando completo usando subprocess.run con shell=True para mantener el pipeline
         subprocess.run(
             "git log --color=always --stat -p --pretty=format:\"%C(white)$(printf '%.0s-' {1..30})%Creset%n%C(yellow)● %h%Creset%C(auto)%d%Creset%n%C(blue)► %C(white)%s%Creset %C(blue)| %C(cyan)%an%Creset %C(blue)| %C(magenta)%ad%Creset\" --date=format:'%Y-%m-%d %H:%M%n' | diff-so-fancy | less -R",
@@ -262,7 +331,10 @@ def show_differences_history(ask_for_enter=True):
         )
         print("\n")
     except Exception as e:
-        print(f"Error retrieving differences commit history: {e}")
+        print(f"{YELLOW}No differences history available.{ENDC}")
+        if ask_for_enter:
+            print(f"\n{GREEN}Press any key to return to the menu...{ENDC}")
+            get_single_keypress()
 
 def show_differences_non_staged(ask_for_enter=True):
     """Muestra las diferencias de los archivos no staged"""
@@ -272,6 +344,20 @@ def show_differences_non_staged(ask_for_enter=True):
 
     try:
         print(f"\n{BLUE}Differences of non staged files:{ENDC}\n")
+
+        # Verificar si hay diferencias no staged
+        has_differences = subprocess.run(
+            ["git", "diff", "--quiet"],
+            capture_output=True
+        ).returncode != 0
+
+        if not has_differences:
+            print(f"{YELLOW}No differences found. Working tree clean.{ENDC}")
+            if ask_for_enter:
+                print(f"\n{GREEN}Press any key to return to the menu...{ENDC}")
+                get_single_keypress()
+            return
+
         # Ejecutar el comando git diff con diff-so-fancy
         subprocess.run(
             "git diff | diff-so-fancy",
@@ -296,6 +382,20 @@ def show_differences_staged(ask_for_enter=True):
 
     try:
         print(f"\n{BLUE}Differences of Added files:{ENDC}\n")
+
+        # Verificar si hay diferencias staged
+        has_differences = subprocess.run(
+            ["git", "diff", "--staged", "--quiet"],
+            capture_output=True
+        ).returncode != 0
+
+        if not has_differences:
+            print(f"{YELLOW}No staged differences found. No files have been added.{ENDC}")
+            if ask_for_enter:
+                print(f"\n{GREEN}Press any key to return to the menu...{ENDC}")
+                get_single_keypress()
+            return
+
         # Ejecutar el comando git diff --staged con diff-so-fancy
         subprocess.run(
             "git diff --staged | diff-so-fancy",
@@ -320,6 +420,34 @@ def show_differences_committed(ask_for_enter=True):
 
     try:
         print(f"\n{BLUE}Differences with HEAD:{ENDC}\n")
+
+        # Verificar si hay commits
+        has_commits = subprocess.run(
+            ["git", "rev-parse", "--verify", "HEAD"],
+            capture_output=True,
+            text=True
+        ).returncode == 0
+
+        if not has_commits:
+            print(f"{YELLOW}No commits yet in this repository. Cannot compare with HEAD.{ENDC}")
+            if ask_for_enter:
+                print(f"\n{GREEN}Press any key to return to the menu...{ENDC}")
+                get_single_keypress()
+            return
+
+        # Verificar si hay diferencias con HEAD
+        has_differences = subprocess.run(
+            ["git", "diff", "HEAD", "--quiet"],
+            capture_output=True
+        ).returncode != 0
+
+        if not has_differences:
+            print(f"{YELLOW}No differences with HEAD found. Working tree matches the last commit.{ENDC}")
+            if ask_for_enter:
+                print(f"\n{GREEN}Press any key to return to the menu...{ENDC}")
+                get_single_keypress()
+            return
+
         # Ejecutar el comando git diff HEAD con diff-so-fancy
         subprocess.run(
             "git diff HEAD | diff-so-fancy",
@@ -343,8 +471,21 @@ def show_differences_between_commits(ask_for_enter=True):
         return
 
     try:
-        # Obtener la lista de commits recientes para elegir
         print(f"\n{BLUE}Select commits to compare differences:{ENDC}\n")
+
+        # Verificar si hay commits antes de intentar mostrar el historial
+        has_commits = subprocess.run(
+            ["git", "rev-parse", "--verify", "HEAD"],
+            capture_output=True,
+            text=True
+        ).returncode == 0
+
+        if not has_commits:
+            print(f"{YELLOW}No commits yet in this repository. Cannot compare differences between commits.{ENDC}")
+            if ask_for_enter:
+                print(f"\n{GREEN}Press any key to return to the menu...{ENDC}")
+                get_single_keypress()
+            return
 
         # Mostrar los commits recientes para referencia
         print(f"{YELLOW}Recent commits:{ENDC}")
@@ -380,9 +521,9 @@ def show_differences_between_commits(ask_for_enter=True):
             print(f"{GREEN}Press any key to return to the menu...{ENDC}")
             get_single_keypress()
     except Exception as e:
-        print(f"Error retrieving commit differences: {e}")
+        print(f"{YELLOW}Error comparing commits: {e}{ENDC}")
         if ask_for_enter:
-            print(f"{GREEN}Press any key to return to the menu...{ENDC}")
+            print(f"\n{GREEN}Press any key to return to the menu...{ENDC}")
             get_single_keypress()
 
 def show_differences_between_branches(ask_for_enter=True):
@@ -392,8 +533,21 @@ def show_differences_between_branches(ask_for_enter=True):
         return
 
     try:
-        # Obtener la lista de ramas para elegir
         print(f"\n{BLUE}Select branches to compare differences:{ENDC}\n")
+
+        # Verificar si hay commits antes de intentar mostrar el historial
+        has_commits = subprocess.run(
+            ["git", "rev-parse", "--verify", "HEAD"],
+            capture_output=True,
+            text=True
+        ).returncode == 0
+
+        if not has_commits:
+            print(f"{YELLOW}No commits yet in this repository. Cannot compare differences between branches.{ENDC}")
+            if ask_for_enter:
+                print(f"\n{GREEN}Press any key to return to the menu...{ENDC}")
+                get_single_keypress()
+            return
 
         # Mostrar todas las ramas (locales y remotas) para referencia
         print(f"{YELLOW}Local branches:{ENDC}")
@@ -436,9 +590,9 @@ def show_differences_between_branches(ask_for_enter=True):
             print(f"{GREEN}Press any key to return to the menu...{ENDC}")
             get_single_keypress()
     except Exception as e:
-        print(f"Error retrieving branch differences: {e}")
+        print(f"{YELLOW}Error comparing branches: {e}{ENDC}")
         if ask_for_enter:
-            print(f"{GREEN}Press any key to return to the menu...{ENDC}")
+            print(f"\n{GREEN}Press any key to return to the menu...{ENDC}")
             get_single_keypress()
 
 def show_local_repo(ask_for_enter=True):
@@ -718,20 +872,33 @@ def show_menu_options():
         # Obtener el último commit si es un repositorio git
         if is_git_repo():
             try:
-                result = subprocess.run(
-                    ["git", "log", "-1", "--pretty=format:%C(yellow)● %h %C(blue)► %C(white)%s %C(magenta)(%cr)", "--color=always"],
+                # Primero verificar si hay commits
+                has_commits = subprocess.run(
+                    ["git", "rev-parse", "--verify", "HEAD"],
                     capture_output=True,
-                    text=True,
-                    check=True
-                )
-                last_commit = result.stdout.strip()
+                    text=True
+                ).returncode == 0
 
-                if last_commit:
-                    print(f"\n{BLUE}Last Commit:{ENDC}")
-                    print(last_commit)
-                    print()  # Añadir línea en blanco después del commit
+                if has_commits:
+                    result = subprocess.run(
+                        ["git", "log", "-1", "--pretty=format:%C(yellow)● %h %C(blue)► %C(white)%s %C(magenta)(%cr)", "--color=always"],
+                        capture_output=True,
+                        text=True,
+                        check=True
+                    )
+                    last_commit = result.stdout.strip()
+
+                    if last_commit:
+                        print(f"\n{BLUE}Last Commit:{ENDC}")
+                        print(last_commit)
+                        print()  # Añadir línea en blanco después del commit
+                else:
+                    print(f"\n{YELLOW}No commits yet in this repository.{ENDC}")
+                    print()  # Añadir línea en blanco
             except Exception as e:
-                print(f"Error getting last commit: {e}")
+                # No mostrar el error, solo manejar silenciosamente esta situación
+                print(f"\n{YELLOW}No commit history available.{ENDC}")
+                print()  # Añadir línea en blanco
 
         menu_options = [
             f"[v] {show_menu.GENERAL_VIEW.value}",

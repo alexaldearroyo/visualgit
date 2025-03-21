@@ -487,20 +487,33 @@ def add_menu_options():
 
             # Obtener el último commit
             try:
-                result = subprocess.run(
-                    ["git", "log", "-1", "--pretty=format:%C(yellow)● %h %C(blue)► %C(white)%s %C(magenta)(%cr)", "--color=always"],
+                # Primero verificar si hay commits
+                has_commits = subprocess.run(
+                    ["git", "rev-parse", "--verify", "HEAD"],
                     capture_output=True,
-                    text=True,
-                    check=True
-                )
-                last_commit = result.stdout.strip()
+                    text=True
+                ).returncode == 0
 
-                if last_commit:
-                    print(f"\n{BLUE}Last Commit:{ENDC}")
-                    print(last_commit)
-                    print()  # Añadir línea en blanco después del commit
+                if has_commits:
+                    result = subprocess.run(
+                        ["git", "log", "-1", "--pretty=format:%C(yellow)● %h %C(blue)► %C(white)%s %C(magenta)(%cr)", "--color=always"],
+                        capture_output=True,
+                        text=True,
+                        check=True
+                    )
+                    last_commit = result.stdout.strip()
+
+                    if last_commit:
+                        print(f"\n{BLUE}Last Commit:{ENDC}")
+                        print(last_commit)
+                        print()  # Añadir línea en blanco después del commit
+                else:
+                    print(f"\n{YELLOW}No commits yet in this repository.{ENDC}")
+                    print()  # Añadir línea en blanco
             except Exception as e:
-                print(f"Error getting last commit: {e}")
+                # No mostrar el error, solo manejar silenciosamente esta situación
+                print(f"\n{YELLOW}No commit history available.{ENDC}")
+                print()  # Añadir línea en blanco
         else:
             # Mensaje amigable para indicar que no estamos en un repositorio
             print(f"\n{YELLOW}Not in a Git repository. You can create one with 'Add Local Repo'.{ENDC}\n")

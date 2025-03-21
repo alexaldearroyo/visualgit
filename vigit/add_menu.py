@@ -8,6 +8,7 @@ from .utils import GREEN, ENDC, BLUE, RED, YELLOW
 from .constants import add_menu, MENU_CURSOR, MENU_CURSOR_STYLE
 from .checks import is_git_repo, print_not_git_repo
 from .github_ops import create_github_repository, get_github_token, get_github_username
+from .branx_local import create_branch_with_name
 
 def get_single_keypress():
     """Captura un solo carácter del usuario sin necesidad de presionar Enter."""
@@ -253,8 +254,60 @@ def add_local_branch(ask_for_enter=False):
 
         print(f"\n{YELLOW}Current branch: {current_branch}{ENDC}")
 
-        print(f"\n{BLUE}Existing branches:{ENDC}")
-        subprocess.run(["git", "--no-pager", "branch", "--color=always"], check=True)
+        # Verificar si hay commits en el repositorio ANTES de pedir el nombre de la rama
+        has_any_commits = subprocess.run(
+            ["git", "rev-parse", "--verify", "HEAD"],
+            capture_output=True,
+            text=True
+        ).returncode == 0
+
+        if not has_any_commits:
+            print(f"\n{YELLOW}No hay commits en este repositorio. No se puede crear una rama sin un commit inicial.{ENDC}")
+            print(f"\n{BLUE}¿Desea crear un commit inicial ahora? (y/n):{ENDC}")
+            choice = get_single_keypress().lower()
+
+            if choice == 'y':
+                # Verificar si hay archivos para añadir
+                status = subprocess.run(
+                    ["git", "status", "-s"],
+                    capture_output=True,
+                    text=True
+                ).stdout.strip()
+
+                if not status:
+                    # No hay archivos para añadir, crear archivo README
+                    print(f"\n{YELLOW}No hay archivos para añadir. Creando archivo README.md...{ENDC}")
+                    with open("README.md", "w") as f:
+                        f.write("# Repositorio\n\nRepositorio creado por VisualGit.")
+
+                    print(f"\n{GREEN}Archivo README.md creado.{ENDC}")
+
+                # Añadir todos los archivos
+                print(f"\n{YELLOW}Añadiendo archivos al repositorio...{ENDC}")
+                subprocess.run(["git", "add", "."], check=True)
+
+                # Solicitar mensaje de commit o usar uno predeterminado
+                print(f"\n{YELLOW}Ingrese un mensaje para el commit inicial (deje vacío para usar 'Initial commit'):{ENDC}")
+                commit_msg = input("> ").strip()
+                if not commit_msg:
+                    commit_msg = "Initial commit"
+
+                # Hacer commit
+                print(f"\n{YELLOW}Creando commit inicial...{ENDC}")
+                subprocess.run(["git", "commit", "-m", commit_msg], check=True)
+
+                print(f"\n{GREEN}Commit inicial creado exitosamente.{ENDC}")
+
+                # Actualizar el estado
+                has_any_commits = True
+            else:
+                print(f"\n{YELLOW}Operación cancelada. Cree un commit antes de intentar crear una rama.{ENDC}")
+                return
+
+        # Mostrar ramas existentes solo si hay commits
+        if has_any_commits:
+            print(f"\n{BLUE}Existing branches:{ENDC}")
+            subprocess.run(["git", "--no-pager", "branch", "--color=always"], check=True)
 
         # Solicitar el nombre de la nueva rama
         print(f"\n{YELLOW}Enter the name for the new branch (leave empty to cancel):{ENDC}")
@@ -264,35 +317,9 @@ def add_local_branch(ask_for_enter=False):
             print(f"\n{YELLOW}Operation cancelled.{ENDC}")
             return
 
-        # Verificar si la rama ya existe
-        existing_branches = subprocess.run(
-            ["git", "branch"],
-            capture_output=True,
-            text=True,
-            check=True
-        ).stdout
-
-        branch_exists = any(line.strip().replace("*", "").strip() == branch_name for line in existing_branches.split('\n') if line)
-
-        if branch_exists:
-            print(f"\n{RED}A branch with the name '{branch_name}' already exists.{ENDC}")
-            return
-
-        # Crear la nueva rama
-        print(f"\n{YELLOW}Creating new branch: {branch_name}...{ENDC}")
-        subprocess.run(["git", "branch", branch_name], check=True)
-        print(f"\n{GREEN}Branch '{branch_name}' created successfully.{ENDC}")
-
-        # Preguntar si quiere moverse a la nueva rama
-        print(f"\n{YELLOW}Do you want to switch to the new branch '{branch_name}'? (y/n):{ENDC}")
-        switch_choice = get_single_keypress().lower()
-
-        if switch_choice == 'y':
-            print(f"\n{YELLOW}Switching to branch: {branch_name}...{ENDC}")
-            subprocess.run(["git", "checkout", branch_name], check=True)
-            print(f"\n{GREEN}Switched to branch '{branch_name}' successfully.{ENDC}")
-        else:
-            print(f"\n{YELLOW}Staying on current branch: {current_branch}{ENDC}")
+        # Usar la función create_branch_with_name pero sin volver a verificar commits
+        # ya que lo hicimos anteriormente
+        create_branch_with_name(branch_name, check_commits=False)
 
     except Exception as e:
         print(f"Error creating branch: {e}")

@@ -22,6 +22,25 @@ fi
 # Instalar dependencias
 pip3 install simple_term_menu requests
 
+# Verificar si diff-so-fancy está instalado
+if ! command -v diff-so-fancy &> /dev/null; then
+   echo "diff-so-fancy no está instalado. Intentando instalar..."
+
+   if command -v npm &> /dev/null; then
+      echo "Instalando diff-so-fancy usando npm..."
+      npm install -g diff-so-fancy
+   elif command -v brew &> /dev/null; then
+      echo "Instalando diff-so-fancy usando brew..."
+      brew install diff-so-fancy
+   else
+      echo "No se pudo instalar diff-so-fancy automáticamente."
+      echo "Se recomienda instalarlo manualmente para mejorar la visualización de diferencias."
+      echo "Instrucciones en: https://github.com/so-fancy/diff-so-fancy"
+   fi
+else
+   echo "diff-so-fancy ya está instalado."
+fi
+
 # Crear el directorio de la aplicación
 INSTALL_DIR="/usr/local/lib/visualgit"
 mkdir -p $INSTALL_DIR

@@ -5,7 +5,7 @@ import tty
 import re
 
 from simple_term_menu import TerminalMenu
-from .utils import DARK_BLUE, GREEN, ENDC, BLUE, ORANGE, RED, WHITE, YELLOW
+from .utils import DARK_BLUE, GREEN, ENDC, BLUE, ORANGE, RED, WHITE, YELLOW, BOLD, UNDERLINE, global_menu, quit, invalid_opt, run_git_diff
 from .constants import show_menu, MENU_CURSOR, MENU_CURSOR_STYLE, history_menu, differences_menu
 from .checks import is_git_repo, print_not_git_repo
 
@@ -392,11 +392,9 @@ def show_differences_non_staged(ask_for_enter=True):
                 get_single_keypress()
             return
 
-        # Ejecutar el comando git diff usando --no-pager
-        subprocess.run([
-            "git", "--no-pager", "diff",
-            "--color=always"
-        ], check=True)
+        # Usar la nueva función run_git_diff
+        run_git_diff()
+
         print()
         if ask_for_enter:
             print(f"{GREEN}Press any key to return to the menu...{ENDC}")
@@ -408,7 +406,7 @@ def show_differences_non_staged(ask_for_enter=True):
             get_single_keypress()
 
 def show_differences_staged(ask_for_enter=True):
-    """Muestra las diferencias de los archivos staged (añadidos)"""
+    """Muestra las diferencias de los archivos staged"""
     if not is_git_repo():
         print_not_git_repo()
         return
@@ -429,12 +427,9 @@ def show_differences_staged(ask_for_enter=True):
                 get_single_keypress()
             return
 
-        # Ejecutar el comando git diff --staged usando --no-pager
-        subprocess.run([
-            "git", "--no-pager", "diff",
-            "--staged",
-            "--color=always"
-        ], check=True)
+        # Usar la nueva función run_git_diff con argumento --staged
+        run_git_diff(["--staged"])
+
         print()
         if ask_for_enter:
             print(f"{GREEN}Press any key to return to the menu...{ENDC}")
@@ -446,7 +441,7 @@ def show_differences_staged(ask_for_enter=True):
             get_single_keypress()
 
 def show_differences_committed(ask_for_enter=True):
-    """Muestra las diferencias del directorio de trabajo respecto al último commit (HEAD)"""
+    """Muestra las diferencias con HEAD"""
     if not is_git_repo():
         print_not_git_repo()
         return
@@ -454,14 +449,14 @@ def show_differences_committed(ask_for_enter=True):
     try:
         print(f"\n{BLUE}Differences with HEAD:{ENDC}\n")
 
-        # Verificar si hay commits
-        has_commits = subprocess.run(
-            ["git", "rev-parse", "--verify", "HEAD"],
+        # Verificar si el repo está vacío (sin commits)
+        is_empty_repo = subprocess.run(
+            ["git", "rev-parse", "HEAD"],
             capture_output=True,
             text=True
-        ).returncode == 0
+        ).returncode != 0
 
-        if not has_commits:
+        if is_empty_repo:
             print(f"{YELLOW}No commits yet in this repository. Cannot compare with HEAD.{ENDC}")
             if ask_for_enter:
                 print(f"\n{GREEN}Press any key to return to the menu...{ENDC}")
@@ -481,12 +476,9 @@ def show_differences_committed(ask_for_enter=True):
                 get_single_keypress()
             return
 
-        # Ejecutar el comando git diff HEAD usando --no-pager
-        subprocess.run([
-            "git", "--no-pager", "diff",
-            "HEAD",
-            "--color=always"
-        ], check=True)
+        # Usar la nueva función run_git_diff con argumento HEAD
+        run_git_diff(["HEAD"])
+
         print()
         if ask_for_enter:
             print(f"{GREEN}Press any key to return to the menu...{ENDC}")
@@ -498,7 +490,7 @@ def show_differences_committed(ask_for_enter=True):
             get_single_keypress()
 
 def show_differences_between_commits(ask_for_enter=True):
-    """Muestra las diferencias entre dos commits"""
+    """Muestra las diferencias entre dos commits seleccionados"""
     if not is_git_repo():
         print_not_git_repo()
         return
@@ -506,61 +498,56 @@ def show_differences_between_commits(ask_for_enter=True):
     try:
         print(f"\n{BLUE}Select commits to compare differences:{ENDC}\n")
 
-        # Verificar si hay commits antes de intentar mostrar el historial
-        has_commits = subprocess.run(
-            ["git", "rev-parse", "--verify", "HEAD"],
+        # Obtener lista de commits
+        result = subprocess.run(
+            ["git", "log", "--oneline"],
             capture_output=True,
             text=True
-        ).returncode == 0
+        )
 
-        if not has_commits:
+        if result.returncode != 0 or not result.stdout.strip():
             print(f"{YELLOW}No commits yet in this repository. Cannot compare differences between commits.{ENDC}")
             if ask_for_enter:
                 print(f"\n{GREEN}Press any key to return to the menu...{ENDC}")
                 get_single_keypress()
             return
 
-        # Mostrar los commits recientes para referencia
-        print(f"{YELLOW}Recent commits:{ENDC}")
-        subprocess.run(
-            ["git", "--no-pager", "log", "--oneline", "--max-count=10"],
-            check=True
-        )
-        print()
+        # Mostrar lista de commits
+        commits = result.stdout.strip().split("\n")
+        commit_hashes = [commit.split()[0] for commit in commits]
 
-        # Solicitar el commit base (más antiguo)
-        print(f"{YELLOW}Enter base commit hash (older):{ENDC} ", end="")
-        base_commit = input().strip()
+        print("Select base commit (older):")
+        for idx, commit in enumerate(commits):
+            print(f"{idx + 1}. {commit}")
 
-        # Solicitar el commit de comparación (más reciente)
-        print(f"{YELLOW}Enter comparison commit hash (newer or HEAD):{ENDC} ", end="")
-        compare_commit = input().strip()
+        base_idx = int(input("\nEnter number: ")) - 1
+        base_commit = commit_hashes[base_idx]
 
-        if not base_commit or not compare_commit:
-            print("Error: You need to provide both commit hashes.")
-            return
+        print("\nSelect compare commit (newer):")
+        for idx, commit in enumerate(commits):
+            if idx != base_idx:
+                print(f"{idx + 1}. {commit}")
+
+        compare_idx = int(input("\nEnter number: ")) - 1
+        compare_commit = commit_hashes[compare_idx]
 
         print(f"\n{BLUE}Differences between commits {base_commit} and {compare_commit}:{ENDC}\n")
 
-        # Ejecutar el comando para mostrar las diferencias entre los dos commits usando --no-pager
-        subprocess.run([
-            "git", "--no-pager", "diff",
-            f"{base_commit}..{compare_commit}",
-            "--color=always"
-        ], check=True)
+        # Usar la nueva función run_git_diff con los commits seleccionados
+        run_git_diff([f"{base_commit}..{compare_commit}"])
 
         print()
         if ask_for_enter:
             print(f"{GREEN}Press any key to return to the menu...{ENDC}")
             get_single_keypress()
     except Exception as e:
-        print(f"{YELLOW}Error comparing commits: {e}{ENDC}")
+        print(f"Error comparing commits: {e}")
         if ask_for_enter:
-            print(f"\n{GREEN}Press any key to return to the menu...{ENDC}")
+            print(f"{GREEN}Press any key to return to the menu...{ENDC}")
             get_single_keypress()
 
 def show_differences_between_branches(ask_for_enter=True):
-    """Muestra las diferencias entre dos ramas"""
+    """Muestra las diferencias entre dos ramas seleccionadas"""
     if not is_git_repo():
         print_not_git_repo()
         return
@@ -568,64 +555,65 @@ def show_differences_between_branches(ask_for_enter=True):
     try:
         print(f"\n{BLUE}Select branches to compare differences:{ENDC}\n")
 
-        # Verificar si hay commits antes de intentar mostrar el historial
-        has_commits = subprocess.run(
-            ["git", "rev-parse", "--verify", "HEAD"],
+        # Verificar si hay commits
+        result = subprocess.run(
+            ["git", "log", "-1", "--oneline"],
             capture_output=True,
             text=True
-        ).returncode == 0
+        )
 
-        if not has_commits:
+        if result.returncode != 0 or not result.stdout.strip():
             print(f"{YELLOW}No commits yet in this repository. Cannot compare differences between branches.{ENDC}")
             if ask_for_enter:
                 print(f"\n{GREEN}Press any key to return to the menu...{ENDC}")
                 get_single_keypress()
             return
 
-        # Mostrar todas las ramas (locales y remotas) para referencia
-        print(f"{YELLOW}Local branches:{ENDC}")
-        subprocess.run(
-            ["git", "--no-pager", "branch"],
-            check=True
+        # Obtener lista de ramas
+        result = subprocess.run(
+            ["git", "branch"],
+            capture_output=True,
+            text=True
         )
-        print()
 
-        print(f"{YELLOW}Remote branches:{ENDC}")
-        subprocess.run(
-            ["git", "--no-pager", "branch", "-r"],
-            check=True
-        )
-        print()
+        branches = [b.strip() for b in result.stdout.strip().split("\n")]
+        branches = [b[2:] if b.startswith("* ") else b for b in branches]  # Quitar el asterisco de la rama actual
 
-        # Solicitar la primera rama
-        print(f"{YELLOW}Enter first branch name:{ENDC} ", end="")
-        first_branch = input().strip()
-
-        # Solicitar la segunda rama
-        print(f"{YELLOW}Enter second branch name:{ENDC} ", end="")
-        second_branch = input().strip()
-
-        if not first_branch or not second_branch:
-            print("Error: You need to provide both branch names.")
+        if len(branches) < 2:
+            print(f"{YELLOW}Need at least two branches to compare. Current branch count: {len(branches)}{ENDC}")
+            if ask_for_enter:
+                print(f"\n{GREEN}Press any key to return to the menu...{ENDC}")
+                get_single_keypress()
             return
+
+        print("Select first branch:")
+        for idx, branch in enumerate(branches):
+            print(f"{idx + 1}. {branch}")
+
+        first_idx = int(input("\nEnter number: ")) - 1
+        first_branch = branches[first_idx]
+
+        print("\nSelect second branch:")
+        for idx, branch in enumerate(branches):
+            if idx != first_idx:
+                print(f"{idx + 1}. {branch}")
+
+        second_idx = int(input("\nEnter number: ")) - 1
+        second_branch = branches[second_idx]
 
         print(f"\n{BLUE}Differences between branches {first_branch} and {second_branch}:{ENDC}\n")
 
-        # Ejecutar el comando para mostrar las diferencias entre las dos ramas usando --no-pager
-        subprocess.run([
-            "git", "--no-pager", "diff",
-            f"{first_branch}..{second_branch}",
-            "--color=always"
-        ], check=True)
+        # Usar la nueva función run_git_diff para comparar ramas
+        run_git_diff([f"{first_branch}..{second_branch}"])
 
         print()
         if ask_for_enter:
             print(f"{GREEN}Press any key to return to the menu...{ENDC}")
             get_single_keypress()
     except Exception as e:
-        print(f"{YELLOW}Error comparing branches: {e}{ENDC}")
+        print(f"Error comparing branches: {e}")
         if ask_for_enter:
-            print(f"\n{GREEN}Press any key to return to the menu...{ENDC}")
+            print(f"{GREEN}Press any key to return to the menu...{ENDC}")
             get_single_keypress()
 
 def show_local_repo(ask_for_enter=True):

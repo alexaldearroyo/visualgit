@@ -33,4 +33,24 @@ chmod +x "$PROJECT_DIR/venv/bin/vg_wrapper"
 echo "Configurando el alias en el perfil..."
 echo "alias vg=\"$PROJECT_DIR/venv/bin/vg_wrapper\"" >> ~/.zshrc
 
+# Verificar si diff-so-fancy está instalado
+if ! command -v diff-so-fancy &> /dev/null; then
+    echo "diff-so-fancy no está instalado. ¿Deseas instalarlo? (y/n)"
+    read -r install_diff_so_fancy
+    if [[ "$install_diff_so_fancy" =~ ^[Yy]$ ]]; then
+        if command -v npm &> /dev/null; then
+            echo "Instalando diff-so-fancy usando npm..."
+            npm install -g diff-so-fancy
+        elif command -v brew &> /dev/null; then
+            echo "Instalando diff-so-fancy usando brew..."
+            brew install diff-so-fancy
+        else
+            echo "No se pudo instalar diff-so-fancy. Se requiere npm o brew."
+            echo "Puedes instalarlo manualmente siguiendo las instrucciones en: https://github.com/so-fancy/diff-so-fancy"
+        fi
+    fi
+else
+    echo "diff-so-fancy ya está instalado."
+fi
+
 echo "Instalación completada. Por favor reinicia tu terminal o ejecuta 'source ~/.zshrc' para aplicar los cambios."

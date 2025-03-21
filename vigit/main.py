@@ -319,10 +319,7 @@ def main():
             show_menu_options()
         elif menu_entry_index == 7:
             # Add
-            if is_git_repo():
-                add_menu_options()
-            else:
-                print_not_git_repo()
+            add_menu_options()
         elif menu_entry_index == 8:
             quit()
 

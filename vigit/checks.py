@@ -1,7 +1,7 @@
 import subprocess
 import os
 
-from .utils import YELLOW, GREEN, ENDC
+from .utils import YELLOW, GREEN, ENDC, RED
 
 
 def is_git_installed():
@@ -14,23 +14,26 @@ def is_git_installed():
     return False
 
 def is_git_repo():
+    """Comprueba si el directorio actual es un repositorio Git"""
     try:
-        # Use git rev-parse to verify if we are in a Git repository
         result = subprocess.run(
             ["git", "rev-parse", "--is-inside-work-tree"],
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            text=True
+            capture_output=True,
+            text=True,
+            check=True
         )
-        return result.returncode == 0 and result.stdout.strip() == "true"
-    except Exception:
+        return result.stdout.strip() == "true"
+    except:
+        # El directorio actual no es un repositorio Git
         return False
 
 def print_git_repo():
     print(f"{YELLOW}The present working directory is already a git repository. No need to create one.{ENDC}")
 
 def print_not_git_repo():
-    print(f"{YELLOW}The present working directory is not a git repository, please create one to proceed.{ENDC}\nTo create one: Local -> Add a local repo")
+    """Imprime un mensaje de error indicando que el directorio actual no es un repositorio Git"""
+    print(f"{RED}The present working directory is not a git repository, please create one to proceed.{ENDC}")
+    print(f"{YELLOW}To create one: Local -> Add a local repo{ENDC}")
 
 def is_connected_to_remote():
     try:

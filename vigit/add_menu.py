@@ -204,6 +204,82 @@ def add_local_branch(ask_for_enter=False):
     except Exception as e:
         print(f"Error creating branch: {e}")
 
+def add_local_repo(ask_for_enter=True):
+    """Inicializa un nuevo repositorio Git (git init)"""
+    try:
+        print(f"\n{BLUE}Add Local Repo:{ENDC}")
+
+        # Verificar si ya estamos en un repositorio git
+        is_already_repo = False
+        try:
+            subprocess.run(
+                ["git", "rev-parse", "--is-inside-work-tree"],
+                capture_output=True,
+                check=True
+            )
+            is_already_repo = True
+            print(f"\n{YELLOW}This directory is already a Git repository.{ENDC}")
+            if ask_for_enter:
+                print(f"\n{GREEN}Press any key to return to the menu...{ENDC}")
+                get_single_keypress()
+            return
+        except:
+            # No es un repositorio git, podemos continuar
+            pass
+
+        print(f"\n{YELLOW}Initializing new Git repository in the current directory...{ENDC}")
+        subprocess.run(["git", "init"], check=True)
+        print(f"\n{GREEN}Git repository initialized successfully.{ENDC}")
+
+        # Verificar si hay archivos que podrían ser añadidos
+        status = subprocess.run(
+            ["git", "status", "-s"],
+            capture_output=True,
+            text=True,
+            check=True
+        ).stdout.strip()
+
+        if status:
+            print(f"\n{BLUE}Files that can be added to the repository:{ENDC}")
+            subprocess.run(["git", "status", "-s"], check=True)
+
+            # Preguntar si quiere añadir todos los archivos
+            print(f"\n{YELLOW}Do you want to add all files to the repository? (y/n):{ENDC}")
+            add_all_choice = get_single_keypress().lower()
+
+            if add_all_choice == 'y':
+                print(f"\n{YELLOW}Adding all files...{ENDC}")
+                subprocess.run(["git", "add", "."], check=True)
+                print(f"\n{GREEN}All files have been added successfully.{ENDC}")
+
+                # Preguntar si quiere hacer el commit inicial
+                print(f"\n{YELLOW}Do you want to make an initial commit? (y/n):{ENDC}")
+                commit_choice = get_single_keypress().lower()
+
+                if commit_choice == 'y':
+                    print(f"\n{YELLOW}Enter a commit message (leave empty for default 'Initial commit'):{ENDC}")
+                    commit_message = input("> ").strip()
+
+                    if not commit_message:
+                        commit_message = "Initial commit"
+
+                    print(f"\n{YELLOW}Creating initial commit...{ENDC}")
+                    subprocess.run(["git", "commit", "-m", commit_message], check=True)
+                    print(f"\n{GREEN}Initial commit created successfully.{ENDC}")
+        else:
+            print(f"\n{YELLOW}No files found in the directory to add to the repository.{ENDC}")
+
+        # Mostrar mensaje final y esperar que el usuario presione una tecla
+        if ask_for_enter:
+            print(f"\n{GREEN}Press any key to return to the menu...{ENDC}")
+            get_single_keypress()
+
+    except Exception as e:
+        print(f"Error initializing repository: {e}")
+        if ask_for_enter:
+            print(f"\n{GREEN}Press any key to return to the menu...{ENDC}")
+            get_single_keypress()
+
 def add_all_files(ask_for_enter=True):
     """Añade todos los archivos al índice de Git (git add .)"""
     if not is_git_repo():
@@ -253,15 +329,14 @@ def add_all_files(ask_for_enter=True):
 
 def add_menu_options():
     """Muestra el menú de opciones para añadir archivos"""
-    if not is_git_repo():
-        print_not_git_repo()
-        return
+    is_repo = is_git_repo()
 
     while True:
         print(f"{GREEN}ADD{ENDC}")
-        print(f"\n{BLUE}Overall Status:{ENDC}")
-        # Mostrar automáticamente el status antes de mostrar las opciones del menú
-        if is_git_repo():
+
+        # Solo mostrar status y último commit si estamos en un repositorio git
+        if is_repo:
+            print(f"\n{BLUE}Overall Status:{ENDC}")
             try:
                 # Capturar la salida para verificar si hay cambios
                 result = subprocess.run(
@@ -280,8 +355,7 @@ def add_menu_options():
             except Exception as e:
                 print(f"Error getting status: {e}")
 
-        # Obtener el último commit si es un repositorio git
-        if is_git_repo():
+            # Obtener el último commit
             try:
                 result = subprocess.run(
                     ["git", "log", "-1", "--pretty=format:%C(yellow)● %h %C(blue)► %C(white)%s %C(magenta)(%cr)", "--color=always"],
@@ -297,23 +371,38 @@ def add_menu_options():
                     print()  # Añadir línea en blanco después del commit
             except Exception as e:
                 print(f"Error getting last commit: {e}")
+        else:
+            # Mensaje amigable para indicar que no estamos en un repositorio
+            print(f"\n{YELLOW}Not in a Git repository. You can create one with 'Add Local Repo'.{ENDC}\n")
 
-        menu_options = [
-            f"[a] {add_menu.ADD_ALL_FILES.value}",
-            f"[t] {add_menu.ADD_TRACKED_FILES.value}",
-            f"[x] {add_menu.ADD_EXPANDED_FILES.value}",
-            f"[b] {add_menu.ADD_LOCAL_BRANCH.value}",
-            "[␣] Back to previous menu",
-            "[q] Quit program"
-        ]
+        # Opciones de menú diferentes según si estamos en un repo o no
+        if is_repo:
+            menu_options = [
+                f"[a] {add_menu.ADD_ALL_FILES.value}",
+                f"[t] {add_menu.ADD_TRACKED_FILES.value}",
+                f"[x] {add_menu.ADD_EXPANDED_FILES.value}",
+                f"[b] {add_menu.ADD_LOCAL_BRANCH.value}",
+                f"[l] {add_menu.ADD_LOCAL_REPO.value}",
+                "[␣] Back to previous menu",
+                "[q] Quit program"
+            ]
+            accept_keys = ("enter", "a", "t", "x", "b", "l", " ", "q")
+        else:
+            # Solo mostrar la opción para crear un repo y salir cuando no estamos en un repo
+            menu_options = [
+                f"[l] {add_menu.ADD_LOCAL_REPO.value}",
+                "[␣] Back to previous menu",
+                "[q] Quit program"
+            ]
+            accept_keys = ("enter", "l", " ", "q")
 
-        # Creamos el menú con la barra espaciadora como tecla aceptada
+        # Creamos el menú con las teclas aceptadas adecuadas
         terminal_menu = TerminalMenu(
             menu_options,
             title=f"Please select an option:",
             menu_cursor=MENU_CURSOR,
             menu_cursor_style=MENU_CURSOR_STYLE,
-            accept_keys=("enter", "a", "t", "x", "b", " ", "q")
+            accept_keys=accept_keys
         )
 
         menu_entry_index = terminal_menu.show()
@@ -324,27 +413,48 @@ def add_menu_options():
             clear_screen()
             return
 
-        # Procesamos la selección normal del menú
-        if menu_entry_index == 0 or chosen_key == "a":
-            add_all_files(ask_for_enter=True)
-            clear_screen()
-            continue
-        elif menu_entry_index == 1 or chosen_key == "t":
-            add_tracked_files(ask_for_enter=True)
-            clear_screen()
-            continue
-        elif menu_entry_index == 2 or chosen_key == "x":
-            add_expanded_files(ask_for_enter=True)
-            clear_screen()
-            continue
-        elif menu_entry_index == 3 or chosen_key == "b":
-            add_local_branch()
-            clear_screen()
-            continue
-        elif menu_entry_index == 4:
-            clear_screen()
-            return
-        elif menu_entry_index == 5 or chosen_key == "q":
-            quit()
+        # Procesamos la selección según si estamos en un repo o no
+        if is_repo:
+            if menu_entry_index == 0 or chosen_key == "a":
+                add_all_files(ask_for_enter=True)
+                clear_screen()
+                continue
+            elif menu_entry_index == 1 or chosen_key == "t":
+                add_tracked_files(ask_for_enter=True)
+                clear_screen()
+                continue
+            elif menu_entry_index == 2 or chosen_key == "x":
+                add_expanded_files(ask_for_enter=True)
+                clear_screen()
+                continue
+            elif menu_entry_index == 3 or chosen_key == "b":
+                add_local_branch()
+                clear_screen()
+                continue
+            elif menu_entry_index == 4 or chosen_key == "l":
+                add_local_repo(ask_for_enter=True)
+                clear_screen()
+                # Verificar si ahora estamos en un repo después de crear uno
+                is_repo = is_git_repo()
+                continue
+            elif menu_entry_index == 5:
+                clear_screen()
+                return
+            elif menu_entry_index == 6 or chosen_key == "q":
+                quit()
+            else:
+                print("Invalid option. Please try again.")
         else:
-            print("Invalid option. Please try again.")
+            if menu_entry_index == 0 or chosen_key == "l":
+                add_local_repo(ask_for_enter=True)
+                clear_screen()
+                # Verificar si ahora estamos en un repo después de crear uno
+                is_repo = is_git_repo()
+                continue
+            elif menu_entry_index == 1:
+                clear_screen()
+                return
+            elif menu_entry_index == 2 or chosen_key == "q":
+                quit()
+            else:
+                print("Invalid option. Please try again.")

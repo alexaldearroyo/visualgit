@@ -113,6 +113,34 @@ def add_tracked_files(ask_for_enter=True):
             print(f"\n{GREEN}Press any key to return to the menu...{ENDC}")
             get_single_keypress()
 
+def add_expanded_files(ask_for_enter=True):
+    """Añade todos los archivos, incluidos los no rastreados, al índice de Git (git add --all)"""
+    if not is_git_repo():
+        print_not_git_repo()
+        return
+
+    try:
+        print(f"\n{BLUE}Add Expanded Files:{ENDC}")
+
+        # Ejecutar git add --all
+        print(f"\n{YELLOW}Adding all files, including untracked files...{ENDC}")
+        subprocess.run(["git", "add", "--all"], check=True)
+        print(f"\n{GREEN}All files have been added successfully.{ENDC}")
+
+        # Mostrar qué archivos se han añadido
+        print(f"\n{BLUE}Added files:{ENDC}")
+        subprocess.run(["git", "status", "-s"], check=True)
+
+        # Solo mostrar mensaje y esperar tecla si se solicita explícitamente
+        if ask_for_enter:
+            print(f"\n{GREEN}Press any key to return to the menu...{ENDC}")
+            get_single_keypress()
+    except Exception as e:
+        print(f"Error adding files: {e}")
+        if ask_for_enter:
+            print(f"\n{GREEN}Press any key to return to the menu...{ENDC}")
+            get_single_keypress()
+
 def add_all_files(ask_for_enter=True):
     """Añade todos los archivos al índice de Git (git add .)"""
     if not is_git_repo():
@@ -210,6 +238,7 @@ def add_menu_options():
         menu_options = [
             f"[a] {add_menu.ADD_ALL_FILES.value}",
             f"[t] {add_menu.ADD_TRACKED_FILES.value}",
+            f"[x] {add_menu.ADD_EXPANDED_FILES.value}",
             "[␣] Back to previous menu",
             "[q] Quit program"
         ]
@@ -220,7 +249,7 @@ def add_menu_options():
             title=f"Please select an option:",
             menu_cursor=MENU_CURSOR,
             menu_cursor_style=MENU_CURSOR_STYLE,
-            accept_keys=("enter", "a", "t", " ", "q")
+            accept_keys=("enter", "a", "t", "x", " ", "q")
         )
 
         menu_entry_index = terminal_menu.show()
@@ -240,10 +269,14 @@ def add_menu_options():
             add_tracked_files(ask_for_enter=True)
             clear_screen()
             continue
-        elif menu_entry_index == 2:
+        elif menu_entry_index == 2 or chosen_key == "x":
+            add_expanded_files(ask_for_enter=True)
+            clear_screen()
+            continue
+        elif menu_entry_index == 3:
             clear_screen()
             return
-        elif menu_entry_index == 3 or chosen_key == "q":
+        elif menu_entry_index == 4 or chosen_key == "q":
             quit()
         else:
             print("Invalid option. Please try again.")

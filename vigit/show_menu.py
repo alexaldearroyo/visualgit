@@ -866,6 +866,60 @@ def show_differences():
         else:
             print("Invalid option. Please try again.")
 
+def show_status_short(ask_for_enter=True):
+    """Muestra un status corto (-s) y el último commit"""
+    if not is_git_repo():
+        print_not_git_repo()
+        return
+
+    try:
+        # Capturar la salida del comando git status -s
+        result = subprocess.run(
+            ["git", "status", "-s"],
+            capture_output=True,
+            text=True,
+            check=True
+        )
+        status = result.stdout.strip()
+
+        print(f"\n{BLUE}Status:{ENDC}")
+        if status:
+            # Usar el comando directamente para preservar colores
+            subprocess.run(["git", "status", "-s"], check=True)
+        else:
+            print("Working tree clean")
+        print()
+
+        # Mostrar el último commit después del status
+        print(f"{BLUE}Last Commit:{ENDC}")
+
+        # Verificar si hay commits antes de intentar mostrar el último
+        has_commits = subprocess.run(
+            ["git", "rev-parse", "--verify", "HEAD"],
+            capture_output=True,
+            text=True
+        ).returncode == 0
+
+        if has_commits:
+            # Mostrar solo el último commit con formato similar al de show_detailed_history
+            subprocess.run([
+                "git", "--no-pager", "log",
+                "-1",  # Solo mostrar el último commit
+                "--pretty=format:%C(yellow)● %h%Creset%C(auto)%d%Creset%C(blue) ► %C(white)%s%Creset %C(blue)| %C(cyan)%an%Creset %C(blue)| %C(magenta)%ad%Creset",
+                "--decorate=short",
+                "--date=relative"
+            ], check=True)
+            print("\n")
+        else:
+            print(f"{YELLOW}No commits yet in this repository.{ENDC}\n")
+
+        if ask_for_enter:
+            print(f"{GREEN}Press any key to return to the menu...{ENDC}")
+            get_single_keypress()
+
+    except Exception as e:
+        print(f"Error getting status: {e}")
+
 def show_menu_options():
     from .constants import show_menu
 
@@ -960,7 +1014,7 @@ def show_menu_options():
             clear_screen()
             continue
         elif menu_entry_index == 1 or chosen_key == "s":
-            show_status_long()
+            show_status_short()
             # Prevents returning to the "Show" menu which would display the "Overall Status" again
             print(f"{GREEN}Press any key to return to the menu...{ENDC}")
             get_single_keypress()

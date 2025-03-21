@@ -270,7 +270,7 @@ def show_expanded_history(ask_for_enter=True):
 
         # Mostrar el historial de commits con formato gráfico expandido
         subprocess.run([
-            "git", "log",
+            "git", "--no-pager", "log",
             "--graph",
             "--all",
             "--pretty=format:%C(yellow)%h%Creset%C(auto)%d%Creset %C(cyan)%an%Creset %C(magenta)%ar%Creset%n  %C(white)%s%Creset",
@@ -278,6 +278,10 @@ def show_expanded_history(ask_for_enter=True):
             "--date=relative"
         ], check=True)
         print()
+
+        if ask_for_enter:
+            print(f"\n{GREEN}Press any key to return to the menu...{ENDC}")
+            get_single_keypress()
     except Exception as e:
         print(f"{YELLOW}No expanded commit history available.{ENDC}")
         if ask_for_enter:
@@ -346,13 +350,20 @@ def show_differences_history(ask_for_enter=True):
                 get_single_keypress()
             return
 
-        # Comando completo usando subprocess.run con shell=True para mantener el pipeline
-        subprocess.run(
-            "git log --color=always --stat -p --pretty=format:\"%C(white)$(printf '%.0s-' {1..30})%Creset%n%C(yellow)● %h%Creset%C(auto)%d%Creset%n%C(blue)► %C(white)%s%Creset %C(blue)| %C(cyan)%an%Creset %C(blue)| %C(magenta)%ad%Creset\" --date=format:'%Y-%m-%d %H:%M%n' | diff-so-fancy | less -R",
-            shell=True,
-            check=True
-        )
+        # Mostrar el historial de commits con diferencias y estadísticas usando --no-pager
+        subprocess.run([
+            "git", "--no-pager", "log",
+            "--color=always",
+            "--stat",
+            "-p",
+            "--pretty=format:%C(white)$(printf '%.0s-' {1..30})%Creset%n%C(yellow)● %h%Creset%C(auto)%d%Creset%n%C(blue)► %C(white)%s%Creset %C(blue)| %C(cyan)%an%Creset %C(blue)| %C(magenta)%ad%Creset",
+            "--date=format:%Y-%m-%d %H:%M%n"
+        ], check=True)
         print("\n")
+
+        if ask_for_enter:
+            print(f"\n{GREEN}Press any key to return to the menu...{ENDC}")
+            get_single_keypress()
     except Exception as e:
         print(f"{YELLOW}No differences history available.{ENDC}")
         if ask_for_enter:
@@ -381,12 +392,11 @@ def show_differences_non_staged(ask_for_enter=True):
                 get_single_keypress()
             return
 
-        # Ejecutar el comando git diff con diff-so-fancy
-        subprocess.run(
-            "git diff | diff-so-fancy",
-            shell=True,
-            check=True
-        )
+        # Ejecutar el comando git diff usando --no-pager
+        subprocess.run([
+            "git", "--no-pager", "diff",
+            "--color=always"
+        ], check=True)
         print()
         if ask_for_enter:
             print(f"{GREEN}Press any key to return to the menu...{ENDC}")
@@ -419,12 +429,12 @@ def show_differences_staged(ask_for_enter=True):
                 get_single_keypress()
             return
 
-        # Ejecutar el comando git diff --staged con diff-so-fancy
-        subprocess.run(
-            "git diff --staged | diff-so-fancy",
-            shell=True,
-            check=True
-        )
+        # Ejecutar el comando git diff --staged usando --no-pager
+        subprocess.run([
+            "git", "--no-pager", "diff",
+            "--staged",
+            "--color=always"
+        ], check=True)
         print()
         if ask_for_enter:
             print(f"{GREEN}Press any key to return to the menu...{ENDC}")
@@ -471,12 +481,12 @@ def show_differences_committed(ask_for_enter=True):
                 get_single_keypress()
             return
 
-        # Ejecutar el comando git diff HEAD con diff-so-fancy
-        subprocess.run(
-            "git diff HEAD | diff-so-fancy",
-            shell=True,
-            check=True
-        )
+        # Ejecutar el comando git diff HEAD usando --no-pager
+        subprocess.run([
+            "git", "--no-pager", "diff",
+            "HEAD",
+            "--color=always"
+        ], check=True)
         print()
         if ask_for_enter:
             print(f"{GREEN}Press any key to return to the menu...{ENDC}")
@@ -532,12 +542,12 @@ def show_differences_between_commits(ask_for_enter=True):
 
         print(f"\n{BLUE}Differences between commits {base_commit} and {compare_commit}:{ENDC}\n")
 
-        # Ejecutar el comando para mostrar las diferencias entre los dos commits
-        subprocess.run(
-            f"git diff {base_commit}..{compare_commit} | diff-so-fancy",
-            shell=True,
-            check=True
-        )
+        # Ejecutar el comando para mostrar las diferencias entre los dos commits usando --no-pager
+        subprocess.run([
+            "git", "--no-pager", "diff",
+            f"{base_commit}..{compare_commit}",
+            "--color=always"
+        ], check=True)
 
         print()
         if ask_for_enter:
@@ -601,12 +611,12 @@ def show_differences_between_branches(ask_for_enter=True):
 
         print(f"\n{BLUE}Differences between branches {first_branch} and {second_branch}:{ENDC}\n")
 
-        # Ejecutar el comando para mostrar las diferencias entre las dos ramas
-        subprocess.run(
-            f"git diff {first_branch}..{second_branch} | diff-so-fancy",
-            shell=True,
-            check=True
-        )
+        # Ejecutar el comando para mostrar las diferencias entre las dos ramas usando --no-pager
+        subprocess.run([
+            "git", "--no-pager", "diff",
+            f"{first_branch}..{second_branch}",
+            "--color=always"
+        ], check=True)
 
         print()
         if ask_for_enter:

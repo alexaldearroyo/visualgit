@@ -168,40 +168,44 @@ def add_menu_options():
 
     while True:
         print(f"{GREEN}ADD{ENDC}")
+        print(f"\n{BLUE}Overall Status:{ENDC}")
+        # Mostrar automáticamente el status antes de mostrar las opciones del menú
+        if is_git_repo():
+            try:
+                # Capturar la salida para verificar si hay cambios
+                result = subprocess.run(
+                    ["git", "status", "-s"],
+                    capture_output=True,
+                    text=True,
+                    check=True
+                )
+                status = result.stdout.strip()
 
-        # Mostrar archivos no rastreados
-        print(f"\n{RED}Untracked files:{ENDC}")
-        try:
-            untracked = subprocess.run(
-                ["git", "ls-files", "--others", "--exclude-standard"],
-                capture_output=True,
-                text=True,
-                check=True
-            ).stdout.strip()
+                if status:
+                    # Ejecutar directamente para preservar colores
+                    subprocess.run(["git", "status", "-s"], check=True)
+                else:
+                    print("Working tree clean")
+            except Exception as e:
+                print(f"Error getting status: {e}")
 
-            if untracked:
-                print(untracked)
-            else:
-                print("No untracked files")
-        except Exception as e:
-            print(f"Error getting untracked files: {e}")
+        # Obtener el último commit si es un repositorio git
+        if is_git_repo():
+            try:
+                result = subprocess.run(
+                    ["git", "log", "-1", "--pretty=format:%C(yellow)● %h %C(blue)► %C(white)%s %C(magenta)(%cr)", "--color=always"],
+                    capture_output=True,
+                    text=True,
+                    check=True
+                )
+                last_commit = result.stdout.strip()
 
-        # Mostrar archivos modificados
-        print(f"\n{BLUE}Modified files:{ENDC}")
-        try:
-            modified = subprocess.run(
-                ["git", "ls-files", "--modified"],
-                capture_output=True,
-                text=True,
-                check=True
-            ).stdout.strip()
-
-            if modified:
-                print(modified)
-            else:
-                print("No modified files")
-        except Exception as e:
-            print(f"Error getting modified files: {e}")
+                if last_commit:
+                    print(f"\n{BLUE}Last Commit:{ENDC}")
+                    print(last_commit)
+                    print()  # Añadir línea en blanco después del commit
+            except Exception as e:
+                print(f"Error getting last commit: {e}")
 
         menu_options = [
             f"[a] {add_menu.ADD_ALL_FILES.value}",
@@ -212,7 +216,7 @@ def add_menu_options():
 
         terminal_menu = TerminalMenu(
             menu_options,
-            title=f"\nPlease select an option:",
+            title=f"Please select an option:",
             menu_cursor=MENU_CURSOR,
             menu_cursor_style=MENU_CURSOR_STYLE,
             accept_keys=("enter", "a", "t", "k", "q")

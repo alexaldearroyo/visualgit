@@ -280,6 +280,51 @@ def add_local_repo(ask_for_enter=True):
             print(f"\n{GREEN}Press any key to return to the menu...{ENDC}")
             get_single_keypress()
 
+def add_empty_repo(ask_for_enter=True):
+    """Inicializa un nuevo repositorio Git bare (vacío) con git init --bare"""
+    try:
+        print(f"\n{BLUE}Add Empty Repo:{ENDC}")
+
+        # Solicitar nombre para el repositorio
+        print(f"\n{YELLOW}Enter the name for the empty repository (leave empty to cancel):{ENDC}")
+        repo_name = input("> ").strip()
+
+        if not repo_name:
+            print(f"\n{YELLOW}Operation cancelled.{ENDC}")
+            if ask_for_enter:
+                print(f"\n{GREEN}Press any key to return to the menu...{ENDC}")
+                get_single_keypress()
+            return
+
+        # Añadir la extensión .git si no la tiene
+        if not repo_name.endswith('.git'):
+            repo_name = f"{repo_name}.git"
+
+        # Verificar si el directorio ya existe
+        import os
+        if os.path.exists(repo_name):
+            print(f"\n{RED}A directory with the name '{repo_name}' already exists.{ENDC}")
+            if ask_for_enter:
+                print(f"\n{GREEN}Press any key to return to the menu...{ENDC}")
+                get_single_keypress()
+            return
+
+        # Crear el repositorio bare
+        print(f"\n{YELLOW}Initializing new bare Git repository in '{repo_name}'...{ENDC}")
+        subprocess.run(["git", "init", "--bare", repo_name], check=True)
+        print(f"\n{GREEN}Empty Git repository initialized successfully in '{repo_name}'.{ENDC}")
+
+        # Mostrar mensaje final y esperar que el usuario presione una tecla
+        if ask_for_enter:
+            print(f"\n{GREEN}Press any key to return to the menu...{ENDC}")
+            get_single_keypress()
+
+    except Exception as e:
+        print(f"Error initializing empty repository: {e}")
+        if ask_for_enter:
+            print(f"\n{GREEN}Press any key to return to the menu...{ENDC}")
+            get_single_keypress()
+
 def add_all_files(ask_for_enter=True):
     """Añade todos los archivos al índice de Git (git add .)"""
     if not is_git_repo():
@@ -383,18 +428,20 @@ def add_menu_options():
                 f"[x] {add_menu.ADD_EXPANDED_FILES.value}",
                 f"[b] {add_menu.ADD_LOCAL_BRANCH.value}",
                 f"[l] {add_menu.ADD_LOCAL_REPO.value}",
+                f"[0] {add_menu.ADD_EMPTY_REPO.value}",
                 "[␣] Back to previous menu",
                 "[q] Quit program"
             ]
-            accept_keys = ("enter", "a", "t", "x", "b", "l", " ", "q")
+            accept_keys = ("enter", "a", "t", "x", "b", "l", "0", " ", "q")
         else:
             # Solo mostrar la opción para crear un repo y salir cuando no estamos en un repo
             menu_options = [
                 f"[l] {add_menu.ADD_LOCAL_REPO.value}",
+                f"[0] {add_menu.ADD_EMPTY_REPO.value}",
                 "[␣] Back to previous menu",
                 "[q] Quit program"
             ]
-            accept_keys = ("enter", "l", " ", "q")
+            accept_keys = ("enter", "l", "0", " ", "q")
 
         # Creamos el menú con las teclas aceptadas adecuadas
         terminal_menu = TerminalMenu(
@@ -437,10 +484,14 @@ def add_menu_options():
                 # Verificar si ahora estamos en un repo después de crear uno
                 is_repo = is_git_repo()
                 continue
-            elif menu_entry_index == 5:
+            elif menu_entry_index == 5 or chosen_key == "0":
+                add_empty_repo(ask_for_enter=True)
+                clear_screen()
+                continue
+            elif menu_entry_index == 6:
                 clear_screen()
                 return
-            elif menu_entry_index == 6 or chosen_key == "q":
+            elif menu_entry_index == 7 or chosen_key == "q":
                 quit()
             else:
                 print("Invalid option. Please try again.")
@@ -451,10 +502,14 @@ def add_menu_options():
                 # Verificar si ahora estamos en un repo después de crear uno
                 is_repo = is_git_repo()
                 continue
-            elif menu_entry_index == 1:
+            elif menu_entry_index == 1 or chosen_key == "0":
+                add_empty_repo(ask_for_enter=True)
+                clear_screen()
+                continue
+            elif menu_entry_index == 2:
                 clear_screen()
                 return
-            elif menu_entry_index == 2 or chosen_key == "q":
+            elif menu_entry_index == 3 or chosen_key == "q":
                 quit()
             else:
                 print("Invalid option. Please try again.")

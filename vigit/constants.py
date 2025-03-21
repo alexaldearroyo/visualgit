@@ -88,6 +88,7 @@ class add_menu(Enum):
     ADD_EXPANDED_FILES = 'Add Expanded Files'
     ADD_LOCAL_BRANCH = 'Add Local Branch'
     ADD_LOCAL_REPO = 'Add Local Repo'
+    ADD_EMPTY_REPO = 'Add Empty Repo'
 
 class history_menu(Enum):
     DETAILED_HISTORY = 'Show Commit History'

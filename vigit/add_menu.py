@@ -141,6 +141,69 @@ def add_expanded_files(ask_for_enter=True):
             print(f"\n{GREEN}Press any key to return to the menu...{ENDC}")
             get_single_keypress()
 
+def add_local_branch(ask_for_enter=False):
+    """Crea una nueva rama local y opcionalmente se mueve a ella"""
+    if not is_git_repo():
+        print_not_git_repo()
+        return
+
+    try:
+        print(f"\n{BLUE}Add Local Branch:{ENDC}")
+
+        # Obtener las ramas actuales para mostrarlas como referencia
+        current_branch = subprocess.run(
+            ["git", "--no-pager","branch", "--show-current"],
+            capture_output=True,
+            text=True,
+            check=True
+        ).stdout.strip()
+
+        print(f"\n{YELLOW}Current branch: {current_branch}{ENDC}")
+
+        print(f"\n{BLUE}Existing branches:{ENDC}")
+        subprocess.run(["git", "--no-pager", "branch", "--color=always"], check=True)
+
+        # Solicitar el nombre de la nueva rama
+        print(f"\n{YELLOW}Enter the name for the new branch (leave empty to cancel):{ENDC}")
+        branch_name = input("> ").strip()
+
+        if not branch_name:
+            print(f"\n{YELLOW}Operation cancelled.{ENDC}")
+            return
+
+        # Verificar si la rama ya existe
+        existing_branches = subprocess.run(
+            ["git", "branch"],
+            capture_output=True,
+            text=True,
+            check=True
+        ).stdout
+
+        branch_exists = any(line.strip().replace("*", "").strip() == branch_name for line in existing_branches.split('\n') if line)
+
+        if branch_exists:
+            print(f"\n{RED}A branch with the name '{branch_name}' already exists.{ENDC}")
+            return
+
+        # Crear la nueva rama
+        print(f"\n{YELLOW}Creating new branch: {branch_name}...{ENDC}")
+        subprocess.run(["git", "branch", branch_name], check=True)
+        print(f"\n{GREEN}Branch '{branch_name}' created successfully.{ENDC}")
+
+        # Preguntar si quiere moverse a la nueva rama
+        print(f"\n{YELLOW}Do you want to switch to the new branch '{branch_name}'? (y/n):{ENDC}")
+        switch_choice = get_single_keypress().lower()
+
+        if switch_choice == 'y':
+            print(f"\n{YELLOW}Switching to branch: {branch_name}...{ENDC}")
+            subprocess.run(["git", "checkout", branch_name], check=True)
+            print(f"\n{GREEN}Switched to branch '{branch_name}' successfully.{ENDC}")
+        else:
+            print(f"\n{YELLOW}Staying on current branch: {current_branch}{ENDC}")
+
+    except Exception as e:
+        print(f"Error creating branch: {e}")
+
 def add_all_files(ask_for_enter=True):
     """Añade todos los archivos al índice de Git (git add .)"""
     if not is_git_repo():
@@ -239,6 +302,7 @@ def add_menu_options():
             f"[a] {add_menu.ADD_ALL_FILES.value}",
             f"[t] {add_menu.ADD_TRACKED_FILES.value}",
             f"[x] {add_menu.ADD_EXPANDED_FILES.value}",
+            f"[b] {add_menu.ADD_LOCAL_BRANCH.value}",
             "[␣] Back to previous menu",
             "[q] Quit program"
         ]
@@ -249,7 +313,7 @@ def add_menu_options():
             title=f"Please select an option:",
             menu_cursor=MENU_CURSOR,
             menu_cursor_style=MENU_CURSOR_STYLE,
-            accept_keys=("enter", "a", "t", "x", " ", "q")
+            accept_keys=("enter", "a", "t", "x", "b", " ", "q")
         )
 
         menu_entry_index = terminal_menu.show()
@@ -273,10 +337,14 @@ def add_menu_options():
             add_expanded_files(ask_for_enter=True)
             clear_screen()
             continue
-        elif menu_entry_index == 3:
+        elif menu_entry_index == 3 or chosen_key == "b":
+            add_local_branch()
+            clear_screen()
+            continue
+        elif menu_entry_index == 4:
             clear_screen()
             return
-        elif menu_entry_index == 4 or chosen_key == "q":
+        elif menu_entry_index == 5 or chosen_key == "q":
             quit()
         else:
             print("Invalid option. Please try again.")

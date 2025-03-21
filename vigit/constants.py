@@ -86,6 +86,7 @@ class add_menu(Enum):
     ADD_ALL_FILES = 'Add All Files'
     ADD_TRACKED_FILES = 'Add Tracked Files'
     ADD_EXPANDED_FILES = 'Add Expanded Files'
+    ADD_LOCAL_BRANCH = 'Add Local Branch'
 
 class history_menu(Enum):
     DETAILED_HISTORY = 'Show Commit History'

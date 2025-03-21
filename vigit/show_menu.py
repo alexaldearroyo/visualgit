@@ -566,67 +566,84 @@ def show_differences_between_branches(ask_for_enter=True):
         print(f"\n{BLUE}Select branches to compare differences:{ENDC}\n")
 
         # Verificar si hay commits
-        result = subprocess.run(
-            ["git", "log", "-1", "--oneline"],
+        has_commits = subprocess.run(
+            ["git", "rev-parse", "--verify", "HEAD"],
             capture_output=True,
             text=True
-        )
+        ).returncode == 0
 
-        if result.returncode != 0 or not result.stdout.strip():
+        if not has_commits:
             print(f"{YELLOW}No commits yet in this repository. Cannot compare differences between branches.{ENDC}")
             if ask_for_enter:
                 print(f"\n{GREEN}Press any key to return to the menu...{ENDC}")
                 get_single_keypress()
             return
 
-        # Obtener lista de ramas
-        result = subprocess.run(
+        # Obtener ramas locales y remotas
+        result_local = subprocess.run(
             ["git", "branch"],
             capture_output=True,
             text=True
         )
+        result_remote = subprocess.run(
+            ["git", "branch", "-r"],
+            capture_output=True,
+            text=True
+        )
 
-        branches = [b.strip() for b in result.stdout.strip().split("\n")]
-        branches = [b[2:] if b.startswith("* ") else b for b in branches]  # Quitar el asterisco de la rama actual
+        local_raw = result_local.stdout.strip().split("\n")
+        current_branch = None
+        local_branches = []
 
-        if len(branches) < 2:
-            print(f"{YELLOW}Need at least two branches to compare. Current branch count: {len(branches)}{ENDC}")
-            if ask_for_enter:
-                print(f"\n{GREEN}Press any key to return to the menu...{ENDC}")
-                get_single_keypress()
-            return
+        for b in local_raw:
+            if b.startswith("* "):
+                branch_name = b[2:].strip()
+                current_branch = branch_name
+                local_branches.append(f"* {branch_name}")
+            else:
+                local_branches.append(f"  {b.strip()}")
 
-        print("Select first branch:")
-        for idx, branch in enumerate(branches):
-            print(f"{idx + 1}. {branch}")
+        remote_branches = [f"  {b.strip()}" for b in result_remote.stdout.strip().split("\n")]
 
-        first_idx = int(input("\nEnter number: ")) - 1
-        first_branch = branches[first_idx]
+        # Unir ambas listas con índice global
+        all_branches = local_branches + remote_branches
+        print(f"{YELLOW}Local branches:{ENDC}")
+        for idx, b in enumerate(local_branches):
+            print(f"{idx + 1}. {GREEN if b.startswith('*') else ''}{b}{ENDC}")
 
-        print("\nSelect second branch:")
-        for idx, branch in enumerate(branches):
+        print(f"\n{YELLOW}Remote branches:{ENDC}")
+        for i, b in enumerate(remote_branches, start=len(local_branches) + 1):
+            print(f"{i}. {b}")
+
+        # Input usuario
+        first_idx = int(input(f"\n{YELLOW}Select first branch:{ENDC} ")) - 1
+        first_branch = all_branches[first_idx].strip("* ").strip()
+
+        print()
+        for idx, b in enumerate(all_branches):
             if idx != first_idx:
-                print(f"{idx + 1}. {branch}")
+                print(f"{idx + 1}. {b}")
 
-        second_idx = int(input("\nEnter number: ")) - 1
-        second_branch = branches[second_idx]
+        second_idx = int(input(f"\n{YELLOW}Select second branch:{ENDC} ")) - 1
+        second_branch = all_branches[second_idx].strip("* ").strip()
 
         print(f"\n{BLUE}Differences between branches {first_branch} and {second_branch}:{ENDC}\n")
 
-        # Ejecutar el comando para mostrar las diferencias entre las dos ramas
         subprocess.run(
             f"git diff {first_branch}..{second_branch} | diff-so-fancy",
             shell=True,
             check=True
         )
+
         print()
         if ask_for_enter:
             print(f"{GREEN}Press any key to return to the menu...{ENDC}")
             get_single_keypress()
+
     except Exception as e:
-        print(f"Error comparing branches: {e}")
+        print(f"{YELLOW}Error comparing branches: {e}{ENDC}")
         if ask_for_enter:
-            print(f"{GREEN}Press any key to return to the menu...{ENDC}")
+            print(f"\n{GREEN}Press any key to return to the menu...{ENDC}")
             get_single_keypress()
 
 def show_local_repo(ask_for_enter=True):

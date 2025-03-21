@@ -179,10 +179,10 @@ def show_tracking_history(ask_for_enter=True):
             "--pretty=format:%C(yellow)%h%Creset%C(auto)%d%Creset %C(blue)|%Creset %C(cyan)%an%Creset %C(blue)| %Creset%C(magenta)%ar%Creset%n%n%C(blue)► %C(white)%s%Creset%n",
             "--decorate=short",
             "--date=relative"
-        ], check=True)
+        ])
         print()
     except Exception as e:
-        print(f"{YELLOW}No tracking history available.{ENDC}")
+        # print(f"{YELLOW}No tracking history available.{ENDC}")
         if ask_for_enter:
             print(f"\n{GREEN}Press any key to return to the menu...{ENDC}")
             get_single_keypress()
@@ -196,7 +196,7 @@ def show_history():
         print(f"{GREEN}SHOW | HISTORY{ENDC}")
 
         menu_options = [
-            f"[h] {history_menu.DETAILED_HISTORY.value}",
+            f"[c] {history_menu.DETAILED_HISTORY.value}",
             f"[x] {history_menu.EXPANDED_HISTORY.value}",
             f"[t] {history_menu.TRACKING_HISTORY.value}",
             f"[d] {history_menu.DIFFERENCES_HISTORY.value}",
@@ -272,18 +272,17 @@ def show_expanded_history(ask_for_enter=True):
 
         # Mostrar el historial de commits con formato gráfico expandido
         subprocess.run([
-            "git", "--no-pager", "log",
+            "git", "log",
             "--graph",
             "--all",
             "--pretty=format:%C(yellow)%h%Creset%C(auto)%d%Creset %C(cyan)%an%Creset %C(magenta)%ar%Creset%n  %C(white)%s%Creset",
             "--decorate=short",
             "--date=relative"
-        ], check=True)
-        print()
+        ])
 
-        if ask_for_enter:
-            print(f"\n{GREEN}Press any key to return to the menu...{ENDC}")
-            get_single_keypress()
+        # if ask_for_enter:
+        #     print(f"\n{GREEN}Press any key to return to the menu...{ENDC}")
+        #     get_single_keypress()
     except Exception as e:
         print(f"{YELLOW}No expanded commit history available.{ENDC}")
         if ask_for_enter:
@@ -352,16 +351,25 @@ def show_differences_history(ask_for_enter=True):
                 get_single_keypress()
             return
 
-        # Comando completo usando subprocess.run con shell=True para mantener el pipeline
-        subprocess.run([
-            "git", "log",
-            "--color=always",
-            "--stat",
-            "-p",
-            "--pretty=format:%C(white)$(printf '%.0s-' {1..30})%Creset%n%C(yellow)● %h%Creset%C(auto)%d%Creset%n%C(blue)► %C(white)%s%Creset %C(blue)| %C(cyan)%an%Creset %C(blue)| %C(magenta)%ad%Creset",
-            "--date=format:%Y-%m-%d %H:%M%n | diff-so-fancy | less -R"
-        ], shell=True, check=True)
-        print("\n")
+        # Línea de separación dinámica
+        dash_line = "-" * 30
+
+        # Construir comando completo como string
+        pretty_format = (
+            f"%C(white){dash_line}%Creset%n"
+            "%C(yellow)● %h%Creset%C(auto)%d%Creset%n"
+            "%C(blue)► %C(white)%s%Creset %C(blue)| "
+            "%C(cyan)%an%Creset %C(blue)| %C(magenta)%ad%Creset"
+        )
+
+        full_command = (
+            f"git log --color=always --stat -p "
+            f"--pretty=format:\"{pretty_format}\" "
+            f"--date=format:'%Y-%m-%d %H:%M' "
+            f"| diff-so-fancy | less -R"
+        )
+
+        subprocess.run(full_command, shell=True, check=True)
 
     except Exception as e:
         print(f"{YELLOW}No differences history available.{ENDC}")
@@ -622,7 +630,7 @@ def show_differences_between_branches(ask_for_enter=True):
             print(f"{i}. {CYAN}{b}{ENDC}")
 
         # Input usuario
-        first_idx = int(input(f"\n{YELLOW}Select first branch (by number):{ENDC} ")) - 1
+        first_idx = int(input(f"\n{YELLOW}Select first branch (by number | enter to cancel):{ENDC} ")) - 1
         first_branch = all_branches[first_idx].strip("* ").strip()
 
         print()
@@ -630,7 +638,7 @@ def show_differences_between_branches(ask_for_enter=True):
             if idx != first_idx:
                 print(f"{idx + 1}. {b}")
 
-        second_idx = int(input(f"\n{YELLOW}Select second branch:{ENDC} ")) - 1
+        second_idx = int(input(f"\n{YELLOW}Select second branch (by number | enter to cancel):{ENDC} ")) - 1
         second_branch = all_branches[second_idx].strip("* ").strip()
 
         print(f"\n{BLUE}Differences between branches {first_branch} and {second_branch}:{ENDC}\n")

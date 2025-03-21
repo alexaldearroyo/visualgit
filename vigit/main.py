@@ -137,13 +137,13 @@ def handle_args():
 
     # Command: vg hc (history of commits - new)
     hc_parser = subparsers.add_parser('hc', help='Quick action: Show commit history (alias of h)')
-    hc_parser.add_argument('type', nargs='?', choices=['sh', 'shh', 'h', 'sc'], help='Type of history view')
+    hc_parser.add_argument('type', nargs='?', choices=['sh', 'shc', 'h', 'sc'], help='Type of history view')
 
     # Command: vg sh (same as h)
     sh_parser = subparsers.add_parser('sh', help='Quick action: Show commit history (alias of h)')
 
-    # Command: vg shh (same as h)
-    shh_parser = subparsers.add_parser('shh', help='Quick action: Show commit history (alias of h)')
+    # Command: vg shc (same as h)
+    shc_parser = subparsers.add_parser('shc', help='Quick action: Show commit history (alias of h)')
 
     # Command: vg sc (same as h)
     sc_parser = subparsers.add_parser('sc', help='Quick action: Show commit history (alias of h)')
@@ -426,7 +426,7 @@ def main():
         elif args.command == 'sdb':
             show_differences_between_branches(ask_for_enter=False)
             return
-        elif args.command == 'h' or args.command == 'sh' or args.command == 'shh' or args.command == 'sc':
+        elif args.command == 'h' or args.command == 'sh' or args.command == 'shc' or args.command == 'sc':
             show_detailed_history(ask_for_enter=False)
             return
         elif args.command == 'hc':

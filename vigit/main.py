@@ -13,7 +13,7 @@ from enum import Enum
 from simple_term_menu import TerminalMenu
 
 from .utils import BG_BLUE, YELLOW, GREEN, ENDC, BOLD, BG_PURPLE, BLACK_TEXT, WHITE_TEXT
-from .constants import start_menu, main_menu, main_local_menu, main_remote_menu, branch_local_menu, branch_remote_menu, manage_branch_menu, updated_start_menu, MENU_CURSOR, MENU_CURSOR_STYLE, show_menu
+from .constants import start_menu, main_menu, main_local_menu, main_remote_menu, branch_local_menu, branch_remote_menu, manage_branch_menu, updated_start_menu, MENU_CURSOR, MENU_CURSOR_STYLE, show_menu, add_menu
 from .checks import is_git_installed, is_git_repo, print_not_git_repo, current_branch, get_current_branch, is_current_branch_main
 from .menu import work_in_main, create_local_repo, commit_to_local_repo, commit_and_push, main_local, main_remote, create_remote_repo
 from .show_menu import show_menu_options, show_status_long, general_view, show_detailed_history, show_expanded_history, show_tracking_history, show_differences_history, show_local_repo, show_remote_repo, show_branches, show_differences_non_staged, show_differences_staged, show_differences_between_commits, show_differences_between_branches
@@ -23,6 +23,7 @@ from .branx_manage import merge_branches, manage_branches, merge_with_main, merg
 from .branx import work_in_branches
 from .advanced import advanced_operations
 from .config import configuration
+from .add_menu import add_menu_options, add_tracked_files
 
 
 def handle_args():
@@ -147,6 +148,9 @@ def handle_args():
     # Command: vg sb (branches)
     sb_parser = subparsers.add_parser('sb', help='Quick action: Show branches')
 
+    # Command: vg at (add tracked files)
+    at_parser = subparsers.add_parser('at', help='Quick action: Add tracked files')
+
     return parser.parse_args()
 
 
@@ -239,6 +243,9 @@ def main():
         elif args.command == 'sb':
             show_branches(ask_for_enter=False)
             return
+        elif args.command == 'at':
+            add_tracked_files(ask_for_enter=False)
+            return
 
     if not is_git_installed():
         print("Git is not installed. You need to install git to use VisualGit.")
@@ -262,6 +269,7 @@ def main():
             f"[n] {updated_start_menu.CONFIGURATION.value}",
             f"[x] {updated_start_menu.QUICK_ACTIONS.value}",
             f"[s] {show_menu.SHOW.value}",
+            f"[a] {add_menu.ADD.value}",
             "[q] Quit program"
         ]
 
@@ -304,6 +312,12 @@ def main():
             # Show
             show_menu_options()
         elif menu_entry_index == 7:
+            # Add
+            if is_git_repo():
+                add_menu_options()
+            else:
+                print_not_git_repo()
+        elif menu_entry_index == 8:
             quit()
 
 

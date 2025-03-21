@@ -12,6 +12,7 @@ BLUE = '\033[95m'
 DARK_BLUE = '\033[34m'
 RED = '\033[91m'
 WHITE = '\033[97m'
+CYAN = '\033[96m'
 ENDC = '\033[0m'
 
 # STYLES

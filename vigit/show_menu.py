@@ -5,7 +5,7 @@ import tty
 import re
 
 from simple_term_menu import TerminalMenu
-from .utils import DARK_BLUE, GREEN, ENDC, BLUE, ORANGE, RED, WHITE, YELLOW, BOLD, UNDERLINE, global_menu, quit, invalid_opt, run_git_diff
+from .utils import CYAN, DARK_BLUE, GREEN, ENDC, BLUE, ORANGE, RED, WHITE, YELLOW, BOLD, UNDERLINE, global_menu, quit, invalid_opt, run_git_diff
 from .constants import show_menu, MENU_CURSOR, MENU_CURSOR_STYLE, history_menu, differences_menu
 from .checks import is_git_repo, print_not_git_repo
 
@@ -112,6 +112,7 @@ def show_status_long():
         )
         status = result.stdout.strip()
 
+        print(f"{BLUE}Detailed Status:{ENDC}")
         if status:
             # Usar el comando directamente para preservar colores
             subprocess.run(["git", "status"], check=True)
@@ -119,28 +120,28 @@ def show_status_long():
             print("Working tree clean")
         print()
 
-        # Mostrar el último commit después del status
-        print(f"{BLUE}Last Commit:{ENDC}")
+        # # Mostrar el último commit después del status
+        # print(f"{BLUE}Last Commit:{ENDC}")
 
-        # Verificar si hay commits antes de intentar mostrar el último
-        has_commits = subprocess.run(
-            ["git", "rev-parse", "--verify", "HEAD"],
-            capture_output=True,
-            text=True
-        ).returncode == 0
+        # # Verificar si hay commits antes de intentar mostrar el último
+        # has_commits = subprocess.run(
+        #     ["git", "rev-parse", "--verify", "HEAD"],
+        #     capture_output=True,
+        #     text=True
+        # ).returncode == 0
 
-        if has_commits:
-            # Mostrar solo el último commit con formato similar al de show_detailed_history
-            subprocess.run([
-                "git", "--no-pager", "log",
-                "-1",  # Solo mostrar el último commit
-                "--pretty=format:%C(yellow)● %h%Creset%C(auto)%d%Creset%C(blue) ► %C(white)%s%Creset %C(blue)| %C(cyan)%an%Creset %C(blue)| %C(magenta)%ad%Creset",
-                "--decorate=short",
-                "--date=relative"
-            ], check=True)
-            print("\n")
-        else:
-            print(f"{YELLOW}No commits yet in this repository.{ENDC}\n")
+        # if has_commits:
+        #     # Mostrar solo el último commit con formato similar al de show_detailed_history
+        #     subprocess.run([
+        #         "git", "--no-pager", "log",
+        #         "-1",  # Solo mostrar el último commit
+        #         "--pretty=format:%C(yellow)● %h%Creset%C(auto)%d%Creset%C(blue) ► %C(white)%s%Creset %C(blue)| %C(cyan)%an%Creset %C(blue)| %C(magenta)%ad%Creset",
+        #         "--decorate=short",
+        #         "--date=relative"
+        #     ], check=True)
+        #     print("\n")
+        # else:
+        #     print(f"{YELLOW}No commits yet in this repository.{ENDC}\n")
     except Exception as e:
         print(f"Error getting status: {e}")
 
@@ -523,7 +524,11 @@ def show_differences_between_commits(ask_for_enter=True):
 
         print(f"{YELLOW}Recent commits:{ENDC}")
         for idx, commit in enumerate(commits):
-            print(f"{idx + 1}. {commit}")
+            parts = commit.split(" ", 1)
+            if len(parts) == 2:
+                print(f"{idx + 1}. {parts[0]} {DARK_BLUE}▶{ENDC} {parts[1]}")
+            else:
+                print(f"{idx + 1}. {commit}")
 
         print(f"\n{YELLOW}Select base commit (older):{ENDC}")
         base_idx = int(input("Enter number: ")) - 1
@@ -613,10 +618,10 @@ def show_differences_between_branches(ask_for_enter=True):
 
         print(f"\n{YELLOW}Remote branches:{ENDC}")
         for i, b in enumerate(remote_branches, start=len(local_branches) + 1):
-            print(f"{i}. {b}")
+            print(f"{i}. {CYAN}{b}{ENDC}")
 
         # Input usuario
-        first_idx = int(input(f"\n{YELLOW}Select first branch:{ENDC} ")) - 1
+        first_idx = int(input(f"\n{YELLOW}Select first branch (by number):{ENDC} ")) - 1
         first_branch = all_branches[first_idx].strip("* ").strip()
 
         print()

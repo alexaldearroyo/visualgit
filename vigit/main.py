@@ -135,6 +135,10 @@ def handle_args():
     # Command: vg h (history)
     h_parser = subparsers.add_parser('h', help='Quick action: Show commit history')
 
+    # Command: vg hc (history of commits - new)
+    hc_parser = subparsers.add_parser('hc', help='Quick action: Show commit history (alias of h)')
+    hc_parser.add_argument('type', nargs='?', choices=['sh', 'shh', 'h', 'sc'], help='Type of history view')
+
     # Command: vg sh (same as h)
     sh_parser = subparsers.add_parser('sh', help='Quick action: Show commit history (alias of h)')
 
@@ -424,6 +428,16 @@ def main():
             return
         elif args.command == 'h' or args.command == 'sh' or args.command == 'shh' or args.command == 'sc':
             show_detailed_history(ask_for_enter=False)
+            return
+        elif args.command == 'hc':
+            # Procesamos el argumento type si está presente
+            type_arg = getattr(args, 'type', None)
+            if type_arg:
+                # Dependiendo del tipo, podríamos realizar diferentes acciones
+                # Por ahora todas muestran el mismo historial detallado
+                show_detailed_history(ask_for_enter=False)
+            else:
+                show_detailed_history(ask_for_enter=False)
             return
         elif args.command == 'shx' or args.command == 'sx' or args.command == 'hx':
             show_expanded_history(ask_for_enter=False)

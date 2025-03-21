@@ -625,7 +625,7 @@ def show_local_repo(ask_for_enter=True):
         return
 
     try:
-        print(f"\n{BLUE}Local Repository Information:{ENDC}\n")
+        print(f"{BLUE}Local Repository Information:{ENDC}\n")
 
         # Obtener la ruta absoluta del repositorio
         repo_path = subprocess.run(

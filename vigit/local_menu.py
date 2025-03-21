@@ -80,18 +80,13 @@ def local_menu_options():
         # Opciones de menú diferentes según si estamos en un repo o no
         if is_repo:
             menu_options = [
-                f"[v] {local_menu.GENERAL_VIEW.value}",
                 f"[s] {local_menu.SHOW_STATUS.value}",
                 f"[l] {local_menu.SHOW_LOCAL_REPO.value}",
-                f"[b] {local_menu.SHOW_BRANCHES.value}",
-                f"[a] {local_menu.ADD_ALL_FILES.value}",
-                f"[t] {local_menu.ADD_TRACKED_FILES.value}",
-                f"[n] {local_menu.ADD_LOCAL_BRANCH.value}",
                 f"[c] {local_menu.COMMIT_LOCAL.value}",
                 "[␣] Back to previous menu",
                 "[q] Quit program"
             ]
-            accept_keys = ("enter", "v", "s", "l", "b", "a", "t", "n", "c", " ", "q")
+            accept_keys = ("enter", "s", "l", "c", " ", "q")
         else:
             # Solo mostrar mensajes cuando no estamos en un repo
             print(f"{YELLOW}You need to create a local repository first.{ENDC}")
@@ -118,46 +113,24 @@ def local_menu_options():
             return
 
         # Procesamos la selección del menú
-        if menu_entry_index == 0 or chosen_key == "v":
-            general_view()
-            print(f"{GREEN}Press any key to return to the menu...{ENDC}")
-            get_single_keypress()
-            clear_screen()
-            continue
-        elif menu_entry_index == 1 or chosen_key == "s":
+        if menu_entry_index == 0 or chosen_key == "s":
             show_status_long()
             print(f"{GREEN}Press any key to return to the menu...{ENDC}")
             get_single_keypress()
             clear_screen()
             continue
-        elif menu_entry_index == 2 or chosen_key == "l":
+        elif menu_entry_index == 1 or chosen_key == "l":
             show_local_repo()
             clear_screen()
             continue
-        elif menu_entry_index == 3 or chosen_key == "b":
-            show_branches()
-            clear_screen()
-            continue
-        elif menu_entry_index == 4 or chosen_key == "a":
-            add_all_files()
-            clear_screen()
-            continue
-        elif menu_entry_index == 5 or chosen_key == "t":
-            add_tracked_files()
-            clear_screen()
-            continue
-        elif menu_entry_index == 6 or chosen_key == "n":
-            add_local_branch()
-            clear_screen()
-            continue
-        elif menu_entry_index == 7 or chosen_key == "c":
+        elif menu_entry_index == 2 or chosen_key == "c":
             commit_to_local_repo()
             clear_screen()
             continue
-        elif menu_entry_index == 8:
+        elif menu_entry_index == 3:
             clear_screen()
             return
-        elif menu_entry_index == 9 or chosen_key == "q":
+        elif menu_entry_index == 4 or chosen_key == "q":
             quit()
         else:
             print("Invalid option. Please try again.")

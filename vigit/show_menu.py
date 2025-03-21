@@ -157,7 +157,7 @@ def show_history():
             f"[x] {history_menu.EXPANDED_HISTORY.value}",
             f"[t] {history_menu.TRACKING_HISTORY.value}",
             f"[d] {history_menu.DIFFERENCES_HISTORY.value}",
-            "[k] Back to previous menu",
+            "[␣] Back to previous menu",
             "[q] Quit program"
         ]
 
@@ -165,32 +165,41 @@ def show_history():
             menu_options,
             title=f"Please select an option:",
             menu_cursor=MENU_CURSOR,
-            menu_cursor_style=MENU_CURSOR_STYLE
+            menu_cursor_style=MENU_CURSOR_STYLE,
+            accept_keys=("enter", "h", "x", "t", "d", " ", "q")
         )
-        menu_entry_index = terminal_menu.show()
 
-        if menu_entry_index == 0:
+        menu_entry_index = terminal_menu.show()
+        chosen_key = terminal_menu.chosen_accept_key
+
+        # Si se presionó la barra espaciadora, volvemos al menú anterior
+        if chosen_key == " ":
+            clear_screen()
+            return
+
+        # Procesamos la selección normal del menú
+        if menu_entry_index == 0 or chosen_key == "h":
             show_detailed_history()
             print(f"{GREEN}Press any key to return to the menu...{ENDC}")
             get_single_keypress()
             clear_screen()
             continue
-        elif menu_entry_index == 1:
+        elif menu_entry_index == 1 or chosen_key == "x":
             show_expanded_history()
             clear_screen()
             continue
-        elif menu_entry_index == 2:
+        elif menu_entry_index == 2 or chosen_key == "t":
             show_tracking_history()
             clear_screen()
             continue
-        elif menu_entry_index == 3:
+        elif menu_entry_index == 3 or chosen_key == "d":
             show_differences_history()
             clear_screen()
             continue
         elif menu_entry_index == 4:
             clear_screen()
             return
-        elif menu_entry_index == 5:
+        elif menu_entry_index == 5 or chosen_key == "q":
             quit()
         else:
             print("Invalid option. Please try again.")
@@ -635,7 +644,7 @@ def show_differences():
             f"[a] {differences_menu.STAGED_DIFFERENCES.value}",
             f"[c] {differences_menu.COMMIT_TO_COMMIT_DIFFERENCES.value}",
             f"[b] {differences_menu.BRANCH_TO_BRANCH_DIFFERENCES.value}",
-            "[k] Back to previous menu",
+            "[␣] Back to previous menu",
             "[q] Quit program"
         ]
 
@@ -643,30 +652,39 @@ def show_differences():
             menu_options,
             title=f"Please select an option:",
             menu_cursor=MENU_CURSOR,
-            menu_cursor_style=MENU_CURSOR_STYLE
+            menu_cursor_style=MENU_CURSOR_STYLE,
+            accept_keys=("enter", "d", "a", "c", "b", " ", "q")
         )
-        menu_entry_index = terminal_menu.show()
 
-        if menu_entry_index == 0:
+        menu_entry_index = terminal_menu.show()
+        chosen_key = terminal_menu.chosen_accept_key
+
+        # Si se presionó la barra espaciadora, volvemos al menú anterior
+        if chosen_key == " ":
+            clear_screen()
+            return
+
+        # Procesamos la selección normal del menú
+        if menu_entry_index == 0 or chosen_key == "d":
             show_differences_non_staged()
             clear_screen()
             continue
-        elif menu_entry_index == 1:
+        elif menu_entry_index == 1 or chosen_key == "a":
             show_differences_staged()
             clear_screen()
             continue
-        elif menu_entry_index == 2:
+        elif menu_entry_index == 2 or chosen_key == "c":
             show_differences_between_commits()
             clear_screen()
             continue
-        elif menu_entry_index == 3:
+        elif menu_entry_index == 3 or chosen_key == "b":
             show_differences_between_branches()
             clear_screen()
             continue
         elif menu_entry_index == 4:
             clear_screen()
             return
-        elif menu_entry_index == 5:
+        elif menu_entry_index == 5 or chosen_key == "q":
             quit()
         else:
             print("Invalid option. Please try again.")
@@ -723,7 +741,7 @@ def show_menu_options():
             f"[l] {show_menu.SHOW_LOCAL_REPO.value}",
             f"[r] {show_menu.SHOW_REMOTE_REPO.value}",
             f"[b] {show_menu.SHOW_BRANCHES.value}",
-            "[k] Back to previous menu",
+            "[␣] Back to previous menu",
             "[q] Quit program"
         ]
 
@@ -732,50 +750,58 @@ def show_menu_options():
             title=f"Please select an option:",
             menu_cursor=MENU_CURSOR,
             menu_cursor_style=MENU_CURSOR_STYLE,
-            accept_keys=("enter", "h", "g", "s", "d", "l", "r", "b", "k", "q", "H")
+            accept_keys=("enter", "v", "s", "d", "h", "l", "r", "b", " ", "q")
         )
-        menu_entry_index = terminal_menu.show()
 
-        if menu_entry_index == 0:
+        menu_entry_index = terminal_menu.show()
+        chosen_key = terminal_menu.chosen_accept_key
+
+        # Si se presionó la barra espaciadora, volvemos al menú anterior
+        if chosen_key == " ":
+            clear_screen()
+            return
+
+        # Procesamos la selección normal del menú
+        if menu_entry_index == 0 or chosen_key == "v":
             general_view()
             # Prevents returning to the "Show" menu which would display the "Overall Status" again
             print(f"{GREEN}Press any key to return to the menu...{ENDC}")
             get_single_keypress()
             clear_screen()
             continue
-        elif menu_entry_index == 1:
+        elif menu_entry_index == 1 or chosen_key == "s":
             show_status_long()
             # Prevents returning to the "Show" menu which would display the "Overall Status" again
             print(f"{GREEN}Press any key to return to the menu...{ENDC}")
             get_single_keypress()
             clear_screen()
             continue
-        elif menu_entry_index == 2:
+        elif menu_entry_index == 2 or chosen_key == "d":
             show_differences()
             # Ya no pedimos presionar Enter después de volver del sub-menú History
             clear_screen()
             continue
-        elif menu_entry_index == 3:
+        elif menu_entry_index == 3 or chosen_key == "h":
             show_history()
             # Ya no pedimos presionar Enter después de volver del sub-menú History
             clear_screen()
             continue
-        elif menu_entry_index == 4:
+        elif menu_entry_index == 4 or chosen_key == "l":
             show_local_repo()
             clear_screen()
             continue
-        elif menu_entry_index == 5:
+        elif menu_entry_index == 5 or chosen_key == "r":
             show_remote_repo()
             clear_screen()
             continue
-        elif menu_entry_index == 6:
+        elif menu_entry_index == 6 or chosen_key == "b":
             show_branches()
             clear_screen()
             continue
         elif menu_entry_index == 7:
             clear_screen()
             return
-        elif menu_entry_index == 8:
+        elif menu_entry_index == 8 or chosen_key == "q":
             quit()
         else:
             print("Invalid option. Please try again.")

@@ -210,31 +210,40 @@ def add_menu_options():
         menu_options = [
             f"[a] {add_menu.ADD_ALL_FILES.value}",
             f"[t] {add_menu.ADD_TRACKED_FILES.value}",
-            "[k] Back to previous menu",
+            "[␣] Back to previous menu",
             "[q] Quit program"
         ]
 
+        # Creamos el menú con la barra espaciadora como tecla aceptada
         terminal_menu = TerminalMenu(
             menu_options,
             title=f"Please select an option:",
             menu_cursor=MENU_CURSOR,
             menu_cursor_style=MENU_CURSOR_STYLE,
-            accept_keys=("enter", "a", "t", "k", "q")
+            accept_keys=("enter", "a", "t", " ", "q")
         )
-        menu_entry_index = terminal_menu.show()
 
-        if menu_entry_index == 0:
+        menu_entry_index = terminal_menu.show()
+        chosen_key = terminal_menu.chosen_accept_key
+
+        # Si se presionó la barra espaciadora, volvemos al menú anterior
+        if chosen_key == " ":
+            clear_screen()
+            return
+
+        # Procesamos la selección normal del menú
+        if menu_entry_index == 0 or chosen_key == "a":
             add_all_files(ask_for_enter=True)
             clear_screen()
             continue
-        elif menu_entry_index == 1:
+        elif menu_entry_index == 1 or chosen_key == "t":
             add_tracked_files(ask_for_enter=True)
             clear_screen()
             continue
         elif menu_entry_index == 2:
             clear_screen()
             return
-        elif menu_entry_index == 3:
+        elif menu_entry_index == 3 or chosen_key == "q":
             quit()
         else:
             print("Invalid option. Please try again.")

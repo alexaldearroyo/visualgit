@@ -506,7 +506,7 @@ def show_differences_between_commits(ask_for_enter=True):
 
         # Obtener commits en color (últimos 10)
         result = subprocess.run(
-            ["git", "--no-pager", "log", "--oneline", "--color", "--max-count=10"],
+            ["git", "--no-pager", "log", "--oneline", "--color", "--decorate", "--max-count=10"],
             capture_output=True,
             text=True
         )

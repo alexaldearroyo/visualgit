@@ -366,7 +366,7 @@ def show_differences_history(ask_for_enter=True):
             f"git log --color=always --stat -p "
             f"--pretty=format:\"{pretty_format}\" "
             f"--date=format:'%Y-%m-%d %H:%M' "
-            f"| diff-so-fancy | less -R"
+            f"| diff-so-fancy | less -RX"
         )
 
         subprocess.run(full_command, shell=True, check=True)
@@ -401,14 +401,14 @@ def show_differences_non_staged(ask_for_enter=True):
 
         # Ejecutar el comando git diff con diff-so-fancy
         subprocess.run(
-            "git diff | diff-so-fancy",
+            "git diff | diff-so-fancy | less -RX",
             shell=True,
             check=True
         )
-        print()
-        if ask_for_enter:
-            print(f"{GREEN}Press any key to return to the menu...{ENDC}")
-            get_single_keypress()
+        # print()
+        # if ask_for_enter:
+        #     print(f"{GREEN}Press any key to return to the menu...{ENDC}")
+        #     get_single_keypress()
     except Exception as e:
         print(f"Error retrieving differences: {e}")
         if ask_for_enter:
@@ -439,14 +439,14 @@ def show_differences_staged(ask_for_enter=True):
 
         # Ejecutar el comando git diff --staged con diff-so-fancy
         subprocess.run(
-            "git diff --staged | diff-so-fancy",
+            "git diff --staged | diff-so-fancy | less -RX",
             shell=True,
             check=True
         )
-        print()
-        if ask_for_enter:
-            print(f"{GREEN}Press any key to return to the menu...{ENDC}")
-            get_single_keypress()
+        # print()
+        # if ask_for_enter:
+        #     print(f"{GREEN}Press any key to return to the menu...{ENDC}")
+        #     get_single_keypress()
     except Exception as e:
         print(f"Error retrieving staged differences: {e}")
         if ask_for_enter:
@@ -514,47 +514,51 @@ def show_differences_between_commits(ask_for_enter=True):
     try:
         print(f"\n{BLUE}Select commits to compare differences:{ENDC}\n")
 
-        # Obtener commits en color (últimos 10)
-        result = subprocess.run(
-            ["git", "--no-pager", "log", "--oneline", "--color", "--decorate", "--max-count=10"],
+        # Obtener commits sin color para extraer los hashes
+        result_plain = subprocess.run(
+            ["git", "log", "--oneline", "--decorate", "--no-color", "--max-count=10"],
             capture_output=True,
             text=True
         )
+        commits_plain = result_plain.stdout.strip().split("\n")
+        commit_hashes = [line.split()[0] for line in commits_plain]
 
-        if result.returncode != 0 or not result.stdout.strip():
+        # Obtener commits con color para mostrar al usuario
+        result_colored = subprocess.run(
+            ["git", "log", "--oneline", "--decorate", "--color", "--max-count=10"],
+            capture_output=True,
+            text=True
+        )
+        commits_colored = result_colored.stdout.strip().split("\n")
+
+        if not commits_plain or not commits_colored:
             print(f"{YELLOW}No commits yet in this repository. Cannot compare differences between commits.{ENDC}")
             if ask_for_enter:
                 print(f"\n{GREEN}Press any key to return to the menu...{ENDC}")
                 get_single_keypress()
             return
 
-        commits = result.stdout.strip().split("\n")
-        commit_hashes = [commit.split()[0] for commit in commits]
-
+        # Mostrar commits coloreados al usuario
         print(f"{YELLOW}Recent commits:{ENDC}")
-        for idx, commit in enumerate(commits):
-            parts = commit.split(" ", 1)
-            if len(parts) == 2:
-                print(f"{idx + 1}. {parts[0]} {DARK_BLUE}▶{ENDC} {parts[1]}")
-            else:
-                print(f"{idx + 1}. {commit}")
+        for idx, commit in enumerate(commits_colored):
+            print(f"{idx + 1}. {commit}")
 
         print(f"\n{YELLOW}Select base commit (older):{ENDC}")
-        base_idx = int(input("Enter number: ")) - 1
+        base_idx = int(input("Enter number (press enter to cancel): ")) - 1
         base_commit = commit_hashes[base_idx]
 
         print(f"\n{YELLOW}Select compare commit (newer):{ENDC}")
-        for idx, commit in enumerate(commits):
+        for idx, commit in enumerate(commits_colored):
             if idx != base_idx:
                 print(f"{idx + 1}. {commit}")
 
-        compare_idx = int(input("Enter number: ")) - 1
+        compare_idx = int(input("\nEnter number (press enter to cancel): ")) - 1
         compare_commit = commit_hashes[compare_idx]
 
         print(f"\n{BLUE}Differences between commits {base_commit} and {compare_commit}:{ENDC}\n")
 
         subprocess.run(
-            f"git diff {base_commit}..{compare_commit} | diff-so-fancy",
+            f"git diff {base_commit}..{compare_commit} | diff-so-fancy | less -RX",
             shell=True,
             check=True
         )
@@ -630,29 +634,36 @@ def show_differences_between_branches(ask_for_enter=True):
             print(f"{i}. {CYAN}{b}{ENDC}")
 
         # Input usuario
-        first_idx = int(input(f"\n{YELLOW}Select first branch (by number | enter to cancel):{ENDC} ")) - 1
+        print(f"\n{YELLOW}Select first branch:{ENDC}")
+        first_idx = int(input("Enter number (press enter to cancel): ")) - 1
         first_branch = all_branches[first_idx].strip("* ").strip()
 
         print()
         for idx, b in enumerate(all_branches):
-            if idx != first_idx:
-                print(f"{idx + 1}. {b}")
+            if idx == first_idx:
+                continue  # saltar rama ya seleccionada
+            if idx < len(local_branches):  # es rama local
+                color = GREEN if b.startswith("*") else ""
+                print(f"{idx + 1}. {color}{b}{ENDC}")
+            else:  # es rama remota
+                print(f"{idx + 1}. {CYAN}{b}{ENDC}")
 
-        second_idx = int(input(f"\n{YELLOW}Select second branch (by number | enter to cancel):{ENDC} ")) - 1
+        print(f"\n{YELLOW}Select second branch:{ENDC}")
+        second_idx = int(input("Enter number (press enter to cancel): ")) - 1
         second_branch = all_branches[second_idx].strip("* ").strip()
 
         print(f"\n{BLUE}Differences between branches {first_branch} and {second_branch}:{ENDC}\n")
 
         subprocess.run(
-            f"git diff {first_branch}..{second_branch} | diff-so-fancy",
+            f"git diff {first_branch}..{second_branch} | diff-so-fancy | less -RX",
             shell=True,
             check=True
         )
 
-        print()
-        if ask_for_enter:
-            print(f"{GREEN}Press any key to return to the menu...{ENDC}")
-            get_single_keypress()
+        # print()
+        # if ask_for_enter:
+        #     print(f"{GREEN}Press any key to return to the menu...{ENDC}")
+        #     get_single_keypress()
 
     except Exception as e:
         print(f"{YELLOW}Error comparing branches: {e}{ENDC}")

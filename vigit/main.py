@@ -207,37 +207,37 @@ def main():
             general_view()
             return
         elif args.command == 'sd' or args.command == 'sdd':
-            show_differences_non_staged()
+            show_differences_non_staged(ask_for_enter=False)
             return
         elif args.command == 'sda':
-            show_differences_staged()
+            show_differences_staged(ask_for_enter=False)
             return
         elif args.command == 'sdc':
-            show_differences_between_commits()
+            show_differences_between_commits(ask_for_enter=False)
             return
         elif args.command == 'sdb':
-            show_differences_between_branches()
+            show_differences_between_branches(ask_for_enter=False)
             return
         elif args.command == 'h' or args.command == 'sh' or args.command == 'shh' or args.command == 'sc':
-            show_detailed_history()
+            show_detailed_history(ask_for_enter=False)
             return
         elif args.command == 'shx' or args.command == 'sx' or args.command == 'hx':
-            show_expanded_history()
+            show_expanded_history(ask_for_enter=False)
             return
         elif args.command == 'sht' or args.command == 'st' or args.command == 'ht':
-            show_tracking_history()
+            show_tracking_history(ask_for_enter=False)
             return
         elif args.command == 'shd' or args.command == 'hd':
-            show_differences_history()
+            show_differences_history(ask_for_enter=False)
             return
         elif args.command == 'sl' or args.command == 'l':
-            show_local_repo()
+            show_local_repo(ask_for_enter=False)
             return
         elif args.command == 'sr' or args.command == 'r':
-            show_remote_repo()
+            show_remote_repo(ask_for_enter=False)
             return
         elif args.command == 'sb':
-            show_branches()
+            show_branches(ask_for_enter=False)
             return
 
     if not is_git_installed():

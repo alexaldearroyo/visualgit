@@ -409,7 +409,7 @@ def main():
             show_status_short(ask_for_enter=False)
             return
         elif args.command == 'ss':
-            show_status_long()
+            show_status_long(show_last_commit=True)
             return
         elif args.command == 'v' or args.command == 'sv':
             general_view()

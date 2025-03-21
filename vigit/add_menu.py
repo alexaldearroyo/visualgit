@@ -7,6 +7,7 @@ from simple_term_menu import TerminalMenu
 from .utils import GREEN, ENDC, BLUE, RED, YELLOW
 from .constants import add_menu, MENU_CURSOR, MENU_CURSOR_STYLE
 from .checks import is_git_repo, print_not_git_repo
+from .github_ops import create_github_repository, get_github_token, get_github_username
 
 def get_single_keypress():
     """Captura un solo carácter del usuario sin necesidad de presionar Enter."""
@@ -325,6 +326,90 @@ def add_empty_repo(ask_for_enter=True):
             print(f"\n{GREEN}Press any key to return to the menu...{ENDC}")
             get_single_keypress()
 
+def add_remote_repo(ask_for_enter=True):
+    """Crea un nuevo repositorio remoto en GitHub"""
+    try:
+        print(f"\n{BLUE}Add Remote Repo:{ENDC}")
+
+        # Verificar si tenemos token de GitHub
+        token = get_github_token()
+        if not token:
+            print(f"\n{YELLOW}GitHub token not found. Please configure one in the configuration menu.{ENDC}")
+            print(f"{YELLOW}Go to: Configuration > GitHub API Configuration{ENDC}")
+            if ask_for_enter:
+                print(f"\n{GREEN}Press any key to return to the menu...{ENDC}")
+                get_single_keypress()
+            return
+
+        # Obtener nombre de usuario de GitHub
+        username = get_github_username()
+        if username:
+            print(f"\n{BLUE}GitHub User:{ENDC} {username}")
+
+        # Solicitar nombre para el repositorio
+        print(f"\n{YELLOW}Enter the name for the remote repository (leave empty to cancel):{ENDC}")
+        repo_name = input("> ").strip()
+
+        if not repo_name:
+            print(f"\n{YELLOW}Operation cancelled.{ENDC}")
+            if ask_for_enter:
+                print(f"\n{GREEN}Press any key to return to the menu...{ENDC}")
+                get_single_keypress()
+            return
+
+        # Solicitar descripción (opcional)
+        print(f"\n{YELLOW}Enter a description for the repository (optional):{ENDC}")
+        description = input("> ").strip()
+
+        # Preguntar si el repositorio debe ser privado
+        print(f"\n{YELLOW}Make the repository private? (y/n):{ENDC}")
+        private_choice = get_single_keypress().lower()
+        private = private_choice == 'y'
+
+        print(f"\n{YELLOW}Creating remote repository '{repo_name}' on GitHub...{ENDC}")
+        repo_url = create_github_repository(repo_name, description, private)
+
+        if repo_url:
+            print(f"\n{GREEN}Remote repository created successfully.{ENDC}")
+            print(f"{GREEN}Repository URL: {repo_url}{ENDC}")
+
+            # Si estamos en un repositorio local, preguntar si quiere conectarlo
+            if is_git_repo():
+                print(f"\n{YELLOW}Do you want to connect your local repository to this remote? (y/n):{ENDC}")
+                connect_choice = get_single_keypress().lower()
+
+                if connect_choice == 'y':
+                    print(f"\n{YELLOW}Connecting to remote repository...{ENDC}")
+                    subprocess.run(["git", "remote", "add", "origin", repo_url], check=True)
+                    print(f"\n{GREEN}Remote repository connected successfully.{ENDC}")
+
+                    # Preguntar si quiere hacer push
+                    print(f"\n{YELLOW}Do you want to push your current branch to the remote? (y/n):{ENDC}")
+                    push_choice = get_single_keypress().lower()
+
+                    if push_choice == 'y':
+                        current_branch = subprocess.run(
+                            ["git", "branch", "--show-current"],
+                            capture_output=True,
+                            text=True,
+                            check=True
+                        ).stdout.strip()
+
+                        print(f"\n{YELLOW}Pushing to remote repository...{ENDC}")
+                        subprocess.run(["git", "push", "-u", "origin", current_branch], check=True)
+                        print(f"\n{GREEN}Successfully pushed to remote repository.{ENDC}")
+
+        # Mostrar mensaje final y esperar que el usuario presione una tecla
+        if ask_for_enter:
+            print(f"\n{GREEN}Press any key to return to the menu...{ENDC}")
+            get_single_keypress()
+
+    except Exception as e:
+        print(f"Error creating remote repository: {e}")
+        if ask_for_enter:
+            print(f"\n{GREEN}Press any key to return to the menu...{ENDC}")
+            get_single_keypress()
+
 def add_all_files(ask_for_enter=True):
     """Añade todos los archivos al índice de Git (git add .)"""
     if not is_git_repo():
@@ -428,20 +513,22 @@ def add_menu_options():
                 f"[x] {add_menu.ADD_EXPANDED_FILES.value}",
                 f"[b] {add_menu.ADD_LOCAL_BRANCH.value}",
                 f"[l] {add_menu.ADD_LOCAL_REPO.value}",
+                f"[r] {add_menu.ADD_REMOTE_REPO.value}",
                 f"[0] {add_menu.ADD_EMPTY_REPO.value}",
                 "[␣] Back to previous menu",
                 "[q] Quit program"
             ]
-            accept_keys = ("enter", "a", "t", "x", "b", "l", "0", " ", "q")
+            accept_keys = ("enter", "a", "t", "x", "b", "l", "r", "0", " ", "q")
         else:
             # Solo mostrar la opción para crear un repo y salir cuando no estamos en un repo
             menu_options = [
                 f"[l] {add_menu.ADD_LOCAL_REPO.value}",
+                f"[r] {add_menu.ADD_REMOTE_REPO.value}",
                 f"[0] {add_menu.ADD_EMPTY_REPO.value}",
                 "[␣] Back to previous menu",
                 "[q] Quit program"
             ]
-            accept_keys = ("enter", "l", "0", " ", "q")
+            accept_keys = ("enter", "l", "r", "0", " ", "q")
 
         # Creamos el menú con las teclas aceptadas adecuadas
         terminal_menu = TerminalMenu(
@@ -484,14 +571,18 @@ def add_menu_options():
                 # Verificar si ahora estamos en un repo después de crear uno
                 is_repo = is_git_repo()
                 continue
-            elif menu_entry_index == 5 or chosen_key == "0":
+            elif menu_entry_index == 5 or chosen_key == "r":
+                add_remote_repo(ask_for_enter=True)
+                clear_screen()
+                continue
+            elif menu_entry_index == 6 or chosen_key == "0":
                 add_empty_repo(ask_for_enter=True)
                 clear_screen()
                 continue
-            elif menu_entry_index == 6:
+            elif menu_entry_index == 7:
                 clear_screen()
                 return
-            elif menu_entry_index == 7 or chosen_key == "q":
+            elif menu_entry_index == 8 or chosen_key == "q":
                 quit()
             else:
                 print("Invalid option. Please try again.")
@@ -502,14 +593,18 @@ def add_menu_options():
                 # Verificar si ahora estamos en un repo después de crear uno
                 is_repo = is_git_repo()
                 continue
-            elif menu_entry_index == 1 or chosen_key == "0":
+            elif menu_entry_index == 1 or chosen_key == "r":
+                add_remote_repo(ask_for_enter=True)
+                clear_screen()
+                continue
+            elif menu_entry_index == 2 or chosen_key == "0":
                 add_empty_repo(ask_for_enter=True)
                 clear_screen()
                 continue
-            elif menu_entry_index == 2:
+            elif menu_entry_index == 3:
                 clear_screen()
                 return
-            elif menu_entry_index == 3 or chosen_key == "q":
+            elif menu_entry_index == 4 or chosen_key == "q":
                 quit()
             else:
                 print("Invalid option. Please try again.")

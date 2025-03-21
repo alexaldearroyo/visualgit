@@ -91,6 +91,17 @@ class add_menu(Enum):
     ADD_REMOTE_REPO = 'Add Remote Repo'
     ADD_EMPTY_REPO = 'Add Empty Repo'
 
+class local_menu(Enum):
+    LOCAL = 'Local'
+    GENERAL_VIEW = 'Show General View'
+    SHOW_STATUS = 'Show Detailed Status'
+    SHOW_LOCAL_REPO = 'Show Local Repo'
+    SHOW_BRANCHES = 'Show Branches'
+    ADD_ALL_FILES = 'Add All Files'
+    ADD_TRACKED_FILES = 'Add Tracked Files'
+    ADD_LOCAL_BRANCH = 'Add Local Branch'
+    COMMIT_LOCAL = 'Commit to Local Repo'
+
 class history_menu(Enum):
     DETAILED_HISTORY = 'Show Commit History'
     EXPANDED_HISTORY = 'Show Expanded History'

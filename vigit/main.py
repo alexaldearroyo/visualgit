@@ -24,6 +24,7 @@ from .branx import work_in_branches
 from .advanced import advanced_operations
 from .config import configuration
 from .add_menu import add_menu_options, add_tracked_files, add_all_files
+from .local_menu import local_menu_options
 
 
 def handle_args():
@@ -268,7 +269,6 @@ def main():
             print(branch_display)
 
         menu_options = [
-            f"[l] {updated_start_menu.LOCAL.value}",
             f"[r] {updated_start_menu.REMOTE.value}",
             f"[b] {updated_start_menu.MANAGE_BRANCHES.value}",
             f"[o] {updated_start_menu.ADVANCED_OPERATIONS.value}",
@@ -276,6 +276,7 @@ def main():
             f"[x] {updated_start_menu.QUICK_ACTIONS.value}",
             f"[s] {show_menu.SHOW.value}",
             f"[a] {add_menu.ADD.value}",
+            f"[l] {local_menu.LOCAL.value}",
             "[q] Quit program"
         ]
 
@@ -288,38 +289,38 @@ def main():
         menu_entry_index = terminal_menu.show()
 
         if menu_entry_index == 0:
-            # Local
-            main_local()
-        elif menu_entry_index == 1:
             # Remote
             if is_git_repo():
                 main_remote()
             else:
                 print_not_git_repo()
-        elif menu_entry_index == 2:
+        elif menu_entry_index == 1:
             # Manage Branches
             if is_git_repo():
                 manage_branches()
             else:
                 print_not_git_repo()
-        elif menu_entry_index == 3:
+        elif menu_entry_index == 2:
             # Advanced Operations
             if is_git_repo():
                 advanced_operations()
             else:
                 print_not_git_repo()
-        elif menu_entry_index == 4:
+        elif menu_entry_index == 3:
             # New Configuration
             configuration()
-        elif menu_entry_index == 5:
+        elif menu_entry_index == 4:
             # Quick Actions
             quick_actions()
-        elif menu_entry_index == 6:
+        elif menu_entry_index == 5:
             # Show
             show_menu_options()
-        elif menu_entry_index == 7:
+        elif menu_entry_index == 6:
             # Add
             add_menu_options()
+        elif menu_entry_index == 7:
+            # Local
+            local_menu_options()
         elif menu_entry_index == 8:
             quit()
 

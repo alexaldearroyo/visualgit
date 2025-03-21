@@ -118,6 +118,29 @@ def show_status_long():
         else:
             print("Working tree clean")
         print()
+
+        # Mostrar el último commit después del status
+        print(f"{BLUE}Last Commit:{ENDC}")
+
+        # Verificar si hay commits antes de intentar mostrar el último
+        has_commits = subprocess.run(
+            ["git", "rev-parse", "--verify", "HEAD"],
+            capture_output=True,
+            text=True
+        ).returncode == 0
+
+        if has_commits:
+            # Mostrar solo el último commit con formato similar al de show_detailed_history
+            subprocess.run([
+                "git", "--no-pager", "log",
+                "-1",  # Solo mostrar el último commit
+                "--pretty=format:%C(yellow)● %h%Creset%C(auto)%d%Creset%C(blue) ► %C(white)%s%Creset %C(blue)| %C(cyan)%an%Creset %C(blue)| %C(magenta)%ad%Creset",
+                "--decorate=short",
+                "--date=relative"
+            ], check=True)
+            print("\n")
+        else:
+            print(f"{YELLOW}No commits yet in this repository.{ENDC}\n")
     except Exception as e:
         print(f"Error getting status: {e}")
 

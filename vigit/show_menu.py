@@ -130,7 +130,7 @@ def show_tracking_history(ask_for_enter=True):
         return
 
     try:
-        print(f"\n{BLUE}Tracking History with Statistics:{ENDC}\n")
+        print(f"\n{BLUE}Tracking History of modified files:{ENDC}\n")
         # Mostrar el historial de commits con estadísticas de archivos modificados
         subprocess.run([
             "git", "log",
@@ -244,7 +244,7 @@ def show_differences_history(ask_for_enter=True):
         return
 
     try:
-        print(f"\n{BLUE}Differences Commit History:{ENDC}\n")
+        print(f"\n{BLUE}Differences History of Commits:{ENDC}\n")
         # Comando completo usando subprocess.run con shell=True para mantener el pipeline
         subprocess.run(
             "git log --color=always --stat -p --pretty=format:\"%C(white)$(printf '%.0s-' {1..30})%Creset%n%C(yellow)● %h%Creset%C(auto)%d%Creset%n%C(blue)► %C(white)%s%Creset %C(blue)| %C(cyan)%an%Creset %C(blue)| %C(magenta)%ad%Creset\" --date=format:'%Y-%m-%d %H:%M%n' | diff-so-fancy | less -R",

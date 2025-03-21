@@ -16,7 +16,7 @@ from .utils import BG_BLUE, YELLOW, GREEN, ENDC, BOLD, BG_PURPLE, BLACK_TEXT, WH
 from .constants import start_menu, main_menu, main_local_menu, main_remote_menu, branch_local_menu, branch_remote_menu, manage_branch_menu, updated_start_menu, MENU_CURSOR, MENU_CURSOR_STYLE, show_menu
 from .checks import is_git_installed, is_git_repo, print_not_git_repo, current_branch, get_current_branch, is_current_branch_main
 from .menu import work_in_main, create_local_repo, commit_to_local_repo, commit_and_push, main_local, main_remote, create_remote_repo
-from .show_menu import show_menu_options, show_status_long, general_view
+from .show_menu import show_menu_options, show_status_long, general_view, show_detailed_history, show_expanded_history, show_tracking_history, show_differences_history, show_local_repo, show_remote_repo, show_branches, show_differences_non_staged, show_differences_staged, show_differences_between_commits, show_differences_between_branches
 from .branx_local import go_to_branch, go_to_main, create_local_branch
 from .branx_remote import commit_and_push_in_branch, push_changes_to_remote_branch, create_remote_branch
 from .branx_manage import merge_branches, manage_branches, merge_with_main, merge_with_selected_branch
@@ -70,10 +70,82 @@ def handle_args():
     n_parser = subparsers.add_parser('n', help='Quick action: New Configuration')
 
     # Command: vg s (see log)
-    s_parser = subparsers.add_parser('s', help='Quick action: See log')
+    s_parser = subparsers.add_parser('s', help='Quick action: See detailed status')
+
+    # Command: vg ss (same as s)
+    ss_parser = subparsers.add_parser('ss', help='Quick action: See detailed status (alias of s)')
 
     # Command: vg v (general view)
     v_parser = subparsers.add_parser('v', help='Quick action: General View')
+
+    # Command: vg sv (same as v)
+    sv_parser = subparsers.add_parser('sv', help='Quick action: General View (alias of v)')
+
+    # Command: vg sd (diff non-staged)
+    sd_parser = subparsers.add_parser('sd', help='Quick action: Show differences of non staged files')
+
+    # Command: vg sdd (same as sd)
+    sdd_parser = subparsers.add_parser('sdd', help='Quick action: Show differences of non staged files (alias of sd)')
+
+    # Command: vg sda (diff staged/added)
+    sda_parser = subparsers.add_parser('sda', help='Quick action: Show differences of added files')
+
+    # Command: vg sdc (diff between commits)
+    sdc_parser = subparsers.add_parser('sdc', help='Quick action: Show differences between commits')
+
+    # Command: vg sdb (diff between branches)
+    sdb_parser = subparsers.add_parser('sdb', help='Quick action: Show differences between branches')
+
+    # Command: vg h (history)
+    h_parser = subparsers.add_parser('h', help='Quick action: Show commit history')
+
+    # Command: vg sh (same as h)
+    sh_parser = subparsers.add_parser('sh', help='Quick action: Show commit history (alias of h)')
+
+    # Command: vg shh (same as h)
+    shh_parser = subparsers.add_parser('shh', help='Quick action: Show commit history (alias of h)')
+
+    # Command: vg sc (same as h)
+    sc_parser = subparsers.add_parser('sc', help='Quick action: Show commit history (alias of h)')
+
+    # Command: vg shx (expanded history)
+    shx_parser = subparsers.add_parser('shx', help='Quick action: Show expanded history')
+
+    # Command: vg sx (same as shx)
+    sx_parser = subparsers.add_parser('sx', help='Quick action: Show expanded history (alias of shx)')
+
+    # Command: vg hx (same as shx)
+    hx_parser = subparsers.add_parser('hx', help='Quick action: Show expanded history (alias of shx)')
+
+    # Command: vg sht (tracking history)
+    sht_parser = subparsers.add_parser('sht', help='Quick action: Show tracking history')
+
+    # Command: vg st (same as sht)
+    st_parser = subparsers.add_parser('st', help='Quick action: Show tracking history (alias of sht)')
+
+    # Command: vg ht (same as sht)
+    ht_parser = subparsers.add_parser('ht', help='Quick action: Show tracking history (alias of sht)')
+
+    # Command: vg shd (differences history)
+    shd_parser = subparsers.add_parser('shd', help='Quick action: Show differences history')
+
+    # Command: vg hd (same as shd)
+    hd_parser = subparsers.add_parser('hd', help='Quick action: Show differences history (alias of shd)')
+
+    # Command: vg sl (local repo)
+    sl_parser = subparsers.add_parser('sl', help='Quick action: Show local repo')
+
+    # Command: vg l (same as sl)
+    l_parser = subparsers.add_parser('l', help='Quick action: Show local repo (alias of sl)')
+
+    # Command: vg sr (remote repo)
+    sr_parser = subparsers.add_parser('sr', help='Quick action: Show remote repo')
+
+    # Command: vg r (same as sr)
+    r_parser = subparsers.add_parser('r', help='Quick action: Show remote repo (alias of sr)')
+
+    # Command: vg sb (branches)
+    sb_parser = subparsers.add_parser('sb', help='Quick action: Show branches')
 
     return parser.parse_args()
 
@@ -128,11 +200,44 @@ def main():
         elif args.command == 'n':
             configuration()
             return
-        elif args.command == 's':
-            check_log()
+        elif args.command == 's' or args.command == 'ss':
+            show_status_long()
             return
-        elif args.command == 'v':
+        elif args.command == 'v' or args.command == 'sv':
             general_view()
+            return
+        elif args.command == 'sd' or args.command == 'sdd':
+            show_differences_non_staged()
+            return
+        elif args.command == 'sda':
+            show_differences_staged()
+            return
+        elif args.command == 'sdc':
+            show_differences_between_commits()
+            return
+        elif args.command == 'sdb':
+            show_differences_between_branches()
+            return
+        elif args.command == 'h' or args.command == 'sh' or args.command == 'shh' or args.command == 'sc':
+            show_detailed_history()
+            return
+        elif args.command == 'shx' or args.command == 'sx' or args.command == 'hx':
+            show_expanded_history()
+            return
+        elif args.command == 'sht' or args.command == 'st' or args.command == 'ht':
+            show_tracking_history()
+            return
+        elif args.command == 'shd' or args.command == 'hd':
+            show_differences_history()
+            return
+        elif args.command == 'sl' or args.command == 'l':
+            show_local_repo()
+            return
+        elif args.command == 'sr' or args.command == 'r':
+            show_remote_repo()
+            return
+        elif args.command == 'sb':
+            show_branches()
             return
 
     if not is_git_installed():

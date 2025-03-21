@@ -1024,7 +1024,7 @@ def show_menu_options():
             clear_screen()
             continue
         elif menu_entry_index == 1 or chosen_key == "s":
-            show_status_short()
+            show_status_long()
             # Prevents returning to the "Show" menu which would display the "Overall Status" again
             print(f"{GREEN}Press any key to return to the menu...{ENDC}")
             get_single_keypress()

@@ -23,7 +23,7 @@ from .branx_manage import merge_branches, manage_branches, merge_with_main, merg
 from .branx import work_in_branches
 from .advanced import advanced_operations
 from .config import configuration
-from .add_menu import add_menu_options, add_tracked_files
+from .add_menu import add_menu_options, add_tracked_files, add_all_files
 
 
 def handle_args():
@@ -151,6 +151,9 @@ def handle_args():
     # Command: vg at (add tracked files)
     at_parser = subparsers.add_parser('at', help='Quick action: Add tracked files')
 
+    # Command: vg aa (add all files)
+    aa_parser = subparsers.add_parser('aa', help='Quick action: Add all files')
+
     return parser.parse_args()
 
 
@@ -245,6 +248,9 @@ def main():
             return
         elif args.command == 'at':
             add_tracked_files(ask_for_enter=False)
+            return
+        elif args.command == 'aa':
+            add_all_files(ask_for_enter=False)
             return
 
     if not is_git_installed():

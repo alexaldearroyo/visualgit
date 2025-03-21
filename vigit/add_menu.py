@@ -98,13 +98,62 @@ def add_tracked_files(ask_for_enter=True):
                 for file in selected_files:
                     print(f"  Adding: {file}")
                     subprocess.run(["git", "add", file], check=True)
-                print(f"\n{GREEN}Selected files have been added successfully.{ENDC}")
+                print(f"\n{GREEN}Selected file(s) have been added successfully.{ENDC}")
             else:
                 print(f"\n{YELLOW}No files were selected.{ENDC}")
 
+        # Solo mostrar mensaje y esperar tecla si se solicita explícitamente
         if ask_for_enter:
             print(f"\n{GREEN}Press any key to return to the menu...{ENDC}")
             get_single_keypress()
+        # Si no, simplemente retornar para volver al menú
+    except Exception as e:
+        print(f"Error adding files: {e}")
+        if ask_for_enter:
+            print(f"\n{GREEN}Press any key to return to the menu...{ENDC}")
+            get_single_keypress()
+
+def add_all_files(ask_for_enter=True):
+    """Añade todos los archivos al índice de Git (git add .)"""
+    if not is_git_repo():
+        print_not_git_repo()
+        return
+
+    try:
+        print(f"\n{BLUE}Add All Files:{ENDC}")
+
+        # Verificar si hay archivos para añadir
+        untracked = subprocess.run(
+            ["git", "ls-files", "--others", "--exclude-standard"],
+            capture_output=True,
+            text=True,
+            check=True
+        ).stdout.strip()
+
+        modified = subprocess.run(
+            ["git", "ls-files", "--modified"],
+            capture_output=True,
+            text=True,
+            check=True
+        ).stdout.strip()
+
+        if not untracked and not modified:
+            print(f"\n{YELLOW}No files to add. Working tree clean.{ENDC}")
+            if ask_for_enter:
+                print(f"\n{GREEN}Press any key to return to the menu...{ENDC}")
+                get_single_keypress()
+            return
+
+        # Añadir todos los archivos sin preguntar
+        print(f"\n{YELLOW}Adding all files...{ENDC}")
+        subprocess.run(["git", "add", "."], check=True)
+        print(f"\n{GREEN}All files have been added successfully.{ENDC}")
+
+        # Solo mostrar mensaje y esperar tecla si se solicita explícitamente
+        if ask_for_enter:
+            print(f"\n{GREEN}Press any key to return to the menu...{ENDC}")
+            get_single_keypress()
+        # Si no, simplemente retornar para volver al menú
     except Exception as e:
         print(f"Error adding files: {e}")
         if ask_for_enter:
@@ -155,6 +204,7 @@ def add_menu_options():
             print(f"Error getting modified files: {e}")
 
         menu_options = [
+            f"[a] {add_menu.ADD_ALL_FILES.value}",
             f"[t] {add_menu.ADD_TRACKED_FILES.value}",
             "[k] Back to previous menu",
             "[q] Quit program"
@@ -165,18 +215,22 @@ def add_menu_options():
             title=f"\nPlease select an option:",
             menu_cursor=MENU_CURSOR,
             menu_cursor_style=MENU_CURSOR_STYLE,
-            accept_keys=("enter", "t", "k", "q")
+            accept_keys=("enter", "a", "t", "k", "q")
         )
         menu_entry_index = terminal_menu.show()
 
         if menu_entry_index == 0:
-            add_tracked_files()
+            add_all_files(ask_for_enter=True)
             clear_screen()
             continue
         elif menu_entry_index == 1:
+            add_tracked_files(ask_for_enter=True)
+            clear_screen()
+            continue
+        elif menu_entry_index == 2:
             clear_screen()
             return
-        elif menu_entry_index == 2:
+        elif menu_entry_index == 3:
             quit()
         else:
             print("Invalid option. Please try again.")

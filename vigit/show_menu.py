@@ -5,7 +5,7 @@ import tty
 import re
 
 from simple_term_menu import TerminalMenu
-from .utils import CYAN, DARK_BLUE, GREEN, ENDC, BLUE, ORANGE, RED, WHITE, YELLOW, BOLD, UNDERLINE, global_menu, quit, invalid_opt, run_git_diff
+from .utils import CYAN, DARK_BLUE, GREEN, ENDC, BLUE, ORANGE, RED, WHITE, YELLOW, BOLD, UNDERLINE, global_menu, quit, invalid_opt, run_git_diff, MAGENTA
 from .constants import show_menu, MENU_CURSOR, MENU_CURSOR_STYLE, history_menu, differences_menu
 from .checks import is_git_repo, print_not_git_repo
 
@@ -523,36 +523,92 @@ def show_differences_between_commits(ask_for_enter=True):
         commits_plain = result_plain.stdout.strip().split("\n")
         commit_hashes = [line.split()[0] for line in commits_plain]
 
-        # Obtener commits con color para mostrar al usuario
+        # Obtener commits con color y formato personalizado con paréntesis ya incluidos
         result_colored = subprocess.run(
-            ["git", "log", "--oneline", "--decorate", "--color", "--max-count=10"],
+            ["git", "log", "--pretty=format:%h %s (%cr)", "--color", "--max-count=10"],
             capture_output=True,
             text=True
         )
-        commits_colored = result_colored.stdout.strip().split("\n")
+        commits_with_time = result_colored.stdout.strip().split("\n")
 
-        if not commits_plain or not commits_colored:
+        if not commits_plain or not commits_with_time:
             print(f"{YELLOW}No commits yet in this repository. Cannot compare differences between commits.{ENDC}")
             if ask_for_enter:
                 print(f"\n{GREEN}Press any key to return to the menu...{ENDC}")
                 get_single_keypress()
             return
 
-        # Mostrar commits coloreados al usuario
+        # Mostrar commits con el formato personalizado
         print(f"{YELLOW}Recent commits:{ENDC}")
-        for idx, commit in enumerate(commits_colored):
-            print(f"{idx + 1}. {commit}")
+        for idx, commit_line in enumerate(commits_with_time):
+            # Dividir la línea en sus componentes
+            parts = commit_line.split(' ', 1)  # Separar el hash del resto
+            if len(parts) >= 2:
+                commit_hash = parts[0]
+                rest = parts[1]
+
+                # Buscar el paréntesis abierto para separar el mensaje del tiempo
+                time_index = rest.rfind('(')
+                if time_index != -1:
+                    message = rest[:time_index].strip()
+                    time_ago = rest[time_index:]  # Incluye los paréntesis
+
+                    # Formatear la salida con los elementos requeridos y el hash en amarillo
+                    formatted_line = f"{idx + 1}. {YELLOW}{commit_hash}{ENDC} {DARK_BLUE}►{ENDC} {message} {MAGENTA}{time_ago}{ENDC}"
+                    print(formatted_line)
+                else:
+                    # Fallback por si el formato no se puede dividir como esperamos
+                    print(f"{idx + 1}. {commit_line}")
+            else:
+                # Fallback por si el formato no se puede dividir como esperamos
+                print(f"{idx + 1}. {commit_line}")
 
         print(f"\n{YELLOW}Select base commit (older):{ENDC}")
-        base_idx = int(input("Enter number (press enter to cancel): ")) - 1
+        user_input = input("Enter number (press enter to cancel): ").strip()
+        if not user_input:
+            print(f"\n{YELLOW}Operation cancelled.{ENDC}")
+            # if ask_for_enter:
+            #     print(f"\n{GREEN}Press any key to return to the menu...{ENDC}")
+            #     get_single_keypress()
+            return
+
+        base_idx = int(user_input) - 1
         base_commit = commit_hashes[base_idx]
 
         print(f"\n{YELLOW}Select compare commit (newer):{ENDC}")
-        for idx, commit in enumerate(commits_colored):
+        for idx, commit_line in enumerate(commits_with_time):
             if idx != base_idx:
-                print(f"{idx + 1}. {commit}")
+                # Dividir la línea en sus componentes
+                parts = commit_line.split(' ', 1)  # Separar el hash del resto
+                if len(parts) >= 2:
+                    commit_hash = parts[0]
+                    rest = parts[1]
 
-        compare_idx = int(input("\nEnter number (press enter to cancel): ")) - 1
+                    # Buscar el paréntesis abierto para separar el mensaje del tiempo
+                    time_index = rest.rfind('(')
+                    if time_index != -1:
+                        message = rest[:time_index].strip()
+                        time_ago = rest[time_index:]  # Incluye los paréntesis
+
+                        # Formatear la salida con los elementos requeridos y el hash en amarillo
+                        formatted_line = f"{idx + 1}. {YELLOW}{commit_hash}{ENDC} {DARK_BLUE}►{ENDC} {message} {MAGENTA}{time_ago}{ENDC}"
+                        print(formatted_line)
+                    else:
+                        # Fallback por si el formato no se puede dividir como esperamos
+                        print(f"{idx + 1}. {commit_line}")
+                else:
+                    # Fallback por si el formato no se puede dividir como esperamos
+                    print(f"{idx + 1}. {commit_line}")
+
+        user_input = input("\nEnter number (press enter to cancel): ").strip()
+        if not user_input:
+            print(f"\n{YELLOW}Operation cancelled.{ENDC}")
+            if ask_for_enter:
+                print(f"\n{GREEN}Press any key to return to the menu...{ENDC}")
+                get_single_keypress()
+            return
+
+        compare_idx = int(user_input) - 1
         compare_commit = commit_hashes[compare_idx]
 
         print(f"\n{BLUE}Differences between commits {base_commit} and {compare_commit}:{ENDC}\n")

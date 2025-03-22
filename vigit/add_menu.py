@@ -32,7 +32,7 @@ def add_tracked_files(ask_for_enter=True):
         return
 
     try:
-        print(f"\n{BLUE}Add Tracked Files:{ENDC}")
+        print(f"{BLUE}Add Tracked Files:{ENDC}")
 
         # Obtener archivos no rastreados
         untracked_files = subprocess.run(
@@ -122,7 +122,7 @@ def add_expanded_files(ask_for_enter=True):
         return
 
     try:
-        print(f"\n{BLUE}Add Expanded Files:{ENDC}")
+        print(f"{BLUE}Add Expanded Files:{ENDC}")
 
         # Obtener archivos no rastreados
         untracked_files = subprocess.run(
@@ -242,7 +242,7 @@ def add_local_branch(ask_for_enter=False):
         return
 
     try:
-        print(f"\n{BLUE}Add Local Branch:{ENDC}")
+        print(f"{BLUE}Add Local Branch:{ENDC}")
 
         # Obtener las ramas actuales para mostrarlas como referencia
         current_branch = subprocess.run(
@@ -327,7 +327,7 @@ def add_local_branch(ask_for_enter=False):
 def add_local_repo(ask_for_enter=True):
     """Inicializa un nuevo repositorio Git (git init)"""
     try:
-        print(f"\n{BLUE}Add Local Repo:{ENDC}")
+        print(f"{BLUE}Add Local Repo:{ENDC}")
 
         # Verificar si ya estamos en un repositorio git
         is_already_repo = False
@@ -403,7 +403,7 @@ def add_local_repo(ask_for_enter=True):
 def add_empty_repo(ask_for_enter=True):
     """Inicializa un nuevo repositorio Git bare (vacío) con git init --bare"""
     try:
-        print(f"\n{BLUE}Add Empty Repo:{ENDC}")
+        print(f"{BLUE}Add Empty Repo:{ENDC}")
 
         # Solicitar nombre para el repositorio
         print(f"\n{YELLOW}Enter the name for the empty repository (leave empty to cancel):{ENDC}")
@@ -411,9 +411,9 @@ def add_empty_repo(ask_for_enter=True):
 
         if not repo_name:
             print(f"\n{YELLOW}Operation cancelled.{ENDC}")
-            if ask_for_enter:
-                print(f"\n{GREEN}Press any key to return to the menu...{ENDC}")
-                get_single_keypress()
+            # if ask_for_enter:
+            #     print(f"\n{GREEN}Press any key to return to the menu...{ENDC}")
+            #     get_single_keypress()
             return
 
         # Añadir la extensión .git si no la tiene
@@ -448,7 +448,7 @@ def add_empty_repo(ask_for_enter=True):
 def add_remote_repo(ask_for_enter=True):
     """Crea un nuevo repositorio remoto en GitHub"""
     try:
-        print(f"\n{BLUE}Add Remote Repo:{ENDC}")
+        print(f"{BLUE}Add Remote Repo:{ENDC}")
 
         # Verificar si tenemos token de GitHub
         token = get_github_token()
@@ -471,9 +471,9 @@ def add_remote_repo(ask_for_enter=True):
 
         if not repo_name:
             print(f"\n{YELLOW}Operation cancelled.{ENDC}")
-            if ask_for_enter:
-                print(f"\n{GREEN}Press any key to return to the menu...{ENDC}")
-                get_single_keypress()
+            # if ask_for_enter:
+            #     print(f"\n{GREEN}Press any key to return to the menu...{ENDC}")
+            #     get_single_keypress()
             return
 
         # Solicitar descripción (opcional)
@@ -536,7 +536,7 @@ def add_all_files(ask_for_enter=True):
         return
 
     try:
-        print(f"\n{BLUE}Add All Files:{ENDC}")
+        print(f"{BLUE}Add All Files:{ENDC}")
 
         # Verificar si hay archivos para añadir
         status = subprocess.run(

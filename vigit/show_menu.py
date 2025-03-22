@@ -603,9 +603,9 @@ def show_differences_between_commits(ask_for_enter=True):
         user_input = input("\nEnter number (press enter to cancel): ").strip()
         if not user_input:
             print(f"\n{YELLOW}Operation cancelled.{ENDC}")
-            if ask_for_enter:
-                print(f"\n{GREEN}Press any key to return to the menu...{ENDC}")
-                get_single_keypress()
+            # if ask_for_enter:
+            #     print(f"\n{GREEN}Press any key to return to the menu...{ENDC}")
+            #     get_single_keypress()
             return
 
         compare_idx = int(user_input) - 1
@@ -691,7 +691,15 @@ def show_differences_between_branches(ask_for_enter=True):
 
         # Input usuario
         print(f"\n{YELLOW}Select first branch:{ENDC}")
-        first_idx = int(input("Enter number (press enter to cancel): ")) - 1
+        user_input = input("Enter number (press enter to cancel): ").strip()
+        if not user_input:
+            print(f"\n{YELLOW}Operation cancelled.{ENDC}")
+            # if ask_for_enter:
+            #     print(f"\n{GREEN}Press any key to return to the menu...{ENDC}")
+            #     get_single_keypress()
+            return
+
+        first_idx = int(user_input) - 1
         first_branch = all_branches[first_idx].strip("* ").strip()
 
         print()
@@ -705,7 +713,15 @@ def show_differences_between_branches(ask_for_enter=True):
                 print(f"{idx + 1}. {CYAN}{b}{ENDC}")
 
         print(f"\n{YELLOW}Select second branch:{ENDC}")
-        second_idx = int(input("Enter number (press enter to cancel): ")) - 1
+        user_input = input("Enter number (press enter to cancel): ").strip()
+        if not user_input:
+            print(f"\n{YELLOW}Operation cancelled.{ENDC}")
+            # if ask_for_enter:
+            #     print(f"\n{GREEN}Press any key to return to the menu...{ENDC}")
+            #     get_single_keypress()
+            return
+
+        second_idx = int(user_input) - 1
         second_branch = all_branches[second_idx].strip("* ").strip()
 
         print(f"\n{BLUE}Differences between branches {first_branch} and {second_branch}:{ENDC}\n")

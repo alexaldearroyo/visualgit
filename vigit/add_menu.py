@@ -81,9 +81,9 @@ def add_tracked_files(ask_for_enter=True):
         # Si no se seleccionó nada o se seleccionó Cancelar
         if not selected_indices or (len(selected_indices) == 1 and selected_indices[0] == len(menu_options) - 1):
             print(f"\n{YELLOW}Operation cancelled.{ENDC}")
-            if ask_for_enter:
-                print(f"\n{GREEN}Press any key to return to the menu...{ENDC}")
-                get_single_keypress()
+            # if ask_for_enter:
+            #     print(f"\n{GREEN}Press any key to return to the menu...{ENDC}")
+            #     get_single_keypress()
             return
 
         # Si se seleccionó "Add all files"
@@ -170,7 +170,7 @@ def add_expanded_files(ask_for_enter=True):
             return
 
         # Mostrar lista de archivos para añadir
-        print(f"\n{YELLOW}Select files to add (space to select, enter to confirm):{ENDC}")
+        print(f"\n{YELLOW}Select files to add (<tab> to select | <enter> to confirm | <q> to cancel):{ENDC}")
         print(f"{BLUE}[M]{ENDC} - Modified, {BLUE}[?]{ENDC} - Untracked, {BLUE}[D]{ENDC} - Deleted\n")
 
         # Preparar opciones de menú con archivos y opciones adicionales
@@ -182,7 +182,7 @@ def add_expanded_files(ask_for_enter=True):
             menu_cursor=MENU_CURSOR,
             menu_cursor_style=MENU_CURSOR_STYLE,
             multi_select=True,
-            show_multi_select_hint=True,
+            show_multi_select_hint=False,
             clear_screen=False
         )
 

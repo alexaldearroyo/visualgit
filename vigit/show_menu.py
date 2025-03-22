@@ -620,9 +620,9 @@ def show_differences_between_commits(ask_for_enter=True):
         )
 
         print()
-        if ask_for_enter:
-            print(f"{GREEN}Press any key to return to the menu...{ENDC}")
-            get_single_keypress()
+        # if ask_for_enter:
+        #     print(f"{GREEN}Press any key to return to the menu...{ENDC}")
+        #     get_single_keypress()
 
     except Exception as e:
         print(f"{YELLOW}Error comparing commits: {e}{ENDC}")

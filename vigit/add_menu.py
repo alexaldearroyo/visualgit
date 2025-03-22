@@ -553,6 +553,24 @@ def add_all_files(ask_for_enter=True):
                 get_single_keypress()
             return
 
+        # Identificar si hay archivos que no estén ya en staging
+        # Verificar el formato correcto de la salida de git status -s
+        unstaged_changes = False
+        for line in status.split('\n'):
+            # Archivos modificados no staged: ' M'
+            # Archivos nuevos no tracked: '??'
+            if line.startswith(' M') or line.startswith('??'):
+                unstaged_changes = True
+                break
+
+        # Si todos los archivos ya están en staging
+        if not unstaged_changes:
+            print(f"\n{YELLOW}No new changes to be added. All changes already staged.{ENDC}")
+            if ask_for_enter:
+                print(f"\n{GREEN}Press any key to return to the menu...{ENDC}")
+                get_single_keypress()
+            return
+
         # Mostrar archivos que se van a añadir
         print(f"\n{BLUE}Files that will be added:{ENDC}")
         subprocess.run(["git", "status", "-s"], check=True)

@@ -4,7 +4,7 @@ import os
 
 from simple_term_menu import TerminalMenu
 from .utils import BLUE, YELLOW, GREEN, ENDC, DARK_BLUE, ORANGE, CYAN, WHITE, MAGENTA
-from .constants import local_menu, MENU_CURSOR, MENU_CURSOR_STYLE
+from .constants import local_menu, commit_menu, MENU_CURSOR, MENU_CURSOR_STYLE
 from .checks import is_git_repo, print_not_git_repo
 from .show_menu import general_view, show_status_long, show_local_repo, show_branches, get_single_keypress
 from .add_menu import add_all_files, add_tracked_files, add_local_branch
@@ -12,9 +12,8 @@ from .menu import commit_to_local_repo
 
 def clear_screen():
     """Clear the terminal screen"""
+    import os
     os.system('cls' if os.name == 'nt' else 'clear')
-    print("\nVISUAL GIT")
-    print("-" * 30)
 
 def local_menu_options():
     """Muestra el menú de opciones para operaciones locales"""
@@ -174,7 +173,7 @@ def commits_submenu():
 
     while True:
         # clear_screen()
-        print(f"{GREEN}COMMITS{ENDC}")
+        print(f"{GREEN}LOCAL | COMMITS{ENDC}")
 
         # Verificar si estamos en estado detached HEAD
         try:
@@ -219,12 +218,12 @@ def commits_submenu():
             pass
 
         menu_options = [
-            "[c] Commit All changes",
-            "[t] Commit Tracked Changes",
-            "[a] Commit All Changes of Tracked Files",
-            "[e] Edit Last Commit",
-            "[0] Commit with empty changes",
-            "[g] Go to commit",
+            f"[c] {commit_menu.COMMIT_ALL_CHANGES.value}",
+            f"[t] {commit_menu.COMMIT_TRACKED_CHANGES.value}",
+            f"[a] {commit_menu.COMMIT_ALL_CHANGES_OF_TRACKED_FILES.value}",
+            f"[e] {commit_menu.EDIT_LAST_COMMIT.value}",
+            f"[0] {commit_menu.COMMIT_WITH_EMPTY_CHANGES.value}",
+            f"[g] {commit_menu.GO_TO_COMMIT.value}",
             "[␣] Back to previous menu",
             "[q] Quit program"
         ]
@@ -283,26 +282,26 @@ def commit_all_changes():
         print_not_git_repo()
         return
 
-    clear_screen()
-    print(f"{GREEN}COMMIT ALL CHANGES{ENDC}")
+    # clear_screen()
+    print(f"\n{BLUE}Commit All Changes:{ENDC}")
 
     try:
         # Ejecutar git add .
         subprocess.run(["git", "add", "."], check=True)
 
         # Mostrar los archivos que se van a hacer commit
-        print(f"\n{BLUE}Files staged for commit:{ENDC}")
+        print(f"\n{YELLOW}Files staged for commit:{ENDC}")
         subprocess.run(["git", "status", "-s"], check=True)
 
         # Solicitar mensaje de commit
-        print(f"\n{YELLOW}Enter commit message {CYAN}(<enter> to cancel){ENDC}:")
-        commit_msg = input(f"{YELLOW}>{ENDC} ")
+        print(f"\n{YELLOW}Write commit message ({WHITE}<enter> to cancel{ENDC}{YELLOW}):{ENDC}")
+        commit_msg = input("> ")
 
         # Si el usuario presiona Enter sin escribir nada, cancelar
         if not commit_msg:
             print(f"\n{YELLOW}Commit cancelled.{ENDC}")
-            print(f"{GREEN}Press any key to return to the menu...{ENDC}")
-            get_single_keypress()
+            # print(f"{GREEN}Press any key to return to the menu...{ENDC}")
+            # get_single_keypress()
             return
 
         # Realizar el commit
@@ -400,14 +399,14 @@ def commit_tracked_changes():
         subprocess.run(["git", "status", "-s"], check=True)
 
         # Solicitar mensaje de commit
-        print(f"\n{YELLOW}Enter commit message {CYAN}(<enter> to cancel){ENDC}:")
-        commit_msg = input(f"{YELLOW}>{ENDC} ")
+        print(f"\n{YELLOW}Write commit message ({WHITE}<enter> to cancel{ENDC}{YELLOW}):{ENDC}")
+        commit_msg = input("> ")
 
         # Si el usuario presiona Enter sin escribir nada, cancelar
         if not commit_msg:
             print(f"\n{YELLOW}Commit cancelled.{ENDC}")
-            print(f"{GREEN}Press any key to return to the menu...{ENDC}")
-            get_single_keypress()
+            # print(f"{GREEN}Press any key to return to the menu...{ENDC}")
+            # get_single_keypress()
             return
 
         # Realizar el commit
@@ -436,14 +435,14 @@ def commit_tracked_files():
         subprocess.run(["git", "diff", "--name-status"], check=True)
 
         # Solicitar mensaje de commit
-        print(f"\n{YELLOW}Enter commit message {CYAN}(<enter> to cancel){ENDC}:")
-        commit_msg = input(f"{YELLOW}>{ENDC} ")
+        print(f"\n{YELLOW}Write commit message ({WHITE}<enter> to cancel{ENDC}{YELLOW}):{ENDC}")
+        commit_msg = input("> ")
 
         # Si el usuario presiona Enter sin escribir nada, cancelar
         if not commit_msg:
             print(f"\n{YELLOW}Commit cancelled.{ENDC}")
-            print(f"{GREEN}Press any key to return to the menu...{ENDC}")
-            get_single_keypress()
+            # print(f"{GREEN}Press any key to return to the menu...{ENDC}")
+            # get_single_keypress()
             return
 
         # Realizar el commit con la opción -a
@@ -492,14 +491,13 @@ def edit_last_commit():
         print(last_commit)
 
         # Solicitar el nuevo mensaje de commit
-        print(f"\n{YELLOW}Enter new commit message {CYAN}(<enter> to cancel){ENDC}:")
-        commit_msg = input(f"{YELLOW}>{ENDC} ")
-
+        print(f"\n{YELLOW}Write new commit message ({WHITE}<enter> to cancel{ENDC}{YELLOW}):{ENDC}")
+        commit_msg = input("> ")
         # Si el usuario presiona Enter sin escribir nada, cancelar
         if not commit_msg:
             print(f"\n{YELLOW}Amendment cancelled.{ENDC}")
-            print(f"{GREEN}Press any key to return to the menu...{ENDC}")
-            get_single_keypress()
+            # print(f"{GREEN}Press any key to return to the menu...{ENDC}")
+            # get_single_keypress()
             return
 
         # Realizar el commit con la opción --amend
@@ -524,14 +522,13 @@ def commit_empty():
 
     try:
         # Solicitar mensaje de commit
-        print(f"\n{YELLOW}Enter commit message {CYAN}(<enter> to cancel){ENDC}:")
-        commit_msg = input(f"{YELLOW}>{ENDC} ")
-
+        print(f"\n{YELLOW}Write commit message ({WHITE}<enter> to cancel{ENDC}{YELLOW}):{ENDC}")
+        commit_msg = input("> ")
         # Si el usuario presiona Enter sin escribir nada, cancelar
         if not commit_msg:
             print(f"\n{YELLOW}Commit cancelled.{ENDC}")
-            print(f"{GREEN}Press any key to return to the menu...{ENDC}")
-            get_single_keypress()
+            # print(f"{GREEN}Press any key to return to the menu...{ENDC}")
+            # get_single_keypress()
             return
 
         # Realizar el commit con la opción --allow-empty
@@ -611,14 +608,13 @@ def go_to_commit():
                 print(f"{idx + 1}. {commit_line}")
 
         # Solicitar selección por número
-        print(f"\n{YELLOW}Select a commit by number {CYAN}(<enter> to cancel){ENDC}:")
-        user_input = input(f"{YELLOW}>{ENDC} ")
+        user_input = input(f"\nSelect by number ({WHITE}<enter> to cancel{ENDC}): ").strip()
 
         # Si el usuario presiona Enter sin escribir nada, cancelar
         if not user_input:
             print(f"\n{YELLOW}Operation cancelled.{ENDC}")
-            print(f"{GREEN}Press any key to return to the menu...{ENDC}")
-            get_single_keypress()
+            # print(f"{GREEN}Press any key to return to the menu...{ENDC}")
+            # get_single_keypress()
             return
 
         try:

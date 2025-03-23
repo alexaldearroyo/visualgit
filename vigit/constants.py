@@ -115,6 +115,14 @@ class differences_menu(Enum):
     COMMIT_TO_COMMIT_DIFFERENCES = 'Show Differences Between Commits'
     BRANCH_TO_BRANCH_DIFFERENCES = 'Show Differences Between Branches'
 
+class commit_menu(Enum):
+    COMMIT_ALL_CHANGES = 'Commit All Changes'
+    COMMIT_TRACKED_CHANGES = 'Commit Tracked Changes'
+    COMMIT_ALL_CHANGES_OF_TRACKED_FILES = 'Commit All Changes of Tracked Files'
+    EDIT_LAST_COMMIT = 'Edit Last Commit'
+    COMMIT_WITH_EMPTY_CHANGES = 'Commit with empty changes'
+    GO_TO_COMMIT = 'Go to commit'
+
 # Menu cursor definition
 MENU_CURSOR = "▶ "
 MENU_CURSOR_STYLE = ("fg_yellow", "bold")

@@ -639,8 +639,7 @@ def show_differences_between_commits(ask_for_enter=True):
                 print(f"{idx + 1}. {commit_line}")
 
         # Seleccionar el primer commit
-        print(f"\n{YELLOW}Select base commit by number (<enter> to cancel):{ENDC}")
-        user_input = input("> ").strip()
+        user_input = input(f"\nSelect by number ({WHITE}<enter> to cancel{ENDC}): ").strip()
         if not user_input:
             print(f"\n{YELLOW}Operation cancelled.{ENDC}")
             return
@@ -683,7 +682,7 @@ def show_differences_between_commits(ask_for_enter=True):
                         # Fallback por si el formato no se puede dividir como esperamos
                         print(f"{idx + 1}. {commit_line}")
 
-            print(f"\n{YELLOW}Enter number (<enter> to cancel):{ENDC}")
+            print(f"\n{YELLOW}Enter number ({ENDC}{WHITE}<enter> to cancel{ENDC}{YELLOW}):{ENDC}")
             user_input = input("> ").strip()
             if not user_input:
                 print(f"\n{YELLOW}Operation cancelled.{ENDC}")
@@ -780,7 +779,8 @@ def show_differences_between_branches(ask_for_enter=True):
 
         # Input usuario
         print(f"\n{YELLOW}Select first branch:{ENDC}")
-        user_input = input("Enter number (<enter> to cancel): ").strip()
+        user_input = input(f"Select by number ({WHITE}<enter> to cancel{ENDC}): ").strip()
+
         if not user_input:
             print(f"\n{YELLOW}Operation cancelled.{ENDC}")
             # if ask_for_enter:
@@ -802,7 +802,7 @@ def show_differences_between_branches(ask_for_enter=True):
                 print(f"{idx + 1}. {CYAN}{b}{ENDC}")
 
         print(f"\n{YELLOW}Select second branch:{ENDC}")
-        user_input = input("Enter number (<enter> to cancel): ").strip()
+        user_input = input(f"Select by number ({WHITE}<enter> to cancel{ENDC}): ").strip()
         if not user_input:
             print(f"\n{YELLOW}Operation cancelled.{ENDC}")
             # if ask_for_enter:
@@ -1088,8 +1088,7 @@ def show_differences_of_commit(ask_for_enter=True):
                 print(f"{idx + 1}. {commit_line}")
 
         # Solicitar selección por número
-        print(f"\n{YELLOW}Select a commit by number (<enter> to cancel):{ENDC}")
-        user_input = input("> ").strip()
+        user_input = input(f"\nSelect by number ({WHITE}<enter> to cancel{ENDC}): ").strip()
 
         if not user_input:
             print(f"\n{YELLOW}Operation cancelled.{ENDC}")
@@ -1411,15 +1410,15 @@ def show_menu_options():
         if menu_entry_index == 0 or chosen_key == "v":
             general_view()
             # Prevents returning to the "Show" menu which would display the "Overall Status" again
-            print(f"{GREEN}Press any key to return to the menu...{ENDC}")
-            get_single_keypress()
+            # print(f"{GREEN}Press any key to return to the menu...{ENDC}")
+            # get_single_keypress()
             clear_screen()
             continue
         elif menu_entry_index == 1 or chosen_key == "s":
             show_status_long()
             # Prevents returning to the "Show" menu which would display the "Overall Status" again
-            print(f"{GREEN}Press any key to return to the menu...{ENDC}")
-            get_single_keypress()
+            # print(f"{GREEN}Press any key to return to the menu...{ENDC}")
+            # get_single_keypress()
             clear_screen()
             continue
         elif menu_entry_index == 2 or chosen_key == "d":

@@ -310,7 +310,7 @@ def add_local_branch(ask_for_enter=False):
             subprocess.run(["git", "--no-pager", "branch", "--color=always"], check=True)
 
         # Solicitar el nombre de la nueva rama
-        print(f"\n{YELLOW}Enter the name for the new branch (leave empty to cancel):{ENDC}")
+        print(f"\n{YELLOW}Write the name for the new branch ({WHITE}<enter> to cancel{ENDC}{YELLOW}):{ENDC}")
         branch_name = input("> ").strip()
 
         if not branch_name:
@@ -406,7 +406,7 @@ def add_empty_repo(ask_for_enter=True):
         print(f"{BLUE}Add Empty Repo:{ENDC}")
 
         # Solicitar nombre para el repositorio
-        print(f"\n{YELLOW}Enter the name for the empty repository (leave empty to cancel):{ENDC}")
+        print(f"\n{YELLOW}Write the name for the empty repository ({WHITE}<enter> to cancel{ENDC}{YELLOW}):{ENDC}")
         repo_name = input("> ").strip()
 
         if not repo_name:
@@ -466,7 +466,7 @@ def add_remote_repo(ask_for_enter=True):
             print(f"\n{BLUE}GitHub User:{ENDC} {username}")
 
         # Solicitar nombre para el repositorio
-        print(f"\n{YELLOW}Enter the name for the remote repository (leave empty to cancel):{ENDC}")
+        print(f"\n{YELLOW}Write the name for the remote repository ({WHITE}<enter> to cancel{ENDC}{YELLOW}):{ENDC}")
         repo_name = input("> ").strip()
 
         if not repo_name:

@@ -339,22 +339,17 @@ def commit_tracked_changes():
     print(f"\n{BLUE}Commit Changes of Tracked Files:{ENDC}")
 
     try:
-        # Obtener lista de archivos con cambios
-        result = subprocess.run(
-            ["git", "status", "-s"],
-            capture_output=True,
-            text=True,
-            check=True
-        )
+        # 1) Listar archivos modificados (git status -s)
+        result = subprocess.run(["git", "status", "-s"],
+                                capture_output=True, text=True, check=True)
+        lines = result.stdout.strip().split('\n')
 
         # Procesar la salida para obtener nombres de archivos
         changed_files = []
-        for line in result.stdout.strip().split('\n'):
+        for line in lines:
             if line.strip():
-                # Extraer el nombre del archivo (después del espacio)
-                status = line[:2].strip()
-                file_name = line[3:].strip()
-                changed_files.append((status, file_name))
+                filename = line[3:].strip()
+                changed_files.append(filename)
 
         if not changed_files:
             print(f"\n{YELLOW}No changes detected in the repository.{ENDC}")
@@ -362,94 +357,61 @@ def commit_tracked_changes():
             get_single_keypress()
             return
 
+        # Mostrar los archivos que se van a hacer commit
+        print(f"\n{YELLOW}Files with changes:{ENDC}")
+        subprocess.run(["git", "status", "-s"], check=True)
+
         # Crear menú de selección múltiple
-        print(f"{YELLOW}Select files to commit ({ENDC}{WHITE}<tab> to select | <enter> to confirm | <q> to cancel{ENDC}{YELLOW}):{ENDC}")
+        print(f"\n{YELLOW}Select files to commit ({ENDC}{WHITE}<tab> to select | <enter> to confirm | <q> to cancel{ENDC}{YELLOW}):{ENDC}")
 
-        menu_entries = []
-        for status, file_name in changed_files:
-            # Formatear el estado con colores
-            status_colored = status
-            if 'M' in status:
-                status_display = f"{YELLOW}M{ENDC}"
-            elif 'A' in status:
-                status_display = f"{GREEN}A{ENDC}"
-            elif 'D' in status:
-                status_display = f"{ORANGE}D{ENDC}"
-            elif '?' in status:
-                status_display = f"{BLUE}?{ENDC}"
-            else:
-                status_display = status
-
-        menu_entries.append(f"{status_display} {file_name}")
-
-        # Añadir opción para seleccionar todos los archivos
-        menu_entries = []
-        for status, file_name in changed_files:
-            # Formatear el estado con colores
-            if 'M' in status:
-                status_display = f"{YELLOW}M{ENDC}"
-            elif 'A' in status:
-                status_display = f"{GREEN}A{ENDC}"
-            elif 'D' in status:
-                status_display = f"{ORANGE}D{ENDC}"
-            elif '?' in status:
-                status_display = f"{BLUE}?{ENDC}"
-            else:
-                status_display = status
-
-            menu_entries.append(f"{status_display} {file_name}")
-
-        # Añadir opción para seleccionar todos los archivos
-        menu_entries.append(f"{GREEN}[Add all files]{ENDC}")
-
+        # 2) Preparar opciones de menú: todos los archivos + última opción "[Commit all files]"
+        menu_options = changed_files + ["[Commit all files]"]
 
         terminal_menu = TerminalMenu(
-            menu_entries,
-            title=f"{YELLOW}Files with changes:{ENDC}",
-            multi_select=True,
-            show_multi_select_hint=False,
+            menu_options,
             menu_cursor=MENU_CURSOR,
-            menu_cursor_style=MENU_CURSOR_STYLE
+            menu_cursor_style=MENU_CURSOR_STYLE,
+            multi_select=True,
+            show_multi_select_hint=False
         )
 
         selected_indices = terminal_menu.show()
 
-        # Si no hay selección, volver al menú
-        if selected_indices is None or len(selected_indices) == 0:
-            print(f"\n{YELLOW}No files selected. Operation cancelled.{ENDC}")
-            # print(f"{GREEN}Press any key to return to the menu...{ENDC}")
-            # get_single_keypress()
+        # Si el usuario no selecciona nada o sale con 'q'
+        if not selected_indices:
+            print(f"\n{YELLOW}Operation cancelled.{ENDC}")
             return
 
-        # Añadir los archivos seleccionados
-        selected_files = [changed_files[idx][1] for idx in selected_indices]
+        # 3) Si el usuario solo marcó la última opción => commit de todos los archivos
+        if (len(selected_indices) == 1) and (selected_indices[0] == len(menu_options) - 1):
+            print(f"\n{YELLOW}Staging all files...{ENDC}")
+            subprocess.run(["git", "add", "."], check=True)
+        else:
+            # De lo contrario, añadimos solo los archivos seleccionados
+            print(f"\n{YELLOW}Staging selected files...{ENDC}")
+            for idx in selected_indices:
+                if idx < len(changed_files):
+                    file_to_add = changed_files[idx]
+                    print(f"  - Adding: {file_to_add}")
+                    subprocess.run(["git", "add", file_to_add], check=True)
 
-        print(f"\n{BLUE}Adding selected files:{ENDC}")
-        for file in selected_files:
-            print(f" - {file}")
-            subprocess.run(["git", "add", file], check=True)
-
-        # Mostrar los archivos que se van a hacer commit
-        print(f"\n{BLUE}Files staged for commit:{ENDC}")
+        # 4) Mostrar los archivos en stage
+        print(f"\n{YELLOW}Files staged for commit:{ENDC}")
         subprocess.run(["git", "status", "-s"], check=True)
 
-        # Solicitar mensaje de commit
+        # 5) Pedir mensaje y hacer el commit
         print(f"\n{YELLOW}Write commit message ({WHITE}<enter> to cancel{ENDC}{YELLOW}):{ENDC}")
         commit_msg = input("> ")
-
-        # Si el usuario presiona Enter sin escribir nada, cancelar
         if not commit_msg:
             print(f"\n{YELLOW}Commit cancelled.{ENDC}")
-            # print(f"{GREEN}Press any key to return to the menu...{ENDC}")
-            # get_single_keypress()
             return
 
-        # Realizar el commit
         subprocess.run(["git", "commit", "-m", commit_msg], check=True)
 
         print(f"\n{GREEN}Changes committed successfully!{ENDC}")
         print(f"{GREEN}Press any key to return to the menu...{ENDC}")
         get_single_keypress()
+
     except Exception as e:
         print(f"\n{YELLOW}Error during commit process: {e}{ENDC}")
         print(f"{GREEN}Press any key to return to the menu...{ENDC}")
@@ -479,7 +441,7 @@ def commit_tracked_files():
             return
 
         # Mostrar los archivos modificados que están siendo rastreados
-        print(f"\n{BLUE}Tracked files with changes:{ENDC}")
+        print(f"\n{YELLOW}Tracked files with changes:{ENDC}")
         subprocess.run(["git", "diff", "--name-status"], check=True)
 
         # Solicitar mensaje de commit
@@ -528,7 +490,7 @@ def edit_last_commit():
             return
 
         # Mostrar el último commit que se va a editar
-        print(f"\n{BLUE}Current Last Commit:{ENDC}")
+        print(f"\n{YELLOW}Current Last Commit:{ENDC}")
         result = subprocess.run(
             ["git", "log", "-1", "--pretty=format:%C(yellow)● %h %C(blue)► %C(white)%s %C(magenta)(%cr)", "--color=always"],
             capture_output=True,

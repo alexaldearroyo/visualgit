@@ -639,7 +639,7 @@ def show_differences_between_commits(ask_for_enter=True):
                 print(f"{idx + 1}. {commit_line}")
 
         # Seleccionar el primer commit
-        user_input = input(f"\nSelect by number ({WHITE}<enter> to cancel{ENDC}): ").strip()
+        user_input = input(f"\n{YELLOW}Select by number ({ENDC}{WHITE}<enter> to cancel{ENDC}{YELLOW}):{ENDC} ").strip()
         if not user_input:
             print(f"\n{YELLOW}Operation cancelled.{ENDC}")
             return
@@ -1088,7 +1088,7 @@ def show_differences_of_commit(ask_for_enter=True):
                 print(f"{idx + 1}. {commit_line}")
 
         # Solicitar selección por número
-        user_input = input(f"\nSelect by number ({WHITE}<enter> to cancel{ENDC}): ").strip()
+        user_input = input(f"\n{YELLOW}Select by number ({ENDC}{WHITE}<enter> to cancel{ENDC}{YELLOW}):{ENDC} ").strip()
 
         if not user_input:
             print(f"\n{YELLOW}Operation cancelled.{ENDC}")

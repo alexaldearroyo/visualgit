@@ -289,6 +289,20 @@ def commit_all_changes():
         # Ejecutar git add .
         subprocess.run(["git", "add", "."], check=True)
 
+        # Verificar si hay cambios en el staging area
+        result = subprocess.run(
+            ["git", "status", "--porcelain"],
+            stdout=subprocess.PIPE,
+            text=True
+        )
+
+        # Si no hay cambios en el staging area, mostrar advertencia
+        if not result.stdout.strip():
+            print(f"\n{YELLOW}No changes to commit.{ENDC}")
+            print(f"\n{GREEN}Press any key to return to the menu...{ENDC}")
+            get_single_keypress()
+            return
+
         # Mostrar los archivos que se van a hacer commit
         print(f"\n{YELLOW}Files staged for commit:{ENDC}")
         subprocess.run(["git", "status", "-s"], check=True)
@@ -321,8 +335,8 @@ def commit_tracked_changes():
         print_not_git_repo()
         return
 
-    clear_screen()
-    print(f"{GREEN}COMMIT TRACKED CHANGES{ENDC}")
+    # clear_screen()
+    print(f"\n{BLUE}Commit Changes of Tracked Files:{ENDC}")
 
     try:
         # Obtener lista de archivos con cambios
@@ -344,7 +358,7 @@ def commit_tracked_changes():
 
         if not changed_files:
             print(f"\n{YELLOW}No changes detected in the repository.{ENDC}")
-            print(f"{GREEN}Press any key to return to the menu...{ENDC}")
+            print(f"\n{GREEN}Press any key to return to the menu...{ENDC}")
             get_single_keypress()
             return
 
@@ -426,10 +440,23 @@ def commit_tracked_files():
         print_not_git_repo()
         return
 
-    clear_screen()
-    print(f"{GREEN}COMMIT ALL CHANGES OF TRACKED FILES{ENDC}")
+    # clear_screen()
+    print(f"\n{BLUE}Commit All Changes of Tracked Files:{ENDC}")
 
     try:
+        # Verificar si hay cambios en archivos tracked
+        result = subprocess.run(
+            ["git", "diff", "--quiet"],
+            capture_output=True
+        )
+
+        # Si no hay cambios en archivos tracked, mostrar advertencia
+        if result.returncode == 0:
+            print(f"\n{YELLOW}No changes in tracked files to commit.{ENDC}")
+            print(f"\n{GREEN}Press any key to return to the menu...{ENDC}")
+            get_single_keypress()
+            return
+
         # Mostrar los archivos modificados que están siendo rastreados
         print(f"\n{BLUE}Tracked files with changes:{ENDC}")
         subprocess.run(["git", "diff", "--name-status"], check=True)
@@ -462,8 +489,8 @@ def edit_last_commit():
         print_not_git_repo()
         return
 
-    clear_screen()
-    print(f"{GREEN}EDIT LAST COMMIT{ENDC}")
+    # clear_screen()
+    print(f"\n{BLUE}Edit Last Commit:{ENDC}")
 
     try:
         # Verificar si hay commits para enmendar
@@ -475,7 +502,7 @@ def edit_last_commit():
 
         if not has_commits:
             print(f"\n{YELLOW}No commits yet in this repository. Cannot amend.{ENDC}")
-            print(f"{GREEN}Press any key to return to the menu...{ENDC}")
+            print(f"\n{GREEN}Press any key to return to the menu...{ENDC}")
             get_single_keypress()
             return
 
@@ -517,8 +544,8 @@ def commit_empty():
         print_not_git_repo()
         return
 
-    clear_screen()
-    print(f"{GREEN}COMMIT WITH EMPTY CHANGES{ENDC}")
+    # clear_screen()
+    print(f"\n{BLUE}Commit with empty changes:{ENDC}")
 
     try:
         # Solicitar mensaje de commit
@@ -548,8 +575,8 @@ def go_to_commit():
         print_not_git_repo()
         return
 
-    clear_screen()
-    print(f"{GREEN}GO TO COMMIT{ENDC}")
+    # clear_screen()
+    print(f"\n{BLUE}Go to Commit:{ENDC}")
 
     try:
         # Verificar si hay commits
@@ -561,7 +588,7 @@ def go_to_commit():
 
         if not has_commits:
             print(f"\n{YELLOW}No commits yet in this repository.{ENDC}")
-            print(f"{GREEN}Press any key to return to the menu...{ENDC}")
+            print(f"\n{GREEN}Press any key to return to the menu...{ENDC}")
             get_single_keypress()
             return
 
@@ -608,7 +635,7 @@ def go_to_commit():
                 print(f"{idx + 1}. {commit_line}")
 
         # Solicitar selección por número
-        user_input = input(f"\nSelect by number ({WHITE}<enter> to cancel{ENDC}): ").strip()
+        user_input = input(f"\n{YELLOW}Select by number ({ENDC}{WHITE}<enter> to cancel{ENDC}{YELLOW}):{ENDC} ").strip()
 
         # Si el usuario presiona Enter sin escribir nada, cancelar
         if not user_input:

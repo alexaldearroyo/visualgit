@@ -344,7 +344,7 @@ def show_expanded_history(ask_for_enter=True):
                 print(f"\n{GREEN}Press any key to return to the menu...{ENDC}")
                 get_single_keypress()
             return
-
+# test
         # Mostrar el historial de commits con formato gráfico expandido
         subprocess.run([
             "git", "log",

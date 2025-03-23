@@ -363,7 +363,7 @@ def commit_tracked_changes():
             return
 
         # Crear menú de selección múltiple
-        print(f"\n{BLUE}Select files to commit {CYAN}(use space to toggle selection, enter to confirm){ENDC}:\n")
+        print(f"{YELLOW}Select files to commit ({ENDC}{WHITE}<tab> to select | <enter> to confirm | <q> to cancel{ENDC}{YELLOW}):{ENDC}")
 
         menu_entries = []
         for status, file_name in changed_files:
@@ -380,13 +380,34 @@ def commit_tracked_changes():
             else:
                 status_display = status
 
+        menu_entries.append(f"{status_display} {file_name}")
+
+        # Añadir opción para seleccionar todos los archivos
+        menu_entries = []
+        for status, file_name in changed_files:
+            # Formatear el estado con colores
+            if 'M' in status:
+                status_display = f"{YELLOW}M{ENDC}"
+            elif 'A' in status:
+                status_display = f"{GREEN}A{ENDC}"
+            elif 'D' in status:
+                status_display = f"{ORANGE}D{ENDC}"
+            elif '?' in status:
+                status_display = f"{BLUE}?{ENDC}"
+            else:
+                status_display = status
+
             menu_entries.append(f"{status_display} {file_name}")
+
+        # Añadir opción para seleccionar todos los archivos
+        menu_entries.append(f"{GREEN}[Add all files]{ENDC}")
+
 
         terminal_menu = TerminalMenu(
             menu_entries,
-            title="Files with changes:",
+            title=f"{YELLOW}Files with changes:{ENDC}",
             multi_select=True,
-            show_multi_select_hint=True,
+            show_multi_select_hint=False,
             menu_cursor=MENU_CURSOR,
             menu_cursor_style=MENU_CURSOR_STYLE
         )
@@ -396,8 +417,8 @@ def commit_tracked_changes():
         # Si no hay selección, volver al menú
         if selected_indices is None or len(selected_indices) == 0:
             print(f"\n{YELLOW}No files selected. Operation cancelled.{ENDC}")
-            print(f"{GREEN}Press any key to return to the menu...{ENDC}")
-            get_single_keypress()
+            # print(f"{GREEN}Press any key to return to the menu...{ENDC}")
+            # get_single_keypress()
             return
 
         # Añadir los archivos seleccionados

@@ -40,7 +40,6 @@ def general_view():
         # Get the repository name (last element of the path)
         repo_name = repo_path.split('/')[-1]
 
-
         # Get all local branches
         branches = subprocess.run(
             ["git", "branch", "--color=always"],
@@ -69,6 +68,47 @@ def general_view():
             text=True
         ).stdout.strip()
 
+        # Display title
+        print(f"{GREEN}GENERAL VIEW{ENDC}")
+
+        # Display status
+        print(f"\n{BLUE}Overall Status:{ENDC}")
+        if status:
+            # Ejecutar directamente para preservar colores
+            subprocess.run(["git", "status", "-s"], check=True)
+        else:
+            print("Working tree clean")
+
+        # Display the last commit
+        print(f"\n{BLUE}Last Commit:{ENDC}")
+        try:
+            # Primero verificar si hay commits
+            has_commits = subprocess.run(
+                ["git", "rev-parse", "--verify", "HEAD"],
+                capture_output=True,
+                text=True
+            ).returncode == 0
+
+            if has_commits:
+                result = subprocess.run(
+                    ["git", "log", "-1", "--pretty=format:%C(yellow)● %h %C(blue)► %C(white)%s %C(magenta)(%cr)", "--color=always"],
+                    capture_output=True,
+                    text=True,
+                    check=True
+                )
+                last_commit = result.stdout.strip()
+
+                if last_commit:
+                    print(last_commit)
+                    print()  # Añadir línea en blanco después del commit
+            else:
+                print(f"{YELLOW}No commits yet in this repository.{ENDC}")
+                print()  # Añadir línea en blanco
+        except Exception as e:
+            # No mostrar el error, solo manejar silenciosamente esta situación
+            print(f"{YELLOW}No commit history available.{ENDC}")
+            print()  # Añadir línea en blanco
+
         # Display the collected information
         print(f"{BLUE}Local Repository:{ENDC}")
         print(f"{YELLOW}Name:{ENDC} {repo_name}")
@@ -92,10 +132,13 @@ def general_view():
         else:
             print("No remote branches available")
 
-        print()
+        print(f"\n{GREEN}Press any key to return to the menu...{ENDC}")
+        get_single_keypress()
 
     except Exception as e:
         print(f"Error getting repository information: {e}")
+        print(f"\n{GREEN}Press any key to return to the menu...{ENDC}")
+        get_single_keypress()
 
 def show_status_long(show_last_commit=False):
     if not is_git_repo():
@@ -103,7 +146,61 @@ def show_status_long(show_last_commit=False):
         return
 
     try:
+        clear_screen()
+        print(f"{GREEN}DETAILED STATUS{ENDC}")
+
+        # Mostrar estado general
+        print(f"\n{BLUE}Overall Status:{ENDC}")
+        try:
+            # Capturar la salida para verificar si hay cambios
+            result = subprocess.run(
+                ["git", "status", "-s"],
+                capture_output=True,
+                text=True,
+                check=True
+            )
+            status = result.stdout.strip()
+
+            if status:
+                # Ejecutar directamente para preservar colores
+                subprocess.run(["git", "status", "-s"], check=True)
+            else:
+                print("Working tree clean")
+        except Exception as e:
+            print(f"Error getting status: {e}")
+
+        # Mostrar el último commit
+        print(f"\n{BLUE}Last Commit:{ENDC}")
+        try:
+            # Primero verificar si hay commits
+            has_commits = subprocess.run(
+                ["git", "rev-parse", "--verify", "HEAD"],
+                capture_output=True,
+                text=True
+            ).returncode == 0
+
+            if has_commits:
+                result = subprocess.run(
+                    ["git", "log", "-1", "--pretty=format:%C(yellow)● %h %C(blue)► %C(white)%s %C(magenta)(%cr)", "--color=always"],
+                    capture_output=True,
+                    text=True,
+                    check=True
+                )
+                last_commit = result.stdout.strip()
+
+                if last_commit:
+                    print(last_commit)
+                    print()  # Añadir línea en blanco después del commit
+            else:
+                print(f"{YELLOW}No commits yet in this repository.{ENDC}")
+                print()  # Añadir línea en blanco
+        except Exception as e:
+            # No mostrar el error, solo manejar silenciosamente esta situación
+            print(f"{YELLOW}No commit history available.{ENDC}")
+            print()  # Añadir línea en blanco
+
         # Capturar la salida del comando git status
+        print(f"{BLUE}Detailed Status:{ENDC}")
         result = subprocess.run(
             ["git", "status"],
             capture_output=True,
@@ -112,7 +209,6 @@ def show_status_long(show_last_commit=False):
         )
         status = result.stdout.strip()
 
-        print(f"{BLUE}Detailed Status:{ENDC}")
         if status:
             # Usar el comando directamente para preservar colores
             subprocess.run(["git", "status"], check=True)
@@ -120,33 +216,12 @@ def show_status_long(show_last_commit=False):
             print("Working tree clean")
         print()
 
-        # Mostrar el último commit solo si se solicita explícitamente
-        if show_last_commit:
-            print(f"{BLUE}Last Commit:{ENDC}")
-
-            # Verificar si hay commits antes de intentar mostrar el último
-            has_commits = subprocess.run(
-                ["git", "rev-parse", "--verify", "HEAD"],
-                capture_output=True,
-                text=True
-            ).returncode == 0
-
-            if has_commits:
-                # Mostrar solo el último commit con formato similar al de show_detailed_history
-                subprocess.run([
-                    "git", "--no-pager", "log",
-                    "-1",  # Solo mostrar el último commit
-                    "--pretty=format:%C(yellow)● %h%Creset%C(auto)%d%Creset%C(blue) ► %C(white)%s%Creset %C(blue)| %C(cyan)%an%Creset %C(blue)| %C(magenta)%ad%Creset",
-                    "--decorate=short",
-                    "--date=relative"
-                ], check=True)
-                print("\n")
-            else:
-                print(f"{YELLOW}No commits yet in this repository.{ENDC}\n")
+        print(f"{GREEN}Press any key to return to the menu...{ENDC}")
+        get_single_keypress()
     except Exception as e:
         print(f"Error getting status: {e}")
-
-    # Do not show Overall Status or Last Commit after displaying git status
+        print(f"{GREEN}Press any key to return to the menu...{ENDC}")
+        get_single_keypress()
 
 def show_tracking_history(ask_for_enter=True):
     """Muestra un historial de commits con estadísticas de archivos modificados"""
@@ -539,7 +614,7 @@ def show_differences_between_commits(ask_for_enter=True):
             return
 
         # Mostrar commits con el formato personalizado
-        print(f"{YELLOW}Recent commits:{ENDC}")
+        print(f"{BLUE}Recent commits:{ENDC}")
         for idx, commit_line in enumerate(commits_with_time):
             # Dividir la línea en sus componentes
             parts = commit_line.split(' ', 1)  # Separar el hash del resto
@@ -554,7 +629,7 @@ def show_differences_between_commits(ask_for_enter=True):
                     time_ago = rest[time_index:]  # Incluye los paréntesis
 
                     # Formatear la salida con los elementos requeridos y el hash en amarillo
-                    formatted_line = f"{idx + 1}. {YELLOW}{commit_hash}{ENDC} {DARK_BLUE}►{ENDC} {message} {MAGENTA}{time_ago}{ENDC}"
+                    formatted_line = f"{idx + 1}. {YELLOW}{commit_hash}{ENDC} {DARK_BLUE}►{ENDC} {WHITE}{message}{ENDC} {MAGENTA}{time_ago}{ENDC}"
                     print(formatted_line)
                 else:
                     # Fallback por si el formato no se puede dividir como esperamos
@@ -563,69 +638,83 @@ def show_differences_between_commits(ask_for_enter=True):
                 # Fallback por si el formato no se puede dividir como esperamos
                 print(f"{idx + 1}. {commit_line}")
 
-        print(f"\n{YELLOW}Select base commit (older):{ENDC}")
-        user_input = input("Enter number (press enter to cancel): ").strip()
+        # Seleccionar el primer commit
+        print(f"\n{YELLOW}Select base commit by number (<enter> to cancel):{ENDC}")
+        user_input = input("> ").strip()
         if not user_input:
             print(f"\n{YELLOW}Operation cancelled.{ENDC}")
-            # if ask_for_enter:
-            #     print(f"\n{GREEN}Press any key to return to the menu...{ENDC}")
-            #     get_single_keypress()
             return
 
-        base_idx = int(user_input) - 1
-        base_commit = commit_hashes[base_idx]
+        try:
+            base_idx = int(user_input) - 1
+            if base_idx < 0 or base_idx >= len(commit_hashes):
+                print(f"{YELLOW}Invalid number. Please select a number between 1 and {len(commit_hashes)}.{ENDC}")
+                if ask_for_enter:
+                    print(f"\n{GREEN}Press any key to return to the menu...{ENDC}")
+                    get_single_keypress()
+                return
 
-        print(f"\n{YELLOW}Select compare commit (newer):{ENDC}")
-        for idx, commit_line in enumerate(commits_with_time):
-            if idx != base_idx:
-                # Dividir la línea en sus componentes
-                parts = commit_line.split(' ', 1)  # Separar el hash del resto
-                if len(parts) >= 2:
-                    commit_hash = parts[0]
-                    rest = parts[1]
+            base_commit = commit_hashes[base_idx]
 
-                    # Buscar el paréntesis abierto para separar el mensaje del tiempo
-                    time_index = rest.rfind('(')
-                    if time_index != -1:
-                        message = rest[:time_index].strip()
-                        time_ago = rest[time_index:]  # Incluye los paréntesis
+            # Mostrar los commits disponibles para comparar, excluyendo el seleccionado
+            print(f"\n{BLUE}Select commit to compare with {YELLOW}{base_commit}{ENDC}:\n")
 
-                        # Formatear la salida con los elementos requeridos y el hash en amarillo
-                        formatted_line = f"{idx + 1}. {YELLOW}{commit_hash}{ENDC} {DARK_BLUE}►{ENDC} {message} {MAGENTA}{time_ago}{ENDC}"
-                        print(formatted_line)
+            for idx, commit_line in enumerate(commits_with_time):
+                if idx != base_idx:
+                    # Dividir la línea en sus componentes
+                    parts = commit_line.split(' ', 1)  # Separar el hash del resto
+                    if len(parts) >= 2:
+                        commit_hash = parts[0]
+                        rest = parts[1]
+
+                        # Buscar el paréntesis abierto para separar el mensaje del tiempo
+                        time_index = rest.rfind('(')
+                        if time_index != -1:
+                            message = rest[:time_index].strip()
+                            time_ago = rest[time_index:]  # Incluye los paréntesis
+
+                            # Formatear la salida con los elementos requeridos y el hash en amarillo
+                            formatted_line = f"{idx + 1}. {YELLOW}{commit_hash}{ENDC} {DARK_BLUE}►{ENDC} {WHITE}{message}{ENDC} {MAGENTA}{time_ago}{ENDC}"
+                            print(formatted_line)
+                        else:
+                            # Fallback por si el formato no se puede dividir como esperamos
+                            print(f"{idx + 1}. {commit_line}")
                     else:
                         # Fallback por si el formato no se puede dividir como esperamos
                         print(f"{idx + 1}. {commit_line}")
-                else:
-                    # Fallback por si el formato no se puede dividir como esperamos
-                    print(f"{idx + 1}. {commit_line}")
 
-        user_input = input("\nEnter number (press enter to cancel): ").strip()
-        if not user_input:
-            print(f"\n{YELLOW}Operation cancelled.{ENDC}")
-            # if ask_for_enter:
-            #     print(f"\n{GREEN}Press any key to return to the menu...{ENDC}")
-            #     get_single_keypress()
+            print(f"\n{YELLOW}Enter number (<enter> to cancel):{ENDC}")
+            user_input = input("> ").strip()
+            if not user_input:
+                print(f"\n{YELLOW}Operation cancelled.{ENDC}")
+                return
+
+            compare_idx = int(user_input) - 1
+            if compare_idx < 0 or compare_idx >= len(commit_hashes):
+                print(f"{YELLOW}Invalid number. Please select a number between 1 and {len(commit_hashes)}.{ENDC}")
+                if ask_for_enter:
+                    print(f"\n{GREEN}Press any key to return to the menu...{ENDC}")
+                    get_single_keypress()
+                return
+
+            compare_commit = commit_hashes[compare_idx]
+
+            print(f"\n{BLUE}Differences between commits {YELLOW}{base_commit}{ENDC} and {YELLOW}{compare_commit}{ENDC}:{ENDC}\n")
+
+            subprocess.run(
+                f"git diff {base_commit}..{compare_commit} | diff-so-fancy | less -RX",
+                shell=True,
+                check=True
+            )
+        except ValueError:
+            print(f"{YELLOW}Please enter a valid number.{ENDC}")
+            if ask_for_enter:
+                print(f"\n{GREEN}Press any key to return to the menu...{ENDC}")
+                get_single_keypress()
             return
 
-        compare_idx = int(user_input) - 1
-        compare_commit = commit_hashes[compare_idx]
-
-        print(f"\n{BLUE}Differences between commits {base_commit} and {compare_commit}:{ENDC}\n")
-
-        subprocess.run(
-            f"git diff {base_commit}..{compare_commit} | diff-so-fancy | less -RX",
-            shell=True,
-            check=True
-        )
-
-        print()
-        # if ask_for_enter:
-        #     print(f"{GREEN}Press any key to return to the menu...{ENDC}")
-        #     get_single_keypress()
-
     except Exception as e:
-        print(f"{YELLOW}Error comparing commits: {e}{ENDC}")
+        print(f"Error comparing commits: {e}")
         if ask_for_enter:
             print(f"\n{GREEN}Press any key to return to the menu...{ENDC}")
             get_single_keypress()
@@ -956,47 +1045,83 @@ def show_differences_of_commit(ask_for_enter=True):
                 get_single_keypress()
             return
 
-        # Mostrar algunos commits recientes para referencia
-        print(f"{YELLOW}Recent commits (for reference):{ENDC}")
-        subprocess.run(
-            ["git", "log", "--oneline", "--max-count=5"],
-            check=True
+        # Obtener los commits con mejor formato
+        result_colored = subprocess.run(
+            ["git", "log", "--pretty=format:%h %s (%cr)", "--color", "--max-count=10"],
+            capture_output=True,
+            text=True
         )
-        print()
+        commits_with_time = result_colored.stdout.strip().split('\n')
 
-        # Solicitar hash del commit
-        print(f"{YELLOW}Enter commit hash (<enter> to cancel):{ENDC}")
-        commit_hash = input("> ").strip()
+        # Obtener los hashes de los commits
+        result_plain = subprocess.run(
+            ["git", "log", "--oneline", "--no-color", "--max-count=10"],
+            capture_output=True,
+            text=True
+        )
+        commits_plain = result_plain.stdout.strip().split('\n')
+        commit_hashes = [line.split()[0] for line in commits_plain]
 
-        if not commit_hash:
+        # Mostrar los commits con formato mejorado
+        print(f"{BLUE}Recent commits:{ENDC}")
+        for idx, commit_line in enumerate(commits_with_time):
+            # Dividir la línea en sus componentes
+            parts = commit_line.split(' ', 1)  # Separar el hash del resto
+            if len(parts) >= 2:
+                commit_hash = parts[0]
+                rest = parts[1]
+
+                # Buscar el paréntesis abierto para separar el mensaje del tiempo
+                time_index = rest.rfind('(')
+                if time_index != -1:
+                    message = rest[:time_index].strip()
+                    time_ago = rest[time_index:]  # Incluye los paréntesis
+
+                    # Formatear la salida con los elementos requeridos y el hash en amarillo
+                    formatted_line = f"{idx + 1}. {YELLOW}{commit_hash}{ENDC} {DARK_BLUE}►{ENDC} {WHITE}{message}{ENDC} {MAGENTA}{time_ago}{ENDC}"
+                    print(formatted_line)
+                else:
+                    # Fallback por si el formato no se puede dividir como esperamos
+                    print(f"{idx + 1}. {commit_line}")
+            else:
+                # Fallback por si el formato no se puede dividir como esperamos
+                print(f"{idx + 1}. {commit_line}")
+
+        # Solicitar selección por número
+        print(f"\n{YELLOW}Select a commit by number (<enter> to cancel):{ENDC}")
+        user_input = input("> ").strip()
+
+        if not user_input:
             print(f"\n{YELLOW}Operation cancelled.{ENDC}")
-            if ask_for_enter:
-                print(f"{GREEN}Press any key to return to the menu...{ENDC}")
-                get_single_keypress()
             return
 
-        # Ejecutar git show para el commit específico
-        print(f"\n{BLUE}Showing differences for commit {commit_hash}:{ENDC}\n")
+        try:
+            commit_idx = int(user_input) - 1
+            if commit_idx < 0 or commit_idx >= len(commit_hashes):
+                print(f"{YELLOW}Invalid number. Please select a number between 1 and {len(commit_hashes)}.{ENDC}")
+                if ask_for_enter:
+                    print(f"\n{GREEN}Press any key to return to the menu...{ENDC}")
+                    get_single_keypress()
+                return
 
-        # Verificar si el commit existe
-        commit_exists = subprocess.run(
-            ["git", "cat-file", "-e", f"{commit_hash}^{{commit}}"],
-            capture_output=True
-        ).returncode == 0
+            commit_hash = commit_hashes[commit_idx]
 
-        if not commit_exists:
-            print(f"{YELLOW}Commit {commit_hash} not found.{ENDC}")
+            # Ejecutar git show para el commit específico
+            print(f"\n{BLUE}Showing differences for commit {YELLOW}{commit_hash}{ENDC}:\n")
+
+            # Mostrar el commit con diff-so-fancy
+            subprocess.run(
+                f"git show {commit_hash} | diff-so-fancy | less -RX",
+                shell=True,
+                check=True
+            )
+
+        except ValueError:
+            print(f"{YELLOW}Please enter a valid number.{ENDC}")
             if ask_for_enter:
                 print(f"\n{GREEN}Press any key to return to the menu...{ENDC}")
                 get_single_keypress()
             return
-
-        # Mostrar el commit con diff-so-fancy
-        subprocess.run(
-            f"git show {commit_hash} | diff-so-fancy | less -RX",
-            shell=True,
-            check=True
-        )
 
     except Exception as e:
         print(f"Error showing commit differences: {e}")

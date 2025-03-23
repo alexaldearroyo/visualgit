@@ -3,7 +3,7 @@ import sys
 import os
 
 from simple_term_menu import TerminalMenu
-from .utils import BLUE, YELLOW, GREEN, ENDC, DARK_BLUE, ORANGE
+from .utils import BLUE, YELLOW, GREEN, ENDC, DARK_BLUE, ORANGE, CYAN, WHITE, MAGENTA
 from .constants import local_menu, MENU_CURSOR, MENU_CURSOR_STYLE
 from .checks import is_git_repo, print_not_git_repo
 from .show_menu import general_view, show_status_long, show_local_repo, show_branches, get_single_keypress
@@ -73,6 +73,48 @@ def local_menu_options():
                 # No mostrar el error, solo manejar silenciosamente esta situación
                 print(f"\n{YELLOW}No commit history available.{ENDC}")
                 print()  # Añadir línea en blanco
+
+            # Verificar si estamos en estado detached HEAD
+            try:
+                is_detached = subprocess.run(
+                    ["git", "symbolic-ref", "-q", "HEAD"],
+                    capture_output=True
+                ).returncode != 0
+
+                # Si estamos en estado detached HEAD, mostrar el mensaje persistentemente
+                if is_detached:
+                    # Obtener información del commit actual
+                    commit_info = subprocess.run(
+                        ["git", "log", "-1", "--pretty=format:%h|%s|%cr", "HEAD"],
+                        capture_output=True,
+                        text=True
+                    ).stdout.strip().split('|')
+
+                    if len(commit_info) >= 3:
+                        commit_hash, commit_msg, commit_time = commit_info
+
+                        print(f"{YELLOW}You are not in any branch (detached HEAD state):{ENDC}")
+                        print(f"{YELLOW}● {commit_hash}{ENDC} {DARK_BLUE}►{ENDC} {WHITE}{commit_msg}{ENDC} {MAGENTA}({commit_time}){ENDC}")
+                        print(f"\n{BLUE}What you can do now:{ENDC}")
+                        print(f"- {GREEN}Branches > Go to branch{ENDC} to checkout without saving changes")
+                        print(f"- {GREEN}Add > Branch{ENDC} to checkout in a new branch with saved changes")
+                        print()
+                    else:
+                        # Si no se puede obtener información detallada, mostrar mensaje más simple
+                        commit_hash = subprocess.run(
+                            ["git", "rev-parse", "--short", "HEAD"],
+                            capture_output=True,
+                            text=True
+                        ).stdout.strip()
+
+                        print(f"{YELLOW}You are not in any branch (detached HEAD state) - at commit {commit_hash}{ENDC}")
+                        print(f"\n{BLUE}What you can do now:{ENDC}")
+                        print(f"- {GREEN}Branches > Go to branch{ENDC} to checkout without saving changes")
+                        print(f"- {GREEN}Add > Branch{ENDC} to checkout in a new branch with saved changes")
+                        print()
+            except Exception:
+                # Si hay cualquier error, simplemente continuamos sin mostrar el mensaje
+                pass
         else:
             # Mensaje amigable para indicar que no estamos en un repositorio
             print(f"\n{YELLOW}Not in a Git repository. You can create one with 'Add Local Repo'.{ENDC}\n")
@@ -133,6 +175,48 @@ def commits_submenu():
     while True:
         # clear_screen()
         print(f"{GREEN}COMMITS{ENDC}")
+
+        # Verificar si estamos en estado detached HEAD
+        try:
+            is_detached = subprocess.run(
+                ["git", "symbolic-ref", "-q", "HEAD"],
+                capture_output=True
+            ).returncode != 0
+
+            # Si estamos en estado detached HEAD, mostrar el mensaje persistentemente
+            if is_detached:
+                # Obtener información del commit actual
+                commit_info = subprocess.run(
+                    ["git", "log", "-1", "--pretty=format:%h|%s|%cr", "HEAD"],
+                    capture_output=True,
+                    text=True
+                ).stdout.strip().split('|')
+
+                if len(commit_info) >= 3:
+                    commit_hash, commit_msg, commit_time = commit_info
+
+                    print(f"\n{YELLOW}You are not in any branch (detached HEAD state):{ENDC}")
+                    print(f"{YELLOW}● {commit_hash}{ENDC} {DARK_BLUE}►{ENDC} {WHITE}{commit_msg}{ENDC} {MAGENTA}({commit_time}){ENDC}")
+                    print(f"\n{BLUE}What you can do now:{ENDC}")
+                    print(f"- {GREEN}Branches > Go to branch{ENDC} to checkout without saving changes")
+                    print(f"- {GREEN}Add > Branch{ENDC} to checkout in a new branch with saved changes")
+                    print()
+                else:
+                    # Si no se puede obtener información detallada, mostrar mensaje más simple
+                    commit_hash = subprocess.run(
+                        ["git", "rev-parse", "--short", "HEAD"],
+                        capture_output=True,
+                        text=True
+                    ).stdout.strip()
+
+                    print(f"\n{YELLOW}You are not in any branch (detached HEAD state) - at commit {commit_hash}{ENDC}")
+                    print(f"\n{BLUE}What you can do now:{ENDC}")
+                    print(f"- {GREEN}Branches > Go to branch{ENDC} to checkout without saving changes")
+                    print(f"- {GREEN}Add > Branch{ENDC} to checkout in a new branch with saved changes")
+                    print()
+        except Exception:
+            # Si hay cualquier error, simplemente continuamos sin mostrar el mensaje
+            pass
 
         menu_options = [
             "[c] Commit All changes",
@@ -211,8 +295,8 @@ def commit_all_changes():
         subprocess.run(["git", "status", "-s"], check=True)
 
         # Solicitar mensaje de commit
-        print(f"\n{YELLOW}Enter commit message (<enter> to cancel):{ENDC}")
-        commit_msg = input("> ")
+        print(f"\n{YELLOW}Enter commit message {CYAN}(<enter> to cancel){ENDC}:")
+        commit_msg = input(f"{YELLOW}>{ENDC} ")
 
         # Si el usuario presiona Enter sin escribir nada, cancelar
         if not commit_msg:
@@ -266,7 +350,7 @@ def commit_tracked_changes():
             return
 
         # Crear menú de selección múltiple
-        print(f"\n{BLUE}Select files to commit (use space to toggle selection, enter to confirm):{ENDC}\n")
+        print(f"\n{BLUE}Select files to commit {CYAN}(use space to toggle selection, enter to confirm){ENDC}:\n")
 
         menu_entries = []
         for status, file_name in changed_files:
@@ -316,8 +400,8 @@ def commit_tracked_changes():
         subprocess.run(["git", "status", "-s"], check=True)
 
         # Solicitar mensaje de commit
-        print(f"\n{YELLOW}Enter commit message (<enter> to cancel):{ENDC}")
-        commit_msg = input("> ")
+        print(f"\n{YELLOW}Enter commit message {CYAN}(<enter> to cancel){ENDC}:")
+        commit_msg = input(f"{YELLOW}>{ENDC} ")
 
         # Si el usuario presiona Enter sin escribir nada, cancelar
         if not commit_msg:
@@ -352,8 +436,8 @@ def commit_tracked_files():
         subprocess.run(["git", "diff", "--name-status"], check=True)
 
         # Solicitar mensaje de commit
-        print(f"\n{YELLOW}Enter commit message (<enter> to cancel):{ENDC}")
-        commit_msg = input("> ")
+        print(f"\n{YELLOW}Enter commit message {CYAN}(<enter> to cancel){ENDC}:")
+        commit_msg = input(f"{YELLOW}>{ENDC} ")
 
         # Si el usuario presiona Enter sin escribir nada, cancelar
         if not commit_msg:
@@ -398,15 +482,18 @@ def edit_last_commit():
 
         # Mostrar el último commit que se va a editar
         print(f"\n{BLUE}Current Last Commit:{ENDC}")
-        subprocess.run(
-            ["git", "log", "-1", "--pretty=format:%h - %s (%cr)", "--abbrev-commit"],
+        result = subprocess.run(
+            ["git", "log", "-1", "--pretty=format:%C(yellow)● %h %C(blue)► %C(white)%s %C(magenta)(%cr)", "--color=always"],
+            capture_output=True,
+            text=True,
             check=True
         )
-        print()
+        last_commit = result.stdout.strip()
+        print(last_commit)
 
         # Solicitar el nuevo mensaje de commit
-        print(f"\n{YELLOW}Enter new commit message (<enter> to cancel):{ENDC}")
-        commit_msg = input("> ")
+        print(f"\n{YELLOW}Enter new commit message {CYAN}(<enter> to cancel){ENDC}:")
+        commit_msg = input(f"{YELLOW}>{ENDC} ")
 
         # Si el usuario presiona Enter sin escribir nada, cancelar
         if not commit_msg:
@@ -437,8 +524,8 @@ def commit_empty():
 
     try:
         # Solicitar mensaje de commit
-        print(f"\n{YELLOW}Enter commit message (<enter> to cancel):{ENDC}")
-        commit_msg = input("> ")
+        print(f"\n{YELLOW}Enter commit message {CYAN}(<enter> to cancel){ENDC}:")
+        commit_msg = input(f"{YELLOW}>{ENDC} ")
 
         # Si el usuario presiona Enter sin escribir nada, cancelar
         if not commit_msg:
@@ -481,63 +568,99 @@ def go_to_commit():
             get_single_keypress()
             return
 
-        # Mostrar algunos commits recientes para referencia
-        print(f"\n{BLUE}Recent commits (for reference):{ENDC}")
-        subprocess.run(
-            ["git", "log", "--oneline", "--max-count=5"],
-            check=True
+        # Obtener los commits con mejor formato
+        result_colored = subprocess.run(
+            ["git", "log", "--pretty=format:%h %s (%cr)", "--color", "--max-count=10"],
+            capture_output=True,
+            text=True
         )
-        print()
+        commits_with_time = result_colored.stdout.strip().split('\n')
 
-        # Solicitar hash del commit
-        print(f"\n{YELLOW}Enter commit hash (<enter> to cancel):{ENDC}")
-        commit_hash = input("> ").strip()
+        # Obtener los hashes de los commits
+        result_plain = subprocess.run(
+            ["git", "log", "--oneline", "--no-color", "--max-count=10"],
+            capture_output=True,
+            text=True
+        )
+        commits_plain = result_plain.stdout.strip().split('\n')
+        commit_hashes = [line.split()[0] for line in commits_plain]
+
+        # Mostrar los commits con formato mejorado
+        print(f"\n{BLUE}Recent commits:{ENDC}")
+        for idx, commit_line in enumerate(commits_with_time):
+            # Dividir la línea en sus componentes
+            parts = commit_line.split(' ', 1)  # Separar el hash del resto
+            if len(parts) >= 2:
+                commit_hash = parts[0]
+                rest = parts[1]
+
+                # Buscar el paréntesis abierto para separar el mensaje del tiempo
+                time_index = rest.rfind('(')
+                if time_index != -1:
+                    message = rest[:time_index].strip()
+                    time_ago = rest[time_index:]  # Incluye los paréntesis
+
+                    # Formatear la salida con los elementos requeridos y el hash en amarillo
+                    formatted_line = f"{idx + 1}. {YELLOW}{commit_hash}{ENDC} {DARK_BLUE}►{ENDC} {WHITE}{message}{ENDC} {MAGENTA}{time_ago}{ENDC}"
+                    print(formatted_line)
+                else:
+                    # Fallback por si el formato no se puede dividir como esperamos
+                    print(f"{idx + 1}. {commit_line}")
+            else:
+                # Fallback por si el formato no se puede dividir como esperamos
+                print(f"{idx + 1}. {commit_line}")
+
+        # Solicitar selección por número
+        print(f"\n{YELLOW}Select a commit by number {CYAN}(<enter> to cancel){ENDC}:")
+        user_input = input(f"{YELLOW}>{ENDC} ")
 
         # Si el usuario presiona Enter sin escribir nada, cancelar
-        if not commit_hash:
+        if not user_input:
             print(f"\n{YELLOW}Operation cancelled.{ENDC}")
             print(f"{GREEN}Press any key to return to the menu...{ENDC}")
             get_single_keypress()
             return
 
-        # Verificar si el commit existe
-        commit_exists = subprocess.run(
-            ["git", "cat-file", "-e", f"{commit_hash}^{{commit}}"],
-            capture_output=True
-        ).returncode == 0
+        try:
+            commit_idx = int(user_input) - 1
+            if commit_idx < 0 or commit_idx >= len(commit_hashes):
+                print(f"\n{YELLOW}Invalid number. Please select a number between 1 and {len(commit_hashes)}.{ENDC}")
+                print(f"{GREEN}Press any key to return to the menu...{ENDC}")
+                get_single_keypress()
+                return
 
-        if not commit_exists:
-            print(f"\n{YELLOW}Commit {commit_hash} not found.{ENDC}")
+            commit_hash = commit_hashes[commit_idx]
+
+            # Realizar el checkout al commit
+            result = subprocess.run(
+                ["git", "checkout", commit_hash],
+                capture_output=True,
+                text=True
+            )
+
+            if result.returncode == 0:
+                print(f"\n{GREEN}Successfully checked out commit {YELLOW}{commit_hash}{ENDC}")
+
+                # Verificar si estamos en un estado detached HEAD
+                is_detached = subprocess.run(
+                    ["git", "symbolic-ref", "-q", "HEAD"],
+                    capture_output=True
+                ).returncode != 0
+
+                if is_detached:
+                    print(f"\n{YELLOW}You are not in any branch (detached HEAD state){ENDC}")
+                    print(f"\n{BLUE}What you can do now:{ENDC}")
+                    print(f"- {GREEN}Branches > Go to branch{ENDC} to checkout without saving changes")
+                    print(f"- {GREEN}Add > Branch{ENDC} to checkout in a new branch with saved changes")
+            else:
+                print(f"\n{YELLOW}Error checking out commit: {result.stderr.strip()}{ENDC}")
+
+            print(f"\n{GREEN}Press any key to return to the menu...{ENDC}")
+            get_single_keypress()
+        except ValueError:
+            print(f"\n{YELLOW}Please enter a valid number.{ENDC}")
             print(f"{GREEN}Press any key to return to the menu...{ENDC}")
             get_single_keypress()
-            return
-
-        # Realizar el checkout al commit
-        result = subprocess.run(
-            ["git", "checkout", commit_hash],
-            capture_output=True,
-            text=True
-        )
-
-        if result.returncode == 0:
-            print(f"\n{GREEN}Successfully checked out commit {commit_hash}{ENDC}")
-
-            # Verificar si estamos en un estado detached HEAD
-            is_detached = subprocess.run(
-                ["git", "symbolic-ref", "-q", "HEAD"],
-                capture_output=True
-            ).returncode != 0
-
-            if is_detached:
-                print(f"\n{YELLOW}You are not in any branch (detached HEAD state){ENDC}")
-                print(f"\n{BLUE}What you can do now:{ENDC}")
-                print(f"- {GREEN}Branches > Go to branch{ENDC} to checkout without saving changes")
-                print(f"- {GREEN}Add > Branch{ENDC} to checkout in a new branch with saved changes")
-        else:
-            print(f"\n{YELLOW}Error checking out commit: {result.stderr.strip()}{ENDC}")
-
-        print(f"\n{GREEN}Press any key to return to the menu...{ENDC}")
-        get_single_keypress()
     except Exception as e:
         print(f"\n{YELLOW}Error during checkout: {e}{ENDC}")
         print(f"{GREEN}Press any key to return to the menu...{ENDC}")

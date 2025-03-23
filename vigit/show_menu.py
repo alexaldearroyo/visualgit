@@ -691,7 +691,7 @@ def show_differences_between_branches(ask_for_enter=True):
 
         # Input usuario
         print(f"\n{YELLOW}Select first branch:{ENDC}")
-        user_input = input("Enter number (press enter to cancel): ").strip()
+        user_input = input("Enter number (<enter> to cancel): ").strip()
         if not user_input:
             print(f"\n{YELLOW}Operation cancelled.{ENDC}")
             # if ask_for_enter:
@@ -713,7 +713,7 @@ def show_differences_between_branches(ask_for_enter=True):
                 print(f"{idx + 1}. {CYAN}{b}{ENDC}")
 
         print(f"\n{YELLOW}Select second branch:{ENDC}")
-        user_input = input("Enter number (press enter to cancel): ").strip()
+        user_input = input("Enter number (<enter> to cancel): ").strip()
         if not user_input:
             print(f"\n{YELLOW}Operation cancelled.{ENDC}")
             # if ask_for_enter:

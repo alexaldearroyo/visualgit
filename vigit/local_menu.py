@@ -80,13 +80,11 @@ def local_menu_options():
         # Opciones de menú diferentes según si estamos en un repo o no
         if is_repo:
             menu_options = [
-                f"[s] {local_menu.SHOW_STATUS.value}",
-                f"[l] {local_menu.SHOW_LOCAL_REPO.value}",
-                f"[c] {local_menu.COMMIT_LOCAL.value}",
+                "[c] Commits",
                 "[␣] Back to previous menu",
                 "[q] Quit program"
             ]
-            accept_keys = ("enter", "s", "l", "c", " ", "q")
+            accept_keys = ("enter", "c", " ", "q")
         else:
             # Solo mostrar mensajes cuando no estamos en un repo
             print(f"{YELLOW}You need to create a local repository first.{ENDC}")
@@ -113,24 +111,98 @@ def local_menu_options():
             return
 
         # Procesamos la selección del menú
-        if menu_entry_index == 0 or chosen_key == "s":
-            show_status_long()
-            print(f"{GREEN}Press any key to return to the menu...{ENDC}")
-            get_single_keypress()
+        if menu_entry_index == 0 or chosen_key == "c":
+            clear_screen()
+            commits_submenu()
             clear_screen()
             continue
-        elif menu_entry_index == 1 or chosen_key == "l":
-            show_local_repo()
-            clear_screen()
-            continue
-        elif menu_entry_index == 2 or chosen_key == "c":
-            commit_to_local_repo()
-            clear_screen()
-            continue
-        elif menu_entry_index == 3:
+        elif menu_entry_index == 1:
             clear_screen()
             return
-        elif menu_entry_index == 4 or chosen_key == "q":
+        elif menu_entry_index == 2 or chosen_key == "q":
             quit()
         else:
             print("Invalid option. Please try again.")
+
+def commits_submenu():
+    """Muestra el submenú de opciones para commits"""
+    if not is_git_repo():
+        print_not_git_repo()
+        return
+
+    while True:
+        clear_screen()
+        print(f"{GREEN}COMMITS{ENDC}")
+
+        menu_options = [
+            "[c] Commit All changes",
+            "[␣] Back to previous menu",
+            "[q] Quit program"
+        ]
+        accept_keys = ("enter", "c", " ", "q")
+
+        terminal_menu = TerminalMenu(
+            menu_options,
+            title=f"Please select an option:",
+            menu_cursor=MENU_CURSOR,
+            menu_cursor_style=MENU_CURSOR_STYLE,
+            accept_keys=accept_keys
+        )
+
+        menu_entry_index = terminal_menu.show()
+        chosen_key = terminal_menu.chosen_accept_key
+
+        if chosen_key == " ":
+            clear_screen()
+            return
+
+        if menu_entry_index == 0 or chosen_key == "c":
+            commit_all_changes()
+            clear_screen()
+            continue
+        elif menu_entry_index == 1:
+            clear_screen()
+            return
+        elif menu_entry_index == 2 or chosen_key == "q":
+            quit()
+        else:
+            print("Invalid option. Please try again.")
+
+def commit_all_changes():
+    """Ejecuta 'git add .' y realiza un commit con el mensaje proporcionado por el usuario"""
+    if not is_git_repo():
+        print_not_git_repo()
+        return
+
+    clear_screen()
+    print(f"{GREEN}COMMIT ALL CHANGES{ENDC}")
+
+    try:
+        # Ejecutar git add .
+        subprocess.run(["git", "add", "."], check=True)
+
+        # Mostrar los archivos que se van a hacer commit
+        print(f"\n{BLUE}Files staged for commit:{ENDC}")
+        subprocess.run(["git", "status", "-s"], check=True)
+
+        # Solicitar mensaje de commit
+        print(f"\n{YELLOW}Enter commit message (<enter> to cancel):{ENDC}")
+        commit_msg = input("> ")
+
+        # Si el usuario presiona Enter sin escribir nada, cancelar
+        if not commit_msg:
+            print(f"\n{YELLOW}Commit cancelled.{ENDC}")
+            print(f"{GREEN}Press any key to return to the menu...{ENDC}")
+            get_single_keypress()
+            return
+
+        # Realizar el commit
+        subprocess.run(["git", "commit", "-m", commit_msg], check=True)
+
+        print(f"\n{GREEN}Changes committed successfully!{ENDC}")
+        print(f"{GREEN}Press any key to return to the menu...{ENDC}")
+        get_single_keypress()
+    except Exception as e:
+        print(f"\n{YELLOW}Error during commit process: {e}{ENDC}")
+        print(f"{GREEN}Press any key to return to the menu...{ENDC}")
+        get_single_keypress()

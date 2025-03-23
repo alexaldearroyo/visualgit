@@ -4,7 +4,7 @@ import termios
 import tty
 
 from simple_term_menu import TerminalMenu
-from .utils import GREEN, ENDC, BLUE, RED, YELLOW
+from .utils import CYAN, GREEN, ENDC, BLUE, ORANGE, RED, WHITE, YELLOW
 from .constants import add_menu, MENU_CURSOR, MENU_CURSOR_STYLE
 from .checks import is_git_repo, print_not_git_repo
 from .github_ops import create_github_repository, get_github_token, get_github_username
@@ -61,10 +61,10 @@ def add_tracked_files(ask_for_enter=True):
             return
 
         # Mostrar lista de archivos para añadir
-        print(f"\n{YELLOW}Select files to add (space to select, enter to confirm):{ENDC}")
+        print(f"{YELLOW}Select files to add ({ENDC}{WHITE}<tab> to select | <enter> to confirm | <q> to cancel{ENDC}{YELLOW}):{ENDC}")
 
         # Preparar opciones de menú con archivos y opciones adicionales
-        menu_options = files_to_add + ["[Add all files]", "[Cancel]"]
+        menu_options = files_to_add + ["[Add all files]"]
 
         terminal_menu = TerminalMenu(
             menu_options,
@@ -72,7 +72,7 @@ def add_tracked_files(ask_for_enter=True):
             menu_cursor=MENU_CURSOR,
             menu_cursor_style=MENU_CURSOR_STYLE,
             multi_select=True,
-            show_multi_select_hint=True,
+            show_multi_select_hint=False,
             clear_screen=False
         )
 
@@ -165,16 +165,16 @@ def add_expanded_files(ask_for_enter=True):
         if not files_to_add:
             print(f"\n{YELLOW}No files to add. Working tree clean.{ENDC}")
             if ask_for_enter:
-                print(f"\n{GREEN}Press any key to return to the menu...{ENDC}")
+                print(f"\n{CYAN}Press any key to return to the menu...{ENDC}")
                 get_single_keypress()
             return
 
         # Mostrar lista de archivos para añadir
-        print(f"\n{YELLOW}Select files to add (<tab> to select | <enter> to confirm | <q> to cancel):{ENDC}")
-        print(f"{BLUE}[M]{ENDC} - Modified, {BLUE}[?]{ENDC} - Untracked, {BLUE}[D]{ENDC} - Deleted\n")
+        print(f"{YELLOW}Select files to add ({ENDC}{WHITE}<tab> to select | <enter> to confirm | <q> to cancel{ENDC}{YELLOW}):{ENDC}")
+        print(f"{BLUE}[M]{ENDC} - Modified, {BLUE}[?]{ENDC} - Untracked, {BLUE}[D]{ENDC} - Deleted")
 
         # Preparar opciones de menú con archivos y opciones adicionales
-        menu_options = files_to_add + ["[Add all files]", "[Cancel]"]
+        menu_options = files_to_add + ["[Add all files]"]
 
         terminal_menu = TerminalMenu(
             menu_options,
@@ -191,9 +191,9 @@ def add_expanded_files(ask_for_enter=True):
         # Si no se seleccionó nada o se seleccionó Cancelar
         if not selected_indices or (len(selected_indices) == 1 and selected_indices[0] == len(menu_options) - 1):
             print(f"\n{YELLOW}Operation cancelled. No files were added.{ENDC}")
-            if ask_for_enter:
-                print(f"\n{GREEN}Press any key to return to the menu...{ENDC}")
-                get_single_keypress()
+            # if ask_for_enter:
+            #     print(f"\n{GREEN}Press any key to return to the menu...{ENDC}")
+            #     get_single_keypress()
             return
 
         # Si se seleccionó "Add all files"

@@ -409,7 +409,7 @@ def commit_tracked_changes():
         subprocess.run(["git", "commit", "-m", commit_msg], check=True)
 
         print(f"\n{GREEN}Changes committed successfully!{ENDC}")
-        print(f"{GREEN}Press any key to return to the menu...{ENDC}")
+        print(f"\n{GREEN}Press any key to return to the menu...{ENDC}")
         get_single_keypress()
 
     except Exception as e:

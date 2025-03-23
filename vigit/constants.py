@@ -111,6 +111,7 @@ class history_menu(Enum):
 class differences_menu(Enum):
     NON_STAGED_DIFFERENCES = 'Show Differences of non staged files'
     STAGED_DIFFERENCES = 'Show Differences of Added files'
+    SELECTED_COMMIT_DIFFERENCES = 'Show differences of selected commit'
     COMMIT_TO_COMMIT_DIFFERENCES = 'Show Differences Between Commits'
     BRANCH_TO_BRANCH_DIFFERENCES = 'Show Differences Between Branches'
 

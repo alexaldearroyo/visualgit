@@ -932,6 +932,78 @@ def show_branches(ask_for_enter=True):
             print(f"{GREEN}Press any key to return to the menu...{ENDC}")
             get_single_keypress()
 
+def show_differences_of_commit(ask_for_enter=True):
+    """Muestra las diferencias del commit seleccionado usando git show"""
+    if not is_git_repo():
+        print_not_git_repo()
+        return
+
+    try:
+        clear_screen()
+        print(f"\n{BLUE}Show differences of selected commit:{ENDC}\n")
+
+        # Verificar si hay commits
+        has_commits = subprocess.run(
+            ["git", "rev-parse", "--verify", "HEAD"],
+            capture_output=True,
+            text=True
+        ).returncode == 0
+
+        if not has_commits:
+            print(f"{YELLOW}No commits yet in this repository.{ENDC}")
+            if ask_for_enter:
+                print(f"\n{GREEN}Press any key to return to the menu...{ENDC}")
+                get_single_keypress()
+            return
+
+        # Mostrar algunos commits recientes para referencia
+        print(f"{YELLOW}Recent commits (for reference):{ENDC}")
+        subprocess.run(
+            ["git", "log", "--oneline", "--max-count=5"],
+            check=True
+        )
+        print()
+
+        # Solicitar hash del commit
+        print(f"{YELLOW}Enter commit hash (<enter> to cancel):{ENDC}")
+        commit_hash = input("> ").strip()
+
+        if not commit_hash:
+            print(f"\n{YELLOW}Operation cancelled.{ENDC}")
+            if ask_for_enter:
+                print(f"{GREEN}Press any key to return to the menu...{ENDC}")
+                get_single_keypress()
+            return
+
+        # Ejecutar git show para el commit específico
+        print(f"\n{BLUE}Showing differences for commit {commit_hash}:{ENDC}\n")
+
+        # Verificar si el commit existe
+        commit_exists = subprocess.run(
+            ["git", "cat-file", "-e", f"{commit_hash}^{{commit}}"],
+            capture_output=True
+        ).returncode == 0
+
+        if not commit_exists:
+            print(f"{YELLOW}Commit {commit_hash} not found.{ENDC}")
+            if ask_for_enter:
+                print(f"\n{GREEN}Press any key to return to the menu...{ENDC}")
+                get_single_keypress()
+            return
+
+        # Mostrar el commit con diff-so-fancy
+        subprocess.run(
+            f"git show {commit_hash} | diff-so-fancy | less -RX",
+            shell=True,
+            check=True
+        )
+
+    except Exception as e:
+        print(f"Error showing commit differences: {e}")
+        if ask_for_enter:
+            print(f"{GREEN}Press any key to return to the menu...{ENDC}")
+            get_single_keypress()
+
 def show_differences():
     """Muestra el submenú de diferencias"""
     if not is_git_repo():
@@ -944,6 +1016,7 @@ def show_differences():
         menu_options = [
             f"[d] {differences_menu.NON_STAGED_DIFFERENCES.value}",
             f"[a] {differences_menu.STAGED_DIFFERENCES.value}",
+            f"[s] {differences_menu.SELECTED_COMMIT_DIFFERENCES.value}",
             f"[c] {differences_menu.COMMIT_TO_COMMIT_DIFFERENCES.value}",
             f"[b] {differences_menu.BRANCH_TO_BRANCH_DIFFERENCES.value}",
             "[␣] Back to previous menu",
@@ -955,7 +1028,7 @@ def show_differences():
             title=f"Please select an option:",
             menu_cursor=MENU_CURSOR,
             menu_cursor_style=MENU_CURSOR_STYLE,
-            accept_keys=("enter", "d", "a", "c", "b", " ", "q")
+            accept_keys=("enter", "d", "a", "s", "c", "b", " ", "q")
         )
 
         menu_entry_index = terminal_menu.show()
@@ -975,18 +1048,22 @@ def show_differences():
             show_differences_staged()
             clear_screen()
             continue
-        elif menu_entry_index == 2 or chosen_key == "c":
+        elif menu_entry_index == 2 or chosen_key == "s":
+            show_differences_of_commit()
+            clear_screen()
+            continue
+        elif menu_entry_index == 3 or chosen_key == "c":
             show_differences_between_commits()
             clear_screen()
             continue
-        elif menu_entry_index == 3 or chosen_key == "b":
+        elif menu_entry_index == 4 or chosen_key == "b":
             show_differences_between_branches()
             clear_screen()
             continue
-        elif menu_entry_index == 4:
+        elif menu_entry_index == 5:
             clear_screen()
             return
-        elif menu_entry_index == 5 or chosen_key == "q":
+        elif menu_entry_index == 6 or chosen_key == "q":
             quit()
         else:
             print("Invalid option. Please try again.")
@@ -1044,6 +1121,39 @@ def show_status_short(ask_for_enter=True):
 
     except Exception as e:
         print(f"Error getting status: {e}")
+
+def show_basic_status(ask_for_enter=True):
+    """Muestra un status básico del repositorio"""
+    if not is_git_repo():
+        print_not_git_repo()
+        return
+
+    try:
+        # Capturar la salida del comando git status -s
+        result = subprocess.run(
+            ["git", "status", "-s"],
+            capture_output=True,
+            text=True,
+            check=True
+        )
+        status = result.stdout.strip()
+
+        print(f"\n{BLUE}Status:{ENDC}")
+        if status:
+            # Usar el comando directamente para preservar colores
+            subprocess.run(["git", "status", "-s"], check=True)
+        else:
+            print("Working tree clean")
+        print()
+
+        if ask_for_enter:
+            print(f"{GREEN}Press any key to return to the menu...{ENDC}")
+            get_single_keypress()
+    except Exception as e:
+        print(f"Error getting status: {e}")
+        if ask_for_enter:
+            print(f"{GREEN}Press any key to return to the menu...{ENDC}")
+            get_single_keypress()
 
 def show_menu_options():
     from .constants import show_menu

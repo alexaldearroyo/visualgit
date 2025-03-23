@@ -627,3 +627,136 @@ def go_to_branch_force():
             print("No local branches found. Create one to continue.")
     except Exception as e:
         print(f"Error switching branches: {e}")
+
+def go_to_specific_branch(branch_name):
+    """Cambia a una rama específica proporcionada como parámetro"""
+    if not is_git_repo():
+        print_not_git_repo()
+        return
+
+    try:
+        # Comprobar si la rama existe
+        result = subprocess.run(
+            ["git", "branch"],
+            capture_output=True,
+            text=True
+        )
+
+        if result.returncode != 0:
+            print(f"{YELLOW}Error al obtener las ramas: {result.stderr.strip()}{ENDC}")
+            return
+
+        all_branches = [branch.replace('*', '').strip() for branch in result.stdout.strip().split('\n') if branch.strip()]
+
+        if branch_name not in all_branches:
+            print(f"{YELLOW}La rama '{branch_name}' no existe en este repositorio.{ENDC}")
+            print(f"{BLUE}Ramas disponibles:{ENDC}")
+            for branch in all_branches:
+                print(f"- {branch}")
+            return
+
+        # Intentar cambiar a la rama
+        checkout_result = subprocess.run(
+            ["git", "checkout", branch_name],
+            capture_output=True,
+            text=True
+        )
+
+        # Verificar si el checkout fue exitoso
+        if checkout_result.returncode != 0:
+            print(f"{YELLOW}No se pudo cambiar a la rama {branch_name}: {checkout_result.stderr.strip()}{ENDC}")
+
+            # Verificar si el error se debe a cambios locales no confirmados
+            if "local changes" in checkout_result.stderr or "cambios locales" in checkout_result.stderr:
+                # Manejar cambios no confirmados
+                commit_choice = input(f"\n¿Desea confirmar sus cambios antes de cambiar de rama? (y/n): ").lower()
+
+                if commit_choice == 'y' or commit_choice == 's':
+                    # Confirmar los cambios
+                    commit_msg = input(f"\nMensaje de commit: ")
+
+                    # Añadir todos los cambios
+                    add_result = subprocess.run(
+                        ["git", "add", "."],
+                        capture_output=True,
+                        text=True
+                    )
+
+                    if add_result.returncode != 0:
+                        print(f"{YELLOW}Error al añadir cambios: {add_result.stderr.strip()}{ENDC}")
+                        return
+
+                    # Commit
+                    commit_result = subprocess.run(
+                        ["git", "commit", "-m", commit_msg],
+                        capture_output=True,
+                        text=True
+                    )
+
+                    if commit_result.returncode != 0:
+                        print(f"{YELLOW}Error al hacer commit: {commit_result.stderr.strip()}{ENDC}")
+                        return
+
+                    print(f"{GREEN}Commit realizado con éxito.{ENDC}")
+
+                    # Intentar cambiar a la rama nuevamente
+                    checkout_result = subprocess.run(
+                        ["git", "checkout", branch_name],
+                        capture_output=True,
+                        text=True
+                    )
+
+                    if checkout_result.returncode != 0:
+                        print(f"{YELLOW}Todavía no se puede cambiar a la rama {branch_name}: {checkout_result.stderr.strip()}{ENDC}")
+                        return
+                else:
+                    print(f"{YELLOW}Operación cancelada. Confirme o guarde sus cambios antes de cambiar de rama.{ENDC}")
+                    return
+            else:
+                # Otro tipo de error
+                return
+
+        # Mostrar información sobre la rama después del checkout
+        print(f"{GREEN}Cambiado correctamente a la rama {branch_name}.{ENDC}")
+
+        # Mostrar información adicional de la rama
+        try:
+            # Último commit en esta rama
+            last_commit = subprocess.run(
+                ["git", "log", "-1", "--oneline"],
+                capture_output=True,
+                text=True
+            ).stdout.strip()
+
+            # Información de seguimiento de la rama
+            tracking_info = subprocess.run(
+                ["git", "for-each-ref", "--format='%(upstream:short)'", f"refs/heads/{branch_name}"],
+                capture_output=True,
+                text=True
+            ).stdout.strip().replace("'", "")
+
+            print(f"{GREEN}Último commit:{ENDC} {last_commit if last_commit else 'No hay commits aún'}")
+
+            if tracking_info:
+                print(f"{GREEN}Siguiendo:{ENDC} {tracking_info}")
+            else:
+                print(f"{YELLOW}No sigue ninguna rama remota{ENDC}")
+
+            # Verificar si estamos en un estado detached HEAD
+            is_detached = subprocess.run(
+                ["git", "symbolic-ref", "-q", "HEAD"],
+                capture_output=True
+            ).returncode != 0
+
+            if is_detached:
+                print(f"\n{YELLOW}No estás en ninguna rama (estado detached HEAD){ENDC}")
+                print(f"\n{BLUE}¿Qué puedes hacer ahora?:{ENDC}")
+                print(f"- {GREEN}Branches > Go to branch{ENDC} para cambiar sin guardar los cambios")
+                print(f"- {GREEN}Add > Branch{ENDC} para cambiar a una nueva rama con los cambios guardados")
+
+        except Exception as e:
+            # Si no podemos obtener información adicional, simplemente continuamos
+            pass
+
+    except Exception as e:
+        print(f"{YELLOW}Error: {e}{ENDC}")

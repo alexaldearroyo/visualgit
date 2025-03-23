@@ -14,10 +14,10 @@ from simple_term_menu import TerminalMenu
 
 from .utils import BG_BLUE, YELLOW, GREEN, ENDC, BOLD, BG_PURPLE, BLACK_TEXT, WHITE_TEXT, BLUE
 from .constants import start_menu, main_menu, main_local_menu, main_remote_menu, branch_local_menu, branch_remote_menu, manage_branch_menu, updated_start_menu, MENU_CURSOR, MENU_CURSOR_STYLE, show_menu, add_menu, local_menu
-from .checks import is_git_installed, is_git_repo, print_not_git_repo, current_branch, get_current_branch, is_current_branch_main
+from .checks import is_git_installed, is_git_repo, print_not_git_repo, current_branch, get_current_branch, is_current_branch_main, check_remote_repo
 from .menu import work_in_main, create_local_repo, commit_to_local_repo, commit_and_push, main_local, main_remote, create_remote_repo
-from .show_menu import show_menu_options, show_status_long, general_view, show_detailed_history, show_expanded_history, show_tracking_history, show_differences_history, show_local_repo, show_remote_repo, show_branches, show_differences_non_staged, show_differences_staged, show_differences_between_commits, show_differences_between_branches, show_status_short
-from .branx_local import go_to_branch, go_to_main, create_local_branch, create_branch_with_name, create_branch_and_switch
+from .show_menu import show_menu_options, show_status_long, general_view, show_detailed_history, show_expanded_history, show_tracking_history, show_differences_history, show_local_repo, show_remote_repo, show_branches, show_differences_non_staged, show_differences_staged, show_differences_between_commits, show_differences_between_branches, show_status_short, show_basic_status
+from .branx_local import go_to_branch, go_to_main, create_local_branch, create_branch_with_name, create_branch_and_switch, go_to_specific_branch
 from .branx_remote import commit_and_push_in_branch, push_changes_to_remote_branch, create_remote_branch
 from .branx_manage import merge_branches, manage_branches, merge_with_main, merge_with_selected_branch
 from .branx import work_in_branches
@@ -92,6 +92,11 @@ def handle_args():
 
     # Command: vg g (goto branch)
     g_parser = subparsers.add_parser('g', help='Quick action: Go to a different branch')
+    g_parser.add_argument('branch_name', nargs='?', help='Branch name to checkout')
+
+    # Command: vg gb (alias for goto branch)
+    gb_parser = subparsers.add_parser('gb', help='Quick action: Go to a different branch (alias of g)')
+    gb_parser.add_argument('branch_name', nargs='?', help='Branch name to checkout')
 
     # Command: vg m (merge with main)
     m_parser = subparsers.add_parser('m', help='Quick action: Merge current branch with main')
@@ -379,7 +384,18 @@ def main():
             merge_branches()
             return
         elif args.command == 'g':
-            go_to_branch()
+            branch_name = getattr(args, 'branch_name', None)
+            if branch_name:
+                go_to_specific_branch(branch_name)
+            else:
+                go_to_branch()
+            return
+        elif args.command == 'gb':
+            branch_name = getattr(args, 'branch_name', None)
+            if branch_name:
+                go_to_specific_branch(branch_name)
+            else:
+                go_to_branch()
             return
         elif args.command == 'm':
             merge_with_main()

@@ -133,3 +133,15 @@ def has_stash():
         return bool(result.stdout.strip())
     except Exception:
         return False
+
+def check_remote_repo():
+    """Verifica si el repositorio local está conectado a un remoto"""
+    try:
+        result = subprocess.run(
+            ["git", "remote", "-v"],
+            capture_output=True,
+            text=True
+        )
+        return bool(result.stdout.strip())
+    except Exception:
+        return False

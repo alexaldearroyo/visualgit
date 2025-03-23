@@ -322,7 +322,7 @@ def commit_all_changes():
         subprocess.run(["git", "commit", "-m", commit_msg], check=True)
 
         print(f"\n{GREEN}Changes committed successfully!{ENDC}")
-        print(f"{GREEN}Press any key to return to the menu...{ENDC}")
+        print(f"\n{GREEN}Press any key to return to the menu...{ENDC}")
         get_single_keypress()
     except Exception as e:
         print(f"\n{YELLOW}Error during commit process: {e}{ENDC}")
@@ -409,7 +409,7 @@ def commit_tracked_changes():
         subprocess.run(["git", "commit", "-m", commit_msg], check=True)
 
         print(f"\n{GREEN}Changes committed successfully!{ENDC}")
-        print(f"{GREEN}Press any key to return to the menu...{ENDC}")
+        print(f"\n{GREEN}Press any key to return to the menu...{ENDC}")
         get_single_keypress()
 
     except Exception as e:
@@ -459,7 +459,7 @@ def commit_tracked_files():
         subprocess.run(["git", "commit", "-a", "-m", commit_msg], check=True)
 
         print(f"\n{GREEN}Changes committed successfully!{ENDC}")
-        print(f"{GREEN}Press any key to return to the menu...{ENDC}")
+        print(f"\n{GREEN}Press any key to return to the menu...{ENDC}")
         get_single_keypress()
     except Exception as e:
         print(f"\n{YELLOW}Error during commit process: {e}{ENDC}")

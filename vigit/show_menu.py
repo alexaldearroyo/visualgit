@@ -352,9 +352,9 @@ def show_expanded_history(ask_for_enter=True):
             "--all",
             "--pretty=format:%C(yellow)%h%Creset%C(auto)%d%Creset %C(cyan)%an%Creset %C(magenta)%ar%Creset%n  %C(white)%s%Creset",
             "--decorate=short",
-            "--date=relative"
+            "--date=relative",
         ])
-
+        print()
         # if ask_for_enter:
         #     print(f"\n{GREEN}Press any key to return to the menu...{ENDC}")
         #     get_single_keypress()

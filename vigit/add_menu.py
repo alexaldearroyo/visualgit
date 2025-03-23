@@ -4,7 +4,7 @@ import termios
 import tty
 
 from simple_term_menu import TerminalMenu
-from .utils import CYAN, GREEN, ENDC, BLUE, ORANGE, RED, WHITE, YELLOW
+from .utils import CYAN, GREEN, ENDC, BLUE, ORANGE, RED, WHITE, YELLOW, DARK_BLUE, MAGENTA
 from .constants import add_menu, MENU_CURSOR, MENU_CURSOR_STYLE
 from .checks import is_git_repo, print_not_git_repo
 from .github_ops import create_github_repository, get_github_token, get_github_username
@@ -648,6 +648,48 @@ def add_menu_options():
                 # No mostrar el error, solo manejar silenciosamente esta situación
                 print(f"\n{YELLOW}No commit history available.{ENDC}")
                 print()  # Añadir línea en blanco
+
+            # Verificar si estamos en estado detached HEAD
+            try:
+                is_detached = subprocess.run(
+                    ["git", "symbolic-ref", "-q", "HEAD"],
+                    capture_output=True
+                ).returncode != 0
+
+                # Si estamos en estado detached HEAD, mostrar el mensaje persistentemente
+                if is_detached:
+                    # Obtener información del commit actual
+                    commit_info = subprocess.run(
+                        ["git", "log", "-1", "--pretty=format:%h|%s|%cr", "HEAD"],
+                        capture_output=True,
+                        text=True
+                    ).stdout.strip().split('|')
+
+                    if len(commit_info) >= 3:
+                        commit_hash, commit_msg, commit_time = commit_info
+
+                        print(f"{YELLOW}You are not in any branch (detached HEAD state):{ENDC}")
+                        print(f"{YELLOW}● {commit_hash}{ENDC} {DARK_BLUE}►{ENDC} {WHITE}{commit_msg}{ENDC} {MAGENTA}({commit_time}){ENDC}")
+                        print(f"\n{BLUE}What you can do now:{ENDC}")
+                        print(f"- {GREEN}Branches > Go to branch{ENDC} to checkout without saving changes")
+                        print(f"- {GREEN}Add > Branch{ENDC} to checkout in a new branch with saved changes")
+                        print()
+                    else:
+                        # Si no se puede obtener información detallada, mostrar mensaje más simple
+                        commit_hash = subprocess.run(
+                            ["git", "rev-parse", "--short", "HEAD"],
+                            capture_output=True,
+                            text=True
+                        ).stdout.strip()
+
+                        print(f"{YELLOW}You are not in any branch (detached HEAD state) - at commit {commit_hash}{ENDC}")
+                        print(f"\n{BLUE}What you can do now:{ENDC}")
+                        print(f"- {GREEN}Branches > Go to branch{ENDC} to checkout without saving changes")
+                        print(f"- {GREEN}Add > Branch{ENDC} to checkout in a new branch with saved changes")
+                        print()
+            except Exception:
+                # Si hay cualquier error, simplemente continuamos sin mostrar el mensaje
+                pass
         else:
             # Mensaje amigable para indicar que no estamos en un repositorio
             print(f"\n{YELLOW}Not in a Git repository. You can create one with 'Add Local Repo'.{ENDC}\n")
